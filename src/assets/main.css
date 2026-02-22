@@ -1,0 +1,16 @@
+/*
+  main.css — Finca Valerio
+  Tailwind maneja la mayoría de estilos.
+  Aquí solo va lo que Tailwind no puede hacer via CDN.
+*/
+
+/* Reset de box-model */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Scrollbar sutil */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D3D3D3; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #556B2F; }
