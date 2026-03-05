@@ -28,6 +28,14 @@
         </div>
         <div class="module-arrow">→</div>
       </RouterLink>
+      <RouterLink to="/ciclos" class="module-card">
+  <div class="module-icon">🔄</div>
+  <div class="module-info">
+    <h3>Ciclo Celo</h3>
+    <p>Control y seguimiento del ciclo reproductivo</p>
+  </div>
+  <div class="module-arrow">→</div>
+</RouterLink>
     </div>
   </div>
 </template>
