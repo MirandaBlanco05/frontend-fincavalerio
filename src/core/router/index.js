@@ -1,6 +1,8 @@
 // src/core/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 
+const CicloCeloIndex = () => import('@/modules/cicloCelo/views/CicloCeloIndex.vue')
+const CicloCeloForm  = () => import('@/modules/cicloCelo/views/CicloCeloForm.vue')
 const Login           = () => import('@/modules/login/views/Login.vue')
 const Dashboard       = () => import('@/views/Dashboard.vue')
 const BovinoIndex     = () => import('@/modules/bovino/views/BovinoIndex.vue')
@@ -31,6 +33,13 @@ const routes = [
     ]
   },
 
+ {
+  path: '/ciclos',
+  component: CicloCeloIndex,
+  children: [
+    { path: '', name: 'Ciclos', component: CicloCeloForm }
+  ]
+},
   { path: '/:pathMatch(.*)*', redirect: '/login' }
 ]
 
