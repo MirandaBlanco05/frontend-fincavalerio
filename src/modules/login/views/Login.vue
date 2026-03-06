@@ -1,125 +1,108 @@
 <template>
   <div class="login-root">
 
-    <!-- Panel izquierdo: visual -->
-    <div class="panel-left">
-      <div class="panel-left__overlay"></div>
+    <!-- Card centrada -->
+    <div class="login-card">
 
-      <!-- Círculos decorativos -->
-      <div class="deco-circles">
-        <div class="circle c1"></div>
-        <div class="circle c2"></div>
-        <div class="circle c3"></div>
-      </div>
-
-      <!-- Brand arriba -->
-      <div class="brand">
-        <span class="material-symbols-outlined brand__icon">grass</span>
-        <span class="brand__name">Finca Valerio</span>
-      </div>
-
-      <!-- Headline centro -->
-      <div class="panel-left__headline">
-        <h1>Gestión<br/>inteligente<br/>de tu finca.</h1>
-        <p>Control total de bovinos, producción,<br/>visitas veterinarias y más.</p>
-      </div>
-
-      <!-- Stats abajo -->
-      <div class="stats-row">
-        <div class="stat">
-          <span class="stat__num">256</span>
-          <span class="stat__label">Animales</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat">
-          <span class="stat__num">98%</span>
-          <span class="stat__label">Supervivencia</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat">
-          <span class="stat__num">42</span>
-          <span class="stat__label">Nacimientos</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Panel derecho: formulario -->
-    <div class="panel-right">
-      <div class="form-wrapper">
-
-        <!-- Logo mobile -->
-        <div class="brand brand--mobile">
-          <span class="material-symbols-outlined brand__icon brand__icon--green">grass</span>
-          <span class="brand__name brand__name--dark">Finca Valerio</span>
+      <!-- Panel verde izquierdo -->
+      <div class="panel-verde">
+        <div class="brand">
+          <span class="material-symbols-outlined">agriculture</span>
+          <span class="brand-text">Finca Valerio</span>
         </div>
 
-        <div class="form-header">
-          <h2>Bienvenido</h2>
-          <p>Ingresa tus credenciales para continuar</p>
-        </div>
-
-        <!-- Error -->
-        <div v-if="error" class="alert-error">
-          <span class="material-symbols-outlined">error</span>
-          {{ error }}
-        </div>
-
-        <form @submit.prevent="handleLogin" class="form" novalidate>
-
-          <!-- Usuario -->
-          <div class="field" :class="{ 'field--error': errors.usuario, 'field--focus': focus.usuario }">
-            <label for="usuario">Usuario</label>
-            <div class="field__input-wrap">
-              <span class="material-symbols-outlined field__icon">person</span>
-              <input
-                id="usuario"
-                v-model="form.usuario"
-                type="text"
-                placeholder="Tu nombre de usuario"
-                autocomplete="username"
-                @focus="focus.usuario = true"
-                @blur="focus.usuario = false"
-              />
-            </div>
-            <span v-if="errors.usuario" class="field__msg">{{ errors.usuario }}</span>
-          </div>
-
-          <!-- Contraseña -->
-          <div class="field" :class="{ 'field--error': errors.contrasena, 'field--focus': focus.contrasena }">
-            <label for="contrasena">Contraseña</label>
-            <div class="field__input-wrap">
-              <span class="material-symbols-outlined field__icon">lock</span>
-              <input
-                id="contrasena"
-                v-model="form.contrasena"
-                :type="showPass ? 'text' : 'password'"
-                placeholder="Tu contraseña"
-                autocomplete="current-password"
-                @focus="focus.contrasena = true"
-                @blur="focus.contrasena = false"
-              />
-              <button type="button" class="field__toggle" @click="showPass = !showPass" tabindex="-1">
-                <span class="material-symbols-outlined">{{ showPass ? 'visibility_off' : 'visibility' }}</span>
-              </button>
-            </div>
-            <span v-if="errors.contrasena" class="field__msg">{{ errors.contrasena }}</span>
-          </div>
-
-          <!-- Submit -->
-          <button type="submit" class="btn-submit" :disabled="cargando">
-            <span v-if="!cargando" class="btn-submit__content">
-              <span>Ingresar</span>
-              <span class="material-symbols-outlined">arrow_forward</span>
-            </span>
-            <span v-else class="btn-submit__spinner"></span>
-          </button>
-
-        </form>
-
-        <p class="form-footer">
-          ¿Problemas para ingresar? Contacta al administrador.
+        <h2 class="hero-title">Gestión inteligente de tu finca.</h2>
+        <p class="hero-desc">
+          Optimiza el rendimiento y control de tu propiedad rural con tecnología de 
+          vanguardia y análisis en tiempo real.
         </p>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <p class="stat-label">ANIMALES</p>
+            <p class="stat-value">256</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-label">HECTÁREAS</p>
+            <p class="stat-value">1,420</p>
+          </div>
+        </div>
       </div>
+
+      <!-- Panel blanco derecho -->
+      <div class="panel-blanco">
+        <div class="form-wrapper">
+
+          <div class="form-header">
+            <h3 class="form-title">Bienvenido</h3>
+            <p class="form-subtitle">Ingresa tus credenciales para acceder al panel de control.</p>
+          </div>
+
+          <!-- Alerta error -->
+          <div v-if="error" class="alert-error">
+            <span class="material-symbols-outlined">error</span>
+            {{ error }}
+          </div>
+
+          <form @submit.prevent="iniciarSesion">
+
+            <!-- Usuario -->
+            <div class="form-group">
+              <label class="form-label">USUARIO</label>
+              <div class="input-wrapper">
+                <span class="material-symbols-outlined input-icon">person</span>
+                <input 
+                  v-model="form.usuario" 
+                  type="text" 
+                  placeholder="ej. jvalerio"
+                  class="form-input"
+                  required
+                  :disabled="cargando"
+                />
+              </div>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="form-group">
+              <div class="label-row">
+                <label class="form-label">CONTRASEÑA</label>
+                <button type="button" class="link-forgot">¿Olvidaste tu contraseña?</button>
+              </div>
+              <div class="input-wrapper">
+                <span class="material-symbols-outlined input-icon">lock</span>
+                <input 
+                  v-model="form.contrasena"
+                  :type="mostrarPassword ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  class="form-input"
+                  required
+                  :disabled="cargando"
+                />
+                <button 
+                  type="button" 
+                  @click="mostrarPassword = !mostrarPassword"
+                  class="btn-toggle-password">
+                  <span class="material-symbols-outlined">
+                    {{ mostrarPassword ? 'visibility_off' : 'visibility' }}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+          
+            <!-- Botón -->
+            <button type="submit" :disabled="cargando" class="btn-submit">
+              <span v-if="cargando" class="spinner"></span>
+              {{ cargando ? 'Iniciando...' : 'INICIAR SESIÓN' }}
+            </button>
+
+          </form>
+
+          <p class="copyright">© 2024 FINCA VALERIO. TODOS LOS DERECHOS RESERVADOS.</p>
+
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -131,37 +114,36 @@ import { useRouter } from 'vue-router'
 import api from '@/core/api/axios.js'
 
 const router = useRouter()
+const cargando = ref(false)
+const error = ref('')
+const mostrarPassword = ref(false)
+const recordarSesion = ref(false)
 
-const form      = reactive({ usuario: '', contrasena: '' })
-const errors    = reactive({ usuario: '', contrasena: '' })
-const focus     = reactive({ usuario: false, contrasena: false })
-const error     = ref('')
-const cargando  = ref(false)
-const showPass  = ref(false)
+const form = reactive({
+  usuario: '',
+  contrasena: ''
+})
 
-function validar() {
-  errors.usuario   = ''
-  errors.contrasena = ''
-  let ok = true
-  if (!form.usuario.trim())   { errors.usuario   = 'El usuario es obligatorio';   ok = false }
-  if (!form.contrasena.trim()){ errors.contrasena = 'La contraseña es obligatoria'; ok = false }
-  return ok
-}
-
-async function handleLogin() {
+async function iniciarSesion() {
   error.value = ''
-  if (!validar()) return
   cargando.value = true
+
   try {
     const { data } = await api.post('/login', {
       Usuario: form.usuario,
       Contrasena: form.contrasena
     })
-    localStorage.setItem('usuario',      data.usuario)
-    localStorage.setItem('tipo_usuario', data.tipo)
+
+    // Guardar sesión
+    localStorage.setItem('usuario', data.Usuario)
+    localStorage.setItem('tipo_usuario', data.Tipo_usuario)
+
+    // Redirigir al dashboard
     router.push('/dashboard')
-  } catch (e) {
-    error.value = e.response?.data?.error || 'Error al iniciar sesión'
+
+  } catch (err) {
+    error.value = err.response?.data?.mensaje || 'Usuario o contraseña incorrectos'
+    console.error('Error login:', err)
   } finally {
     cargando.value = false
   }
@@ -169,326 +151,398 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Manrope:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  font-style: normal;
-  display: inline-block;
-  line-height: 1;
-  vertical-align: middle;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
 
-/* ── Root layout ──────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .login-root {
+  min-height: 100vh;
   display: flex;
-  min-height: 100dvh;
-  font-family: 'Manrope', sans-serif;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8edf2 100%);
+  font-family: 'DM Sans', sans-serif;
+  padding: 2rem;
 }
 
-/* ── Panel izquierdo ──────────────────────── */
-.panel-left {
-  position: relative;
-  flex: 0 0 52%;
-  background: linear-gradient(155deg, #1a3a1a 0%, #2d5a2d 45%, #4c9a4c 100%);
+.login-card {
+  display: flex;
+  width: 100%;
+  max-width: 1100px;
+  background: white;
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: 
+    0 20px 60px rgba(0,0,0,0.08),
+    0 4px 16px rgba(0,0,0,0.04);
+}
+
+/* ── Panel Verde ───────────────────────── */
+.panel-verde {
+  flex: 1;
+  background: linear-gradient(165deg, #2d5a2d 0%, #3d7a3d 50%, #4c9a4c 100%);
+  padding: 3rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 3rem;
-  min-height: 100dvh;
+  color: white;
 }
 
-.panel-left__overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 15% 15%, rgba(76,154,76,0.25) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 85%, rgba(110,66,12,0.2)  0%, transparent 50%);
-  pointer-events: none;
-}
-
-/* Círculos decorativos */
-.deco-circles { position: absolute; inset: 0; pointer-events: none; }
-.circle { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,0.07); }
-.c1 { width: 500px; height: 500px; top: -160px; right: -160px; }
-.c2 { width: 300px; height: 300px; top: -60px;  right: -60px;  border-color: rgba(255,255,255,0.11); }
-.c3 { width: 200px; height: 200px; bottom: 100px; left: -70px; }
-
-/* Brand */
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
 }
 
-.brand__icon {
-  font-size: 1.9rem;
-  color: #a8d5a8;
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+.brand .material-symbols-outlined {
+  font-size: 1.8rem;
+  font-variation-settings: 'FILL' 1;
 }
 
-.brand__icon--green  { color: #4c9a4c; }
-
-.brand__name {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.2rem;
+.brand-text {
+  font-size: 1.1rem;
   font-weight: 700;
-  color: white;
 }
 
-.brand__name--dark { color: #1a1a1a; }
-
-.brand--mobile { display: none; }
-
-/* Headline */
-.panel-left__headline {
-  position: relative;
-  z-index: 1;
-}
-
-.panel-left__headline h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2.4rem, 3.8vw, 3.4rem);
+.hero-title {
+  font-size: 2rem;
   font-weight: 800;
-  color: #fff;
-  line-height: 1.1;
-  margin-bottom: 1.1rem;
-  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
 }
 
-.panel-left__headline p {
-  font-size: 0.93rem;
-  color: rgba(255,255,255,0.6);
-  line-height: 1.7;
-  font-weight: 500;
+.hero-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  opacity: 0.9;
+  margin-bottom: auto;
 }
 
-/* Stats */
-.stats-row {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.2rem 1.5rem;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 1rem;
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+.stat-card {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
   backdrop-filter: blur(8px);
-  position: relative;
-  z-index: 1;
 }
 
-.stat { display: flex; flex-direction: column; gap: 3px; }
-
-.stat__num {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.6rem;
+.stat-label {
+  font-size: 0.7rem;
   font-weight: 800;
-  color: #fff;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
   line-height: 1;
 }
 
-.stat__label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: rgba(255,255,255,0.45);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.stat-divider {
-  width: 1px;
-  height: 34px;
-  background: rgba(255,255,255,0.15);
-  flex-shrink: 0;
-}
-
-/* ── Panel derecho ────────────────────────── */
-.panel-right {
+/* ── Panel Blanco ──────────────────────── */
+.panel-blanco {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  background: #fafaf8;
+  padding: 3rem 2.5rem;
+  background: white;
 }
 
-.form-wrapper { width: 100%; max-width: 420px; }
+.form-wrapper {
+  width: 100%;
+  max-width: 400px;
+}
 
-.form-header { margin-bottom: 2rem; }
+.form-header {
+  margin-bottom: 2rem;
+}
 
-.form-header h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.1rem;
+.form-title {
+  font-size: 1.75rem;
   font-weight: 800;
   color: #1a1a1a;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
 }
 
-.form-header p {
-  font-size: 0.88rem;
+.form-subtitle {
+  font-size: 0.9rem;
   color: #6b7280;
-  font-weight: 500;
+  line-height: 1.5;
 }
 
-/* Alert error */
+/* Alerta */
 .alert-error {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 0.85rem 1rem;
   background: #fef2f2;
   border: 1px solid #fecaca;
+  border-radius: 10px;
   color: #b91c1c;
-  font-size: 0.83rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.5rem;
 }
-.alert-error .material-symbols-outlined { font-size: 1rem; }
+
+.alert-error .material-symbols-outlined {
+  font-size: 1.1rem;
+}
 
 /* Form */
-.form { display: flex; flex-direction: column; gap: 1.2rem; }
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
 
-/* Field */
-.field { display: flex; flex-direction: column; gap: 6px; }
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-.field label {
-  font-size: 0.72rem;
-  font-weight: 700;
+.form-label {
+  font-size: 0.7rem;
+  font-weight: 800;
   color: #374151;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-.field__input-wrap {
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.link-forgot {
+  font-size: 0.8rem;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.link-forgot:hover {
+  color: #4c9a4c;
+}
+
+.input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.field__icon {
+.input-icon {
   position: absolute;
-  left: 14px;
-  font-size: 1rem;
-  color: #b0b8c1;
+  left: 1rem;
+  color: #9ca3af;
+  font-size: 1.2rem;
   pointer-events: none;
-  transition: color 0.2s;
 }
 
-.field__input-wrap input {
+.form-input {
   width: 100%;
-  padding: 0.85rem 3rem 0.85rem 2.75rem;
-  background: #fff;
+  padding: 0.85rem 1rem 0.85rem 3rem;
   border: 1.5px solid #e5e7eb;
-  border-radius: 0.875rem;
-  font-family: 'Manrope', sans-serif;
-  font-size: 0.88rem;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
   color: #1a1a1a;
+  transition: border-color 0.2s;
+  background: #fafafa;
+}
+
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+.form-input:focus {
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.field__input-wrap input::placeholder { color: #d1d5db; }
-
-.field--focus .field__input-wrap input {
   border-color: #4c9a4c;
-  box-shadow: 0 0 0 3px rgba(76,154,76,0.1);
-}
-.field--focus .field__icon { color: #4c9a4c; }
-
-.field--error .field__input-wrap input {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239,68,68,0.08);
+  background: white;
 }
 
-.field__msg {
-  font-size: 0.73rem;
-  font-weight: 600;
-  color: #ef4444;
-  padding-left: 4px;
+.form-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.field__toggle {
+.btn-toggle-password {
   position: absolute;
-  right: 12px;
+  right: 0.75rem;
   background: none;
   border: none;
+  color: #9ca3af;
   cursor: pointer;
-  color: #b0b8c1;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.btn-toggle-password:hover {
+  background: #f3f4f6;
+  color: #4c9a4c;
+}
+
+.btn-toggle-password .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+/* Checkbox */
+.checkbox-group {
   display: flex;
   align-items: center;
-  padding: 4px;
-  border-radius: 4px;
-  transition: color 0.2s;
+  gap: 10px;
 }
-.field__toggle:hover { color: #4c9a4c; }
-.field__toggle .material-symbols-outlined { font-size: 1rem; }
 
-/* Submit */
+.checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4c9a4c;
+}
+
+.checkbox-label {
+  font-size: 0.85rem;
+  color: #4b5563;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Botón submit */
 .btn-submit {
-  margin-top: 0.5rem;
   width: 100%;
-  padding: 1rem;
-  background: linear-gradient(135deg, #4c9a4c 0%, #3d7a3d 100%);
+  padding: 0.95rem;
+  background: #4c9a4c;
   color: white;
   border: none;
-  border-radius: 0.875rem;
-  font-family: 'Manrope', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
-  box-shadow: 0 4px 14px rgba(76,154,76,0.3);
-  overflow: hidden;
-}
-
-.btn-submit:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(76,154,76,0.4);
-}
-.btn-submit:active:not(:disabled) { transform: translateY(0); }
-.btn-submit:disabled { opacity: 0.65; cursor: not-allowed; }
-
-.btn-submit__content {
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  margin-top: 0.5rem;
 }
-.btn-submit__content .material-symbols-outlined { font-size: 1rem; }
 
-.btn-submit__spinner {
-  display: block;
-  width: 20px;
-  height: 20px;
-  border: 2.5px solid rgba(255,255,255,0.3);
+.btn-submit:hover:not(:disabled) {
+  background: #3d7a3d;
+  transform: translateY(-1px);
+}
+
+.btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
   border-top-color: white;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
-  margin: 0 auto;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
 /* Footer */
 .form-footer {
-  margin-top: 1.5rem;
   text-align: center;
-  font-size: 0.76rem;
-  color: #9ca3af;
-  font-weight: 500;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 1.5rem;
 }
 
-/* ── Responsive ───────────────────────────── */
-@media (max-width: 768px) {
-  .login-root { flex-direction: column; }
-  .panel-left  { display: none; }
-  .panel-right { background: #fff; min-height: 100dvh; padding: 2.5rem 1.5rem; }
-  .brand--mobile { display: flex; margin-bottom: 2rem; }
+.link-register {
+  background: none;
+  border: none;
+  color: #4c9a4c;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.link-register:hover {
+  color: #3d7a3d;
+}
+
+.copyright {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 2rem;
+  letter-spacing: 0.03em;
+}
+
+/* ── Responsive ────────────────────────── */
+@media (max-width: 968px) {
+  .login-card {
+    flex-direction: column;
+  }
+
+  .panel-verde {
+    padding: 2.5rem 2rem;
+  }
+
+  .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .stats-grid {
+    margin-top: 2rem;
+  }
+
+  .panel-blanco {
+    padding: 2.5rem 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .login-root {
+    padding: 1rem;
+  }
+
+  .panel-verde {
+    padding: 2rem 1.5rem;
+  }
+
+  .panel-blanco {
+    padding: 2rem 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
 }
 </style>

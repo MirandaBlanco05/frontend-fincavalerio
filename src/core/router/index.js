@@ -8,6 +8,7 @@ const BovinoList      = () => import('@/modules/bovino/views/BovinoList.vue')
 const BovinoForm      = () => import('@/modules/bovino/views/BovinoForm.vue')
 const VisitaIndex     = () => import('@/modules/visita/views/VisitaIndex.vue')
 const ProduccionIndex = () => import('@/modules/produccion/views/ProduccionIndex.vue')
+const CeloIndex       = () => import('@/modules/celo/views/CeloIndex.vue')
 
 const routes = [
   // Login = entrada principal
@@ -18,6 +19,7 @@ const routes = [
   { path: '/dashboard',  name: 'Dashboard',  component: Dashboard },
   { path: '/produccion', name: 'Produccion', component: ProduccionIndex },
   { path: '/visitas',    name: 'Visitas',    component: VisitaIndex },
+  { path: '/celo',       name: 'Celo',       component: CeloIndex },
 
   {
     path: '/bovinos',

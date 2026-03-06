@@ -14,7 +14,7 @@
         👤
       </div>
 
-      <button class="flex items-center gap-2 rounded-lg bg-[#6E420C]/90 px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-[#6E420C]">
+      <button @click="cerrarSesion" class="flex items-center gap-2 rounded-lg bg-[#6E420C]/90 px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-[#6E420C]">
         <span class="hidden sm:inline">Cerrar Sesión</span>
         <span class="material-symbols-outlined text-base">logout</span>
       </button>
@@ -24,9 +24,10 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 
 // ── Título dinámico ──────────────────────────────
 const titulos = {
@@ -34,7 +35,9 @@ const titulos = {
   Bovinos:       'Registro de animales',
   BovinoNuevo:   'Nuevo Bovino',
   BovinoEditar:  'Editar Bovino',
-  Visitas:       'Visitas Veterinarias'
+  Visitas:       'Visitas Veterinarias',
+  Produccion:    'Producción',
+  Celo:          'Registro de Ciclo Celo'
 }
 const tituloActual = computed(() => titulos[route.name] || 'Finca Valerio')
 
@@ -48,6 +51,11 @@ function actualizarHora() {
   const m = ahora.getMinutes().toString().padStart(2, '0')
   const s = ahora.getSeconds().toString().padStart(2, '0')
   horaActual.value = `${h}:${m}:${s}`
+}
+
+function cerrarSesion() {
+  localStorage.clear()
+  router.push('/login')
 }
 
 onMounted(() => {
