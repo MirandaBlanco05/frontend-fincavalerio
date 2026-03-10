@@ -46,6 +46,21 @@
           </div>
           <span class="card-arrow material-symbols-outlined">chevron_right</span>
         </RouterLink>
+        <!-- Card Inseminación -->
+<RouterLink to="/inseminaciones" class="card card--clickable">
+  <div class="card-icon card-icon--blue">
+    <span class="material-symbols-outlined">biotech</span>
+  </div>
+
+  <div class="card-body">
+    <h3 class="card-title">Inseminación</h3>
+    <p class="card-desc">Registro de inseminaciones realizadas</p>
+  </div>
+
+  <span class="card-arrow material-symbols-outlined">
+    chevron_right
+  </span>
+</RouterLink>
 
       </div>
     </div>
