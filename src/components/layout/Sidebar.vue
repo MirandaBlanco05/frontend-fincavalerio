@@ -49,6 +49,14 @@
         </li>
       </RouterLink>
 
+      <RouterLink to="/inseminaciones" custom v-slot="{ isActive, navigate }">
+        <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
+          :class="isActive ? 'bg-[#4c9a4c]/20' : 'hover:bg-white/8'">
+          <span class="material-symbols-outlined" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/60'">genetics</span>
+          <p class="text-sm font-bold" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/80'">Inseminación</p>
+        </li>
+      </RouterLink>
+
       <li class="px-4 pt-3 pb-1">
         <p class="text-[10px] font-bold uppercase tracking-widest text-white/30">Próximamente</p>
       </li>
