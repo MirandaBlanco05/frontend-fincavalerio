@@ -47,20 +47,44 @@
           <span class="card-arrow material-symbols-outlined">chevron_right</span>
         </RouterLink>
         <!-- Card Inseminación -->
-<RouterLink to="/inseminaciones" class="card card--clickable">
-  <div class="card-icon card-icon--blue">
-    <span class="material-symbols-outlined">biotech</span>
-  </div>
+        <RouterLink to="/inseminaciones" class="card card--clickable">
+          <div class="card-icon card-icon--blue">
+            <span class="material-symbols-outlined">biotech</span>
+          </div>
 
-  <div class="card-body">
-    <h3 class="card-title">Inseminación</h3>
-    <p class="card-desc">Registro de inseminaciones realizadas</p>
-  </div>
+          <div class="card-body">
+            <h3 class="card-title">Inseminación</h3>
+            <p class="card-desc">Registro de inseminaciones realizadas</p>
+          </div>
 
-  <span class="card-arrow material-symbols-outlined">
-    chevron_right
-  </span>
-</RouterLink>
+          <span class="card-arrow material-symbols-outlined">
+            chevron_right
+          </span>
+        </RouterLink>
+
+        <!-- Card Embarazo -->
+        <RouterLink to="/embarazos" class="card card--clickable">
+          <div class="card-icon card-icon--purple">
+            <span class="material-symbols-outlined">pregnant_woman</span>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">Embarazo</h3>
+            <p class="card-desc">Seguimiento de gestaciones</p>
+          </div>
+          <span class="card-arrow material-symbols-outlined">chevron_right</span>
+        </RouterLink>
+
+        <!-- Card Parto -->
+        <RouterLink to="/partos" class="card card--clickable">
+          <div class="card-icon card-icon--orange">
+            <span class="material-symbols-outlined">child_care</span>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">Parto</h3>
+            <p class="card-desc">Registro de nacimientos y crías</p>
+          </div>
+          <span class="card-arrow material-symbols-outlined">chevron_right</span>
+        </RouterLink>
 
       </div>
     </div>
@@ -177,6 +201,21 @@ onMounted(() => {
 .card-icon--pink {
   background: #fce7f3;
   color: #db2777;
+}
+
+.card-icon--blue {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.card-icon--purple {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.card-icon--orange {
+  background: #ffedd5;
+  color: #ea580c;
 }
 
 /* Card body */

@@ -67,6 +67,26 @@ const routes = [
     ]
   },
 
+  // Embarazos
+  {
+    path: '/embarazos',
+    component: () => import('@/modules/Embarazo/EmbarazoIndex.vue'),
+    children: [
+      { path: '', name: 'Embarazos', component: () => import('@/modules/Embarazo/EmbarazoForm.vue') },
+      { path: 'nuevo', name: 'NewEmbarazo', component: () => import('@/modules/Embarazo/NewEmbarazoForm.vue') }
+    ]
+  },
+
+  // Partos
+  {
+    path: '/partos',
+    component: () => import('@/modules/Parto/PartoIndex.vue'),
+    children: [
+      { path: '', name: 'Partos', component: () => import('@/modules/Parto/PartoForm.vue') },
+      { path: 'nuevo', name: 'NewParto', component: () => import('@/modules/Parto/NewPartoForm.vue') }
+    ]
+  },
+
   // Ruta por defecto (si no encuentra la ruta)
   { path: '/:pathMatch(.*)*', redirect: '/login' }
 ]
