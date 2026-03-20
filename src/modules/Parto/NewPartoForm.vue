@@ -74,7 +74,7 @@
       type="submit"
       class="w-full bg-primary text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-primary/90 transition-colors"
     >
-      <span class="material-symbols-outlined">child_care</span>
+      <span class="material-symbols-outlined">save</span>
       Guardar Parto
     </button>
   </div>
