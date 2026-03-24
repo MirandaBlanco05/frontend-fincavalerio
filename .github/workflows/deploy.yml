@@ -3,18 +3,17 @@ name: Deploy Frontend to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # Se activa al subir cambios a la rama main
 
 permissions:
-  contents: write
+  contents: write  # Permiso para crear y escribir en la rama gh-pages
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     
-    # ESTO ELIMINA EL AVISO DE DEPRECACIÓN:
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Evita avisos de deprecación
 
     steps:
       - name: Checkout 🛎️
@@ -23,16 +22,17 @@ jobs:
       - name: Configurar Node.js ⚙️
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Tu código sigue usando la 22, que es estable
+          node-version: '22'
           cache: 'npm'
 
       - name: Instalar y Construir 🏗️
         run: |
           npm install
-          npm run build
+          # npx evita el error de "Permission denied" al ejecutar vite directamente
+          npx vite build
 
       - name: Desplegar a GitHub Pages 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist
-          branch: gh-pages
+          folder: dist 
+          branch: gh-pages 
