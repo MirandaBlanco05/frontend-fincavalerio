@@ -1,38 +1,44 @@
-name: Deploy Frontend to GitHub Pages
+name: Deploy Frontend
 
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout 
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js ⚙️
+      - name: Setup Node 
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
 
-      - name: Instalar Dependencias 🧹
+      - name: Install 
         run: npm install
 
-      - name: Construir Proyecto (Solución Directa) 🏗️
-        run: |
-          # Usamos node para ejecutar el archivo JS de vite directamente
-          # Esto evita el error de "Permission denied"
-          node ./node_modules/vite/bin/vite.js build
+      - name: Build 
+        # Usamos npx para forzar la ejecución de vite sin importar los permisos
+        run: npx vite build
 
-      - name: Desplegar a GitHub Pages 🚀
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Upload Artifact 
+        uses: actions/upload-pages-artifact@v3
         with:
-          folder: dist
-          branch: gh-pages
+          path: './dist'
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+   
+    steps:
+      - name: Deploy to GitHub Pages 🚀
+        id: deployment
+        uses: actions/deploy-pages@v4
