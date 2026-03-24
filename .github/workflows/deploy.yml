@@ -13,23 +13,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 
+      - name: Checkout 🛎️
         uses: actions/checkout@v4
 
-      - name: Setup Node 
+      - name: Setup Node ⚙️
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install 
-        run: npm install
+      - name: Instalacion Limpia 📥
+        # npm ci es mejor que install para servidores, es mas estricto y limpio
+        run: npm ci || npm install
 
-      - name: Build 
-        # Usamos npx para forzar la ejecución de vite sin importar los permisos
-        run: npx vite build
+      - name: Build Forzado 🏗️
+        run: |
+          # Le damos permisos de ejecucion manualmente a la carpeta de binarios
+          chmod -R +x node_modules/.bin
+          # Ejecutamos el build usando npx para asegurar que encuentre Vite
+          npx vite build
 
-      - name: Upload Artifact 
+      - name: Upload Artifact 📤
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
@@ -37,7 +41,6 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-   
     steps:
       - name: Deploy to GitHub Pages 🚀
         id: deployment
