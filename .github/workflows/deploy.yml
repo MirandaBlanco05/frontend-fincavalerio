@@ -1,35 +1,17 @@
 name: Deploy Frontend to Render
 
-# Se activa automáticamente cuando hay un push a la rama main
 on:
   push:
     branches:
       - main
-    paths:
-      - 'frontend/**'   # Solo se activa si hay cambios en la carpeta frontend
 
 jobs:
   deploy:
-    name: Deploy to Render
     runs-on: ubuntu-latest
 
     steps:
-      # Paso 1: Descarga el código del repositorio
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v3
 
-      # Paso 2: Muestra qué archivos cambiaron (útil para verificar)
-      - name: Show changed files
-        run: |
-          echo "Archivos en frontend:"
-          ls -la frontend/
-
-      # Paso 3: Llama al Deploy Hook de Render para iniciar el despliegue
       - name: Trigger Render Deploy
-        run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
-          echo "Despliegue enviado a Render correctamente"
-
-      # Paso 4: Confirma que el proceso terminó
-      - name: Deployment triggered
-        run: echo "✅ Frontend de Finca Valerio desplegado exitosamente"
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
