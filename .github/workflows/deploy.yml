@@ -22,16 +22,12 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Instalacion Limpia 📥
-        # npm ci es mejor que install para servidores, es mas estricto y limpio
-        run: npm ci || npm install
+      - name: Instalacion 📥
+        run: npm install
 
-      - name: Build Forzado 🏗️
-        run: |
-          # Le damos permisos de ejecucion manualmente a la carpeta de binarios
-          chmod -R +x node_modules/.bin
-          # Ejecutamos el build usando npx para asegurar que encuentre Vite
-          npx vite build
+      - name: Build Forzado (Modo Directo) 🏗️
+        # Aquí está el truco: llamamos al archivo JS directamente, no al binario "vite"
+        run: node ./node_modules/vite/bin/vite.js build
 
       - name: Upload Artifact 📤
         uses: actions/upload-pages-artifact@v3
