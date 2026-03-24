@@ -2,8 +2,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 // 🔹 Ciclo Celo
-const CicloCeloIndex = () => import('@/modules/cicloCelo/views/CicloCeloIndex.vue')
-const CicloCeloForm  = () => import('@/modules/cicloCelo/views/CicloCeloForm.vue')
+const CicloCeloIndex = () => import('@/modules/CicloCelo/views/CicloCeloIndex.vue')
+const CicloCeloForm  = () => import('@/modules/CicloCelo/views/CicloCeloForm.vue')
 
 // 🔹 Login y Dashboard
 const Login           = () => import('@/modules/login/views/Login.vue')
