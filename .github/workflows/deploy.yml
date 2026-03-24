@@ -13,23 +13,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout 
         uses: actions/checkout@v4
 
-      - name: Setup Node ⚙️
+      - name: Setup Node 
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
 
-      - name: Instalacion 📥
+      - name: Instalacion 
         run: npm install
 
-      - name: Build Forzado (Modo Directo) 🏗️
+      - name: Build Forzado (Modo Directo) 
         # Aquí está el truco: llamamos al archivo JS directamente, no al binario "vite"
         run: node ./node_modules/vite/bin/vite.js build
 
-      - name: Upload Artifact 📤
+      - name: Upload Artifact 
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
@@ -38,6 +38,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages 🚀
+      - name: Deploy to GitHub Pages 
         id: deployment
         uses: actions/deploy-pages@v4
