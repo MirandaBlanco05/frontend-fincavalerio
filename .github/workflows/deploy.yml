@@ -1,0 +1,34 @@
+name: Deploy Frontend to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Se dispara cada vez que subes algo a main
+
+permissions:
+  contents: write  # Necesario para que la acción pueda crear la rama gh-pages
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js ⚙️
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Instalar y Construir 🏗️
+        run: |
+          npm install
+          npm run build
+
+      - name: Desplegar a GitHub Pages 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist # Vite genera los archivos aquí. Si usas React antiguo, cambia a 'build'
+          branch: gh-pages # Rama de destino para el despliegue
