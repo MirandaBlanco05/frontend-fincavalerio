@@ -1,43 +1,35 @@
-name: Deploy Frontend
+name: Deploy Frontend to Render
 
+# Se activa automáticamente cuando hay un push a la rama main
 on:
   push:
-    branches: ["main"]
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+    branches:
+      - main
+    paths:
+      - 'frontend/**'   # Solo se activa si hay cambios en la carpeta frontend
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout 
-        uses: actions/checkout@v4
-
-      - name: Setup Node 
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Instalacion 
-        run: npm install
-
-      - name: Build Forzado (Modo Directo) 
-        # Aquí está el truco: llamamos al archivo JS directamente, no al binario "vite"
-        run: node ./node_modules/vite/bin/vite.js build
-
-      - name: Upload Artifact 
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './dist'
-
   deploy:
-    needs: build
+    name: Deploy to Render
     runs-on: ubuntu-latest
+
     steps:
-      - name: Deploy to GitHub Pages 
-        id: deployment
-        uses: actions/deploy-pages@v4
+      # Paso 1: Descarga el código del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Paso 2: Muestra qué archivos cambiaron (útil para verificar)
+      - name: Show changed files
+        run: |
+          echo "Archivos en frontend:"
+          ls -la frontend/
+
+      # Paso 3: Llama al Deploy Hook de Render para iniciar el despliegue
+      - name: Trigger Render Deploy
+        run: |
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          echo "Despliegue enviado a Render correctamente"
+
+      # Paso 4: Confirma que el proceso terminó
+      - name: Deployment triggered
+        run: echo "✅ Frontend de Finca Valerio desplegado exitosamente"
