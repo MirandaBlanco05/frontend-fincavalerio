@@ -34,7 +34,7 @@
       <!-- 3 KPI cards -->
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div class="flex flex-col gap-2 rounded-lg p-6 bg-[#f3eee7]">
-          <p class="text-[#6E420C] text-base font-medium">Nacer (Mes)</p>
+          <p class="text-[#6E420C] text-base font-medium">Nacimientos (Mes)</p>
           <p class="text-3xl font-bold text-[#1a1a1a]">{{ store.nacimientos.length || 12 }}</p>
           <div class="flex items-center gap-1 text-green-700">
             <span class="material-symbols-outlined text-base">arrow_upward</span>
