@@ -1,7 +1,7 @@
 <template>
   <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-[#D3D3D3] bg-white/80 px-4 py-2 backdrop-blur-sm font-display">
 
-    <!-- Izquierda: título de la página -->
+    <!-- Izquierda: título -->
     <div class="flex items-center gap-2">
       <h1 class="text-lg font-bold text-[#36454F]">{{ tituloActual }}</h1>
     </div>
@@ -29,7 +29,6 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 
-// ── Título dinámico ──────────────────────────────
 const titulos = {
   Dashboard:     'Panel de Control',
   Bovinos:       'Registro de animales',
@@ -37,11 +36,12 @@ const titulos = {
   BovinoEditar:  'Editar Bovino',
   Visitas:       'Visitas Veterinarias',
   Produccion:    'Producción',
-  Celo:          'Registro de Ciclo Celo'
+  Celo:          'Registro de Ciclo Celo',
+  Empleado:      'Gestión de Empleados',
+  Ordenio:       'Registro de Ordeño'
 }
 const tituloActual = computed(() => titulos[route.name] || 'Finca Valerio')
 
-// ── Reloj en tiempo real ─────────────────────────
 const horaActual = ref('')
 let timer = null
 

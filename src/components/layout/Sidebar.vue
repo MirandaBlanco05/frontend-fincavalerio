@@ -1,7 +1,7 @@
 <template>
   <aside class="fixed left-0 top-0 z-50 hidden h-full w-64 flex-col gap-4 bg-[#1f241a] p-4 shadow-xl lg:flex font-display">
 
-    <!-- Brand clickeable -->
+    <!-- Brand -->
     <RouterLink to="/dashboard" class="flex items-center gap-3 px-2 py-4 border-b border-white/10 cursor-pointer hover:opacity-80 transition-opacity">
       <span class="material-symbols-outlined text-[#4c9a4c] text-4xl" style="font-variation-settings:'FILL' 1;">grass</span>
       <h1 class="text-xl font-bold text-white">Finca Valerio</h1>
@@ -21,7 +21,7 @@
       </RouterLink>
 
       <li class="px-4 pt-3 pb-1">
-        <p class="text-[10px] font-bold uppercase tracking-widest text-white/30">Módulos</p>
+        <p class="text-[10px] font-bold uppercase tracking-widest text-white/30">Gestión</p>
       </li>
 
       <RouterLink to="/bovinos" custom v-slot="{ isActive, navigate }">
@@ -46,6 +46,22 @@
           :class="isActive ? 'bg-[#4c9a4c]/20' : 'hover:bg-white/8'">
           <span class="material-symbols-outlined" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/60'">favorite</span>
           <p class="text-sm font-bold" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/80'">Ciclo Celo</p>
+        </li>
+      </RouterLink>
+
+      <RouterLink to="/empleado" custom v-slot="{ isActive, navigate }">
+        <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
+          :class="isActive ? 'bg-[#4c9a4c]/20' : 'hover:bg-white/8'">
+          <span class="material-symbols-outlined" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/60'">badge</span>
+          <p class="text-sm font-bold" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/80'">Empleados</p>
+        </li>
+      </RouterLink>
+
+      <RouterLink to="/ordenio" custom v-slot="{ isActive, navigate }">
+        <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
+          :class="isActive ? 'bg-[#4c9a4c]/20' : 'hover:bg-white/8'">
+          <span class="material-symbols-outlined" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/60'">water_drop</span>
+          <p class="text-sm font-bold" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/80'">Ordeño</p>
         </li>
       </RouterLink>
 
