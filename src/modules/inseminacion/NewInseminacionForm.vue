@@ -99,7 +99,7 @@ class="input-refined"
 
 </div>
 
-<!-- Resultado -->
+
 
 <div class="flex flex-col gap-2">
 <label class="text-xs font-bold">Estatus</label>

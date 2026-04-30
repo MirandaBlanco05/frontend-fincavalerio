@@ -1,170 +1,146 @@
 <template>
-  <div class="relative min-h-screen w-full">
-    <div class="mx-auto max-w-lg">
-
-      <!-- Breadcrumb -->
-      <div class="mb-6 flex items-center gap-2 text-sm text-gray-500">
-        <button @click="router.push({ name: 'Bovinos' })" class="flex items-center gap-1 hover:text-primary transition-colors">
-          <span class="material-symbols-outlined text-base">arrow_back</span>
-          Volver al listado
+  <div class="modal-overlay">
+    <div class="modal-content">
+      
+      <!-- Encabezado -->
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nuevo' }} Animal</h3>
+          <p class="modal-subtitle">Complete los datos del animal</p>
+        </div>
+        <button type="button" @click="router.push({ name: 'Bovinos' })" class="btn-close">
+          <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <!-- Alerta de error -->
-      <div
-        v-if="store.error"
-        class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-      >
-        <span class="material-symbols-outlined text-base">warning</span>
-        {{ store.error }}
+      <!-- Alertas -->
+      <div v-if="store.error" style="padding: 1rem 2rem;">
+        <div style="display: flex; align-items: center; gap: 8px; color: #dc2626; background: #fef2f2; padding: 12px; border-radius: 8px;">
+          <span class="material-symbols-outlined">error</span>
+          <span>{{ store.error }}</span>
+        </div>
       </div>
 
       <!-- Formulario -->
-      <form id="form-animal" @submit.prevent="guardar" class="space-y-6">
-
-        <!-- ID Grupo -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="id_grupo" class="block text-sm font-medium text-text-primary">ID Grupo <span class="text-red-500">*</span></label>
-            <input
-              id="id_grupo"
-              v-model="form.Id_grupo"
-              type="number"
-              required
-              placeholder="Ej: 1"
-              class="mt-1 block w-full rounded-lg border border-border-color bg-white px-3 py-2 text-sm text-text-primary placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
+      <form id="form-animal" @submit.prevent="guardar" class="modal-body">
+        
+        <div class="form-grid">
+          <!-- ID Grupo -->
+          <div class="form-group">
+            <label class="form-label required">
+              <span class="material-symbols-outlined">dataset</span>
+              ID Grupo
+            </label>
+            <input v-model="form.Id_grupo" type="number" required class="form-input" placeholder="Ej: 1" />
           </div>
 
-          <!-- Número Crotal -->
-          <div>
-            <label for="numero_crotal" class="block text-sm font-medium text-text-primary">N° Crotal</label>
-            <input
-              id="numero_crotal"
-              v-model="form.numero_crotal"
-              type="number"
-              placeholder="Ej: 123"
-              class="mt-1 block w-full rounded-lg border border-border-color bg-white px-3 py-2 text-sm text-text-primary placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
+          <!-- N° Crotal -->
+          <div class="form-group">
+            <label class="form-label">
+              <span class="material-symbols-outlined">qr_code_2</span>
+              N° Crotal
+            </label>
+            <input v-model="form.numero_crotal" type="number" class="form-input" placeholder="Ej: 123" />
           </div>
         </div>
 
-        <!-- Raza / Nombre -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="Id_raza" class="block text-sm font-medium text-text-primary">ID Raza <span class="text-red-500">*</span></label>
-            <input
-              id="Id_raza"
-              v-model="form.Id_raza"
-              type="number"
-              required
-              placeholder="Ej: 2"
-              class="mt-1 block w-full rounded-lg border border-border-color bg-white px-3 py-2 text-sm text-text-primary placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
+        <div class="form-grid">
+          <!-- ID Raza -->
+          <div class="form-group">
+            <label class="form-label required">
+              <span class="material-symbols-outlined">category</span>
+              ID Raza
+            </label>
+            <input v-model="form.Id_raza" type="number" required class="form-input" placeholder="Ej: 2" />
           </div>
-          <div>
-            <label for="nombre" class="block text-sm font-medium text-text-primary">Nombre <span class="text-red-500">*</span></label>
-            <input
-              id="nombre"
-              v-model="form.nombre"
-              type="text"
-              required
-              placeholder="Nombre del animal"
-              class="mt-1 block w-full rounded-lg border border-border-color bg-white px-3 py-2 text-sm text-text-primary placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
+
+          <!-- Nombre -->
+          <div class="form-group">
+            <label class="form-label required">
+              <span class="material-symbols-outlined">pets</span>
+              Nombre
+            </label>
+            <input v-model="form.nombre" type="text" required class="form-input" placeholder="Nombre del animal" />
           </div>
         </div>
 
-        <!-- Fecha de Nacimiento -->
-        <div>
-          <label for="fecha_nacimiento" class="block text-sm font-medium text-text-primary">Fecha de Nacimiento <span class="text-red-500">*</span></label>
-          <input
-            id="fecha_nacimiento"
-            v-model="form.fecha_nacimiento"
-            type="date"
-            required
-            class="mt-1 block w-full rounded-lg border border-border-color bg-white px-3 py-2 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-          />
+        <div class="form-grid">
+          <!-- Fecha Nacimiento -->
+          <div class="form-group">
+            <label class="form-label required">
+              <span class="material-symbols-outlined">event</span>
+              Fecha Nacimiento
+            </label>
+            <input v-model="form.fecha_nacimiento" type="date" required class="form-input" />
+          </div>
+
+          <!-- Nombre Madre -->
+          <div class="form-group">
+            <label class="form-label">
+              <span class="material-symbols-outlined">female</span>
+              Nombre Madre
+            </label>
+            <input v-model="form.nombre_madre" type="text" class="form-input" placeholder="Nombre de la madre" />
+          </div>
         </div>
 
-        <!-- Nombre Madre -->
-        <div>
-          <label for="nombre_madre" class="block text-sm font-medium text-text-primary">Nombre Madre</label>
-          <input
-            id="nombre_madre"
-            v-model="form.nombre_madre"
-            type="text"
-            placeholder="Nombre de la madre"
-            class="mt-1 block w-full rounded-lg border border-border-color bg-white px-3 py-2 text-sm text-text-primary placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-          />
+        <div class="form-grid">
+          <!-- Sexo -->
+          <div class="form-group">
+            <label class="form-label required">
+              <span class="material-symbols-outlined">transgender</span>
+              Sexo
+            </label>
+            <select v-model="form.sexo" required class="form-select">
+              <option value="">Seleccione...</option>
+              <option value="Macho">Macho</option>
+              <option value="Hembra">Hembra</option>
+            </select>
+          </div>
+
+          <!-- Edad -->
+          <div class="form-group">
+            <label class="form-label">
+              <span class="material-symbols-outlined">cake</span>
+              Edad (años)
+            </label>
+            <input v-model="form.edad" type="number" min="0" class="form-input" placeholder="Ej: 3" />
+          </div>
         </div>
 
-        <!-- Sexo -->
-        <div>
-          <label for="sexo" class="block text-sm font-medium text-text-primary">Sexo <span class="text-red-500">*</span></label>
-          <select
-            id="sexo"
-            v-model="form.sexo"
-            required
-            class="mt-1 block w-full rounded-lg border border-border-color bg-white px-3 py-2 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-          >
-            <option value="">Seleccione...</option>
-            <option value="Macho">Macho</option>
-            <option value="Hembra">Hembra</option>
-          </select>
+        <div class="form-grid">
+          <!-- Estado -->
+          <div class="form-group">
+            <label class="form-label required">
+              <span class="material-symbols-outlined">info</span>
+              Estado
+            </label>
+            <select v-model="form.estado" required class="form-select">
+              <option value="">Seleccione...</option>
+              <option value="Activo">Activo</option>
+              <option value="Vendido">Vendido</option>
+              <option value="Muerto">Muerto</option>
+            </select>
+          </div>
+
+          <!-- Peso -->
+          <div class="form-group">
+            <label class="form-label">
+              <span class="material-symbols-outlined">weight</span>
+              Peso (kg)
+            </label>
+            <input v-model="form.peso" type="text" class="form-input" placeholder="Ej: 450" />
+          </div>
         </div>
 
-        <!-- Edad -->
-        <div>
-          <label for="edad" class="block text-sm font-medium text-text-primary">Edad (años)</label>
-          <input
-            id="edad"
-            v-model="form.edad"
-            type="number"
-            min="0"
-            placeholder="Ej: 3"
-            class="mt-1 block w-full rounded-lg border border-border-color bg-white px-3 py-2 text-sm text-text-primary placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-          />
+        <!-- Botones -->
+        <div class="modal-footer">
+          <button type="button" @click="router.push({ name: 'Bovinos' })" class="btn btn--secondary">Cancelar</button>
+          <button type="submit" :disabled="store.cargando" class="btn btn--primary">
+            <span class="material-symbols-outlined">save</span>
+            {{ store.cargando ? 'Guardando...' : (modoEdicion ? 'Actualizar Registro' : 'Guardar Registro') }}
+          </button>
         </div>
-
-        <!-- Estado -->
-        <div>
-          <label for="estado" class="block text-sm font-medium text-text-primary">Estado <span class="text-red-500">*</span></label>
-          <select
-            id="estado"
-            v-model="form.estado"
-            required
-            class="mt-1 block w-full rounded-lg border border-border-color bg-white px-3 py-2 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-          >
-            <option value="">Seleccione...</option>
-            <option value="Activo">Activo</option>
-            <option value="Vendido">Vendido</option>
-            <option value="Muerto">Muerto</option>
-          </select>
-        </div>
-
-        <!-- Peso -->
-        <div>
-          <label for="peso" class="block text-sm font-medium text-text-primary">Peso (kg)</label>
-          <input
-            id="peso"
-            v-model="form.peso"
-            type="text"
-            placeholder="Ej: 450"
-            class="mt-1 block w-full rounded-lg border border-border-color bg-white px-3 py-2 text-sm text-text-primary placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-        </div>
-
-        <!-- Botón guardar -->
-        <button
-          id="btnGuardar"
-          type="submit"
-          :disabled="store.cargando"
-          class="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <span v-if="store.cargando">Guardando...</span>
-          <span v-else>{{ modoEdicion ? 'Actualizar Animal' : 'Guardar Animal' }}</span>
-        </button>
 
       </form>
     </div>
@@ -180,10 +156,8 @@ const router = useRouter()
 const route  = useRoute()
 const store  = useBovinoStore()
 
-// ── Detectar modo (crear vs editar) ──────────────
 const modoEdicion = computed(() => !!route.params.id)
 
-// ── Formulario reactivo ───────────────────────────
 const form = reactive({
   Id_grupo:         '',
   numero_crotal:    '',
@@ -197,10 +171,8 @@ const form = reactive({
   peso:             ''
 })
 
-// ── Si es edición, cargar datos del bovino ────────
 onMounted(async () => {
   if (modoEdicion.value) {
-    // Si el store no tiene datos todavía, los cargamos
     if (store.bovinos.length === 0) {
       await store.cargarBovinos()
     }
@@ -221,7 +193,6 @@ onMounted(async () => {
   store.limpiarMensajes()
 })
 
-// ── Guardar ───────────────────────────────────────
 async function guardar() {
   let ok
   if (modoEdicion.value) {
@@ -234,3 +205,181 @@ async function guardar() {
   }
 }
 </script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1.5px solid #f0f0ed;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
+}
+
+.modal-subtitle {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.btn-close {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #9ca3af;
+  transition: all 0.2s;
+}
+
+.btn-close:hover {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.modal-body {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Form */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.form-label .material-symbols-outlined {
+  font-size: 1rem;
+  color: #6E420C;
+}
+
+.form-label.required::after {
+  content: '*';
+  color: #dc2626;
+  margin-left: 4px;
+}
+
+.form-input, .form-select, .form-textarea {
+  padding: 0.75rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: #6E420C;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding-top: 1rem;
+  border-top: 1.5px solid #f0f0ed;
+}
+
+.btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn--primary {
+  background: #6E420C;
+  color: white;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #5a360a;
+}
+
+.btn--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--secondary {
+  background: #f5f5f5;
+  color: #374151;
+}
+
+.btn--secondary:hover {
+  background: #e5e7eb;
+}
+
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .modal-body {
+    padding: 1.5rem;
+  }
+}
+</style>t>

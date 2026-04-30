@@ -1,111 +1,116 @@
 <template>
+  <div class="relative min-h-screen w-full">
 
-<div class="p-8">
+    <!-- Action Bar -->
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+      <!-- Nuevo -->
+      <button
+        @click="irAFormulario"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">add</span>
+        <span class="truncate">Nuevo Embarazo</span>
+      </button>
 
-<!-- Action Bar -->
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <!-- Editar -->
+      <button
+        @click="irAEditar"
+        :disabled="!filaSeleccionada"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">edit</span>
+        <span class="truncate">Editar</span>
+      </button>
 
-<div class="relative w-full max-w-md">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary/40">
-search
-</span>
+      <!-- Eliminar -->
+      <button
+        @click="confirmarEliminar"
+        :disabled="!filaSeleccionada"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">delete</span>
+        <span class="truncate">Eliminar</span>
+      </button>
 
-<input
-v-model="search"
-class="w-full pl-10 pr-4 py-3 bg-white border-primary/10 rounded-xl focus:ring-primary focus:border-primary shadow-sm text-sm"
-placeholder="Buscar registro de embarazo, veterinario o inseminación..."
-type="text"
-/>
+      <!-- Búsqueda -->
+      <div class="relative flex flex-1 items-center min-w-[200px] sm:flex-none">
+        <span class="material-symbols-outlined absolute left-3 text-gray-400 text-base">search</span>
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Buscar..."
+          class="w-full rounded-lg border border-border-color bg-white py-2 pl-9 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      </div>
+    </div>
 
-</div>
+    <!-- Alertas -->
+    <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <span class="material-symbols-outlined text-base">warning</span>
+      {{ store.error }}
+    </div>
 
-<RouterLink
-to="/embarazos/nuevo"
-class="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-primary/20"
->
-<span class="material-symbols-outlined">add_circle</span>
-<span>Nuevo Embarazo</span>
-</RouterLink>
-
-</div>
-
-<!-- Table -->
-<div class="bg-white rounded-2xl shadow-sm border border-primary/5 overflow-hidden">
-
-<div class="overflow-x-auto">
-
-<table class="w-full text-left border-collapse">
-
-<thead>
-
-<tr class="bg-gray-50">
-
-<th class="px-6 py-4 text-xs font-bold">ID</th>
-<th class="px-6 py-4 text-xs font-bold">Inseminación</th>
-<th class="px-6 py-4 text-xs font-bold">Veterinario</th>
-<th class="px-6 py-4 text-xs font-bold">Fase</th>
-<th class="px-6 py-4 text-xs font-bold">Fecha Secado</th>
-<th class="px-6 py-4 text-xs font-bold">Fecha Parto (Prevista)</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr
-v-for="e in embarazosFiltrados"
-:key="e.Id_embarazo"
-class="hover:bg-primary/5"
->
-
-<td class="px-6 py-5 font-bold">
-{{ e.Id_embarazo }}
-</td>
-
-<td class="px-6 py-5">
-{{ e.INSEMINACION ? e.INSEMINACION.Id_inseminacion : e.Id_inseminacion }}
-</td>
-
-<td class="px-6 py-5">
-{{ e.VETERINARIO ? e.VETERINARIO.nombre : (e.veterinario ? e.veterinario.nombre : 'N/A') }}
-</td>
-
-<td class="px-6 py-5">
-<span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
-{{ e.fase || 'N/A' }}
-</span>
-</td>
-
-<td class="px-6 py-5">
-{{ e.Fecha_secado || 'N/A' }}
-</td>
-
-<td class="px-6 py-5 font-semibold">
-{{ e.Fecha_prevista_parto }}
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
+    <!-- Tabla -->
+    <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
+      <table class="w-full text-left text-sm text-text-primary">
+        <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
+          <tr>
+            <th class="px-6 py-4">ID</th>
+            <th class="px-6 py-4">Inseminación</th>
+            <th class="px-6 py-4">Veterinario</th>
+            <th class="px-6 py-4">Fase</th>
+            <th class="px-6 py-4">Fecha Secado</th>
+            <th class="px-6 py-4">Fecha Parto (Prevista)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="store.cargando">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
+              <p class="mt-2">Cargando...</p>
+            </td>
+          </tr>
+          <tr v-else-if="embarazosFiltrados.length === 0">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined text-4xl">search_off</span>
+              <p class="mt-2">No hay registros.</p>
+            </td>
+          </tr>
+          <tr
+            v-else
+            v-for="e in embarazosFiltrados"
+            :key="e.Id_embarazo"
+            @click="seleccionarFila(e)"
+            class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10"
+            :class="{ 'bg-primary/20': filaSeleccionada?.Id_embarazo === e.Id_embarazo }"
+          >
+            <td class="px-6 py-3 font-medium">{{ e.Id_embarazo }}</td>
+            <td class="px-6 py-3">{{ e.INSEMINACION ? e.INSEMINACION.Id_inseminacion : e.Id_inseminacion }}</td>
+            <td class="px-6 py-3">{{ e.VETERINARIO ? e.VETERINARIO.nombre : (e.veterinario ? e.veterinario.nombre : 'N/A') }}</td>
+            <td class="px-6 py-3">
+              <span class="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                {{ e.fase || 'N/A' }}
+              </span>
+            </td>
+            <td class="px-6 py-3">{{ e.Fecha_secado || 'N/A' }}</td>
+            <td class="px-6 py-3">{{ e.Fecha_prevista_parto }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </template>
 
 <script setup>
-
 import { ref, computed, onMounted } from "vue"
+import { useRouter } from 'vue-router'
 import { useEmbarazoStore } from "./store/Embarazo.store.js"
 
-const search = ref("")
+const router = useRouter()
 const store = useEmbarazoStore()
+
+const search = ref("")
+const filaSeleccionada = ref(null)
 
 const embarazosFiltrados = computed(() => {
   if (!search.value) return store.embarazos
@@ -118,8 +123,36 @@ const embarazosFiltrados = computed(() => {
   )
 })
 
+function seleccionarFila(fila) {
+  if (filaSeleccionada.value?.Id_embarazo === fila.Id_embarazo) {
+    filaSeleccionada.value = null
+  } else {
+    filaSeleccionada.value = fila
+  }
+}
+
+function irAFormulario() {
+  router.push('/embarazos/nuevo')
+}
+
+function irAEditar() {
+  if (!filaSeleccionada.value) return
+  router.push({ name: 'EmbarazoNuevo' }) 
+}
+
+async function confirmarEliminar() {
+  if (!filaSeleccionada.value) return
+  if (confirm(`¿Eliminar el embarazo ${filaSeleccionada.value.Id_embarazo}? Esta acción no se puede deshacer.`)) {
+    if (store.eliminarEmbarazo) {
+      await store.eliminarEmbarazo(filaSeleccionada.value.Id_embarazo)
+    } else {
+      console.warn('eliminarEmbarazo no implementado en store')
+    }
+    filaSeleccionada.value = null
+  }
+}
+
 onMounted(() => {
   store.cargarEmbarazos()
 })
-
 </script>

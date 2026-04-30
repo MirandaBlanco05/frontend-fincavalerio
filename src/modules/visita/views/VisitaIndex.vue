@@ -95,9 +95,8 @@
             @click="abrirDetalle(cita)"
             class="cursor-pointer rounded-xl border-l-4 border-[#4c9a4c] bg-[#efebe9] p-4 flex items-start gap-4 hover:opacity-90 transition-opacity"
           >
-            <div class="flex flex-col items-center min-w-[52px]">
-              <p class="text-[#5d4037] text-lg font-bold leading-tight">{{ formatHora(cita.hora) }}</p>
-              <p class="text-[#757575] text-xs">{{ amPm(cita.hora) }}</p>
+            <div class="flex flex-col items-center min-w-[52px] justify-center">
+              <span class="material-symbols-outlined text-[#4c9a4c] text-3xl">event_available</span>
             </div>
             <div class="flex-1 min-w-0">
               <p class="font-bold text-[#0d1b0d] truncate">{{ cita.veterinario || '—' }}</p>
@@ -202,12 +201,6 @@
                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#4c9a4c] focus:outline-none focus:ring-1 focus:ring-[#4c9a4c]" />
             </div>
 
-            <!-- Hora -->
-            <div>
-              <label class="mb-1 block text-sm font-medium">Hora <span class="text-red-500">*</span></label>
-              <input v-model="form.hora" type="time" required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#4c9a4c] focus:outline-none focus:ring-1 focus:ring-[#4c9a4c]" />
-            </div>
 
             <!-- Observaciones -->
             <div>
@@ -242,8 +235,7 @@
 
           <div class="flex items-center gap-4 rounded-xl border-l-4 border-[#4c9a4c] bg-[#efebe9] p-4 mb-4">
             <div class="flex flex-col items-center">
-              <span class="material-symbols-outlined text-[#4c9a4c] text-3xl">schedule</span>
-              <p class="text-lg font-bold text-[#5d4037]">{{ formatHora(citaDetalle.hora) }} {{ amPm(citaDetalle.hora) }}</p>
+              <span class="material-symbols-outlined text-[#4c9a4c] text-3xl">event_available</span>
             </div>
             <div>
               <p class="font-bold text-[#0d1b0d]">{{ (citaDetalle.motivos || []).join(', ') || '—' }}</p>
@@ -339,10 +331,8 @@ const fechaSeleccionadaLabel = computed(() =>
   `${String(diaSeleccionado.value).padStart(2,'0')} de ${MESES[mesActual.value]}`
 )
 
-// ── Citas filtradas por día ────────────────────────────
 const citasDelDia = computed(() =>
   store.visitas.filter(v => v.fecha === fechaSeleccionadaISO.value)
-    .sort((a, b) => (a.hora || '').localeCompare(b.hora || ''))
 )
 
 function tieneVisitas(dia) {
@@ -351,18 +341,6 @@ function tieneVisitas(dia) {
   return store.visitas.some(v => v.fecha === `${anioActual.value}-${m}-${d}`)
 }
 
-// ── Formato hora ───────────────────────────────────────
-function formatHora(hora) {
-  if (!hora) return '--:--'
-  const [h, m] = hora.split(':')
-  const hNum = parseInt(h)
-  const h12  = hNum === 0 ? 12 : hNum > 12 ? hNum - 12 : hNum
-  return `${String(h12).padStart(2,'0')}:${m}`
-}
-function amPm(hora) {
-  if (!hora) return ''
-  return parseInt(hora.split(':')[0]) >= 12 ? 'PM' : 'AM'
-}
 
 // ── Modal nueva cita ───────────────────────────────────
 const modalAbierto     = ref(false)
@@ -374,7 +352,6 @@ const form = reactive({
   motivos:        [],
   motivosFallback:[],
   fecha:          '',
-  hora:           '',
   observaciones:  ''
 })
 
@@ -382,7 +359,7 @@ function abrirModal() {
   Object.assign(form, {
     Id_veterinario: '', Id_bovino: '',
     motivos: [], motivosFallback: [],
-    fecha: fechaSeleccionadaISO.value, hora: '', observaciones: ''
+    fecha: fechaSeleccionadaISO.value, observaciones: ''
   })
   store.limpiarMensajes()
   modalAbierto.value = true
@@ -394,7 +371,6 @@ async function guardarCita() {
     Id_veterinario: form.Id_veterinario,
     Id_bovino:      form.Id_bovino,
     fecha:          form.fecha,
-    hora:           form.hora,
     observaciones:  form.observaciones,
     motivos:        form.motivos.length > 0 ? form.motivos : undefined
   })

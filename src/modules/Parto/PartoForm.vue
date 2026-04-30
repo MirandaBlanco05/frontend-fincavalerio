@@ -1,106 +1,114 @@
 <template>
+  <div class="relative min-h-screen w-full">
 
-<div class="p-8">
+    <!-- Action Bar -->
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+      <!-- Nuevo -->
+      <button
+        @click="irAFormulario"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">add</span>
+        <span class="truncate">Nuevo Parto</span>
+      </button>
 
-<!-- Action Bar -->
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <!-- Editar -->
+      <button
+        @click="irAEditar"
+        :disabled="!filaSeleccionada"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">edit</span>
+        <span class="truncate">Editar</span>
+      </button>
 
-<div class="relative w-full max-w-md">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary/40">
-search
-</span>
+      <!-- Eliminar -->
+      <button
+        @click="confirmarEliminar"
+        :disabled="!filaSeleccionada"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">delete</span>
+        <span class="truncate">Eliminar</span>
+      </button>
 
-<input
-v-model="search"
-class="w-full pl-10 pr-4 py-3 bg-white border-primary/10 rounded-xl focus:ring-primary focus:border-primary shadow-sm text-sm"
-placeholder="Buscar registro de parto por embarazo, observaciones..."
-type="text"
-/>
+      <!-- Búsqueda -->
+      <div class="relative flex flex-1 items-center min-w-[200px] sm:flex-none">
+        <span class="material-symbols-outlined absolute left-3 text-gray-400 text-base">search</span>
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Buscar..."
+          class="w-full rounded-lg border border-border-color bg-white py-2 pl-9 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      </div>
+    </div>
 
-</div>
+    <!-- Alertas -->
+    <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <span class="material-symbols-outlined text-base">warning</span>
+      {{ store.error }}
+    </div>
 
-<RouterLink
-to="/partos/nuevo"
-class="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-primary/20"
->
-<span class="material-symbols-outlined">add_circle</span>
-<span>Nuevo Parto</span>
-</RouterLink>
-
-</div>
-
-<!-- Table -->
-<div class="bg-white rounded-2xl shadow-sm border border-primary/5 overflow-hidden">
-
-<div class="overflow-x-auto">
-
-<table class="w-full text-left border-collapse">
-
-<thead>
-
-<tr class="bg-gray-50">
-
-<th class="px-6 py-4 text-xs font-bold">ID Parto</th>
-<th class="px-6 py-4 text-xs font-bold">ID Embarazo</th>
-<th class="px-6 py-4 text-xs font-bold">Fecha del Parto</th>
-<th class="px-6 py-4 text-xs font-bold">Crías</th>
-<th class="px-6 py-4 text-xs font-bold">Observaciones</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr
-v-for="p in partosFiltrados"
-:key="p.Id_parto"
-class="hover:bg-primary/5"
->
-
-<td class="px-6 py-5 font-bold">
-{{ p.Id_parto }}
-</td>
-
-<td class="px-6 py-5">
-<span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
-{{ p.EMBARAZO ? p.EMBARAZO.Id_embarazo : p.Id_embarazo }}
-</span>
-</td>
-
-<td class="px-6 py-5 font-semibold">
-{{ p.Fecha_parto }}
-</td>
-
-<td class="px-6 py-5">
-{{ p.Numero_crias || '0' }}
-</td>
-
-<td class="px-6 py-5">
-{{ p.observaciones || 'Ninguna' }}
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
+    <!-- Tabla -->
+    <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
+      <table class="w-full text-left text-sm text-text-primary">
+        <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
+          <tr>
+            <th class="px-6 py-4">ID Parto</th>
+            <th class="px-6 py-4">ID Embarazo</th>
+            <th class="px-6 py-4">Fecha del Parto</th>
+            <th class="px-6 py-4">Crías</th>
+            <th class="px-6 py-4">Observaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="store.cargando">
+            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
+              <p class="mt-2">Cargando...</p>
+            </td>
+          </tr>
+          <tr v-else-if="partosFiltrados.length === 0">
+            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined text-4xl">search_off</span>
+              <p class="mt-2">No hay registros.</p>
+            </td>
+          </tr>
+          <tr
+            v-else
+            v-for="p in partosFiltrados"
+            :key="p.Id_parto"
+            @click="seleccionarFila(p)"
+            class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10"
+            :class="{ 'bg-primary/20': filaSeleccionada?.Id_parto === p.Id_parto }"
+          >
+            <td class="px-6 py-3 font-medium">{{ p.Id_parto }}</td>
+            <td class="px-6 py-3">
+              <span class="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                {{ p.EMBARAZO ? p.EMBARAZO.Id_embarazo : p.Id_embarazo }}
+              </span>
+            </td>
+            <td class="px-6 py-3">{{ p.Fecha_parto }}</td>
+            <td class="px-6 py-3">{{ p.Numero_crias || '0' }}</td>
+            <td class="px-6 py-3">{{ p.observaciones || 'Ninguna' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </template>
 
 <script setup>
-
 import { ref, computed, onMounted } from "vue"
+import { useRouter } from 'vue-router'
 import { usePartoStore } from "./store/Parto.store.js"
 
-const search = ref("")
+const router = useRouter()
 const store = usePartoStore()
+
+const search = ref("")
+const filaSeleccionada = ref(null)
 
 const partosFiltrados = computed(() => {
   if (!search.value) return store.partos
@@ -112,8 +120,36 @@ const partosFiltrados = computed(() => {
   )
 })
 
+function seleccionarFila(fila) {
+  if (filaSeleccionada.value?.Id_parto === fila.Id_parto) {
+    filaSeleccionada.value = null
+  } else {
+    filaSeleccionada.value = fila
+  }
+}
+
+function irAFormulario() {
+  router.push('/partos/nuevo')
+}
+
+function irAEditar() {
+  if (!filaSeleccionada.value) return
+  router.push({ name: 'PartoNuevo' })
+}
+
+async function confirmarEliminar() {
+  if (!filaSeleccionada.value) return
+  if (confirm(`¿Eliminar el parto ${filaSeleccionada.value.Id_parto}? Esta acción no se puede deshacer.`)) {
+    if (store.eliminarParto) {
+      await store.eliminarParto(filaSeleccionada.value.Id_parto)
+    } else {
+      console.warn('eliminarParto no implementado en store')
+    }
+    filaSeleccionada.value = null
+  }
+}
+
 onMounted(() => {
   store.cargarPartos()
 })
-
 </script>

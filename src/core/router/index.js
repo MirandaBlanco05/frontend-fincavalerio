@@ -12,6 +12,18 @@ const CeloIndex       = () => import('@/modules/celo/views/CeloIndex.vue')
 const EmpleadoIndex   = () => import('@/modules/empleado/views/EmpleadoIndex.vue')
 const OrdenioIndex    = () => import('@/modules/ordenio/views/OrdenioIndex.vue')
 
+const InseminacionIndex   = () => import('@/modules/inseminacion/InseminacionIndex.vue')
+const InseminacionForm    = () => import('@/modules/inseminacion/InseminacionForm.vue')
+const NewInseminacionForm = () => import('@/modules/inseminacion/NewInseminacionForm.vue')
+
+const EmbarazoIndex   = () => import('@/modules/Embarazo/EmbarazoIndex.vue')
+const EmbarazoForm    = () => import('@/modules/Embarazo/EmbarazoForm.vue')
+const NewEmbarazoForm = () => import('@/modules/Embarazo/NewEmbarazoForm.vue')
+
+const PartoIndex   = () => import('@/modules/Parto/PartoIndex.vue')
+const PartoForm    = () => import('@/modules/Parto/PartoForm.vue')
+const NewPartoForm = () => import('@/modules/Parto/NewPartoForm.vue')
+
 const routes = [
   { path: '/',      redirect: '/login' },
   { path: '/login', name: 'Login', component: Login, meta: { publico: true } },
@@ -30,6 +42,33 @@ const routes = [
       { path: '',           name: 'Bovinos',      component: BovinoList },
       { path: 'nuevo',      name: 'BovinoNuevo',  component: BovinoForm },
       { path: 'editar/:id', name: 'BovinoEditar', component: BovinoForm }
+    ]
+  },
+  
+  {
+    path: '/inseminaciones',
+    component: InseminacionIndex,
+    children: [
+      { path: '',      name: 'Inseminaciones',      component: InseminacionForm },
+      { path: 'nuevo', name: 'InseminacionNueva',   component: NewInseminacionForm }
+    ]
+  },
+
+  {
+    path: '/embarazos',
+    component: EmbarazoIndex,
+    children: [
+      { path: '',      name: 'Embarazos',      component: EmbarazoForm },
+      { path: 'nuevo', name: 'EmbarazoNuevo',  component: NewEmbarazoForm }
+    ]
+  },
+
+  {
+    path: '/partos',
+    component: PartoIndex,
+    children: [
+      { path: '',      name: 'Partos',      component: PartoForm },
+      { path: 'nuevo', name: 'PartoNuevo',  component: NewPartoForm }
     ]
   },
 

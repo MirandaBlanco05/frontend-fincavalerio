@@ -1,67 +1,99 @@
 <template>
-  <div class="celo-root">
+  <div class="relative min-h-screen w-full p-0">
 
-    <!-- Header con botón -->
-    <div class="header-section">
-      <div>
-        <h2 class="title">Registro de Ciclo Celo</h2>
-        <p class="subtitle">Gestión de ciclos reproductivos del ganado</p>
-      </div>
-      <button @click="mostrarModal = true" class="btn-nuevo">
-        <span class="material-symbols-outlined">add_circle</span>
-        Nuevo Ciclo
+    <!-- Action Bar -->
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+      <!-- Nuevo -->
+      <button
+        @click="mostrarModal = true"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">add</span>
+        <span class="truncate">Nuevo Ciclo</span>
       </button>
+
+      <!-- Editar -->
+      <button
+        @click="editarCiclo(filaSeleccionada)"
+        :disabled="!filaSeleccionada"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">edit</span>
+        <span class="truncate">Editar</span>
+      </button>
+
+      <!-- Eliminar -->
+      <button
+        @click="confirmarEliminar(filaSeleccionada)"
+        :disabled="!filaSeleccionada"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">delete</span>
+        <span class="truncate">Eliminar</span>
+      </button>
+
+      <!-- Búsqueda -->
+      <div class="relative flex flex-1 items-center min-w-[200px] sm:flex-none">
+        <span class="material-symbols-outlined absolute left-3 text-gray-400 text-base">search</span>
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Buscar..."
+          class="w-full rounded-lg border border-border-color bg-white py-2 pl-9 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      </div>
     </div>
 
     <!-- Alertas -->
-    <div v-if="store.error" class="alert alert--error">
-      <span class="material-symbols-outlined">error</span>
+    <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <span class="material-symbols-outlined text-base">warning</span>
       {{ store.error }}
     </div>
 
     <!-- Tabla de ciclos -->
-    <div class="table-card">
-      <div v-if="store.cargando" class="loading">
-        <div class="spinner"></div>
-        <p>Cargando ciclos...</p>
-      </div>
-
-      <div v-else-if="store.ciclos.length === 0" class="empty-state">
-        <span class="material-symbols-outlined">event_busy</span>
-        <p>No hay ciclos registrados</p>
-        <button @click="mostrarModal = true" class="btn-empty">Registrar primer ciclo</button>
-      </div>
-
-      <table v-else class="tabla">
-        <thead>
+    <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
+      <table class="w-full text-left text-sm text-text-primary">
+        <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
-            <th>ID Ciclo</th>
-            <th>Bovino</th>
-            <th>Fecha Inicio</th>
-            <th>Fecha Fin</th>
-            <th>Duración</th>
-            <th>Observaciones</th>
-            <th>Acciones</th>
+            <th class="px-6 py-4">ID Ciclo</th>
+            <th class="px-6 py-4">Bovino</th>
+            <th class="px-6 py-4">Fecha Inicio</th>
+            <th class="px-6 py-4">Fecha Fin</th>
+            <th class="px-6 py-4">Duración</th>
+            <th class="px-6 py-4">Observaciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="ciclo in store.ciclos" :key="ciclo.Id_ciclo">
-            <td class="font-mono">{{ ciclo.Id_ciclo }}</td>
-            <td class="font-bold">{{ ciclo.bovino?.nombre || 'N/A' }}</td>
-            <td>{{ formatearFecha(ciclo.Fecha_inicio) }}</td>
-            <td>{{ formatearFecha(ciclo.Fecha_fin) }}</td>
-            <td>{{ ciclo.duracion || calcularDuracion(ciclo.Fecha_inicio, ciclo.Fecha_fin) }} días</td>
-            <td class="text-muted">{{ ciclo.observaciones || '—' }}</td>
-            <td>
-              <div class="acciones">
-                <button @click="editarCiclo(ciclo)" class="btn-icon btn-icon--edit" title="Editar">
-                  <span class="material-symbols-outlined">edit</span>
-                </button>
-                <button @click="confirmarEliminar(ciclo)" class="btn-icon btn-icon--delete" title="Eliminar">
-                  <span class="material-symbols-outlined">delete</span>
-                </button>
-              </div>
+          <tr v-if="store.cargando">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
+              <p class="mt-2">Cargando ciclos...</p>
             </td>
+          </tr>
+          <tr v-else-if="ciclosFiltrados.length === 0">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined text-4xl">search_off</span>
+              <p class="mt-2">No hay ciclos registrados.</p>
+            </td>
+          </tr>
+          <tr
+            v-else
+            v-for="ciclo in ciclosFiltrados"
+            :key="ciclo.Id_ciclo"
+            @click="seleccionarFila(ciclo)"
+            class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10"
+            :class="{ 'bg-primary/20': filaSeleccionada?.Id_ciclo === ciclo.Id_ciclo }"
+          >
+            <td class="px-6 py-3 font-medium">{{ ciclo.Id_ciclo }}</td>
+            <td class="px-6 py-3 font-bold">{{ ciclo.bovino?.nombre || 'N/A' }}</td>
+            <td class="px-6 py-3">{{ formatearFecha(ciclo.Fecha_inicio) }}</td>
+            <td class="px-6 py-3">{{ formatearFecha(ciclo.Fecha_fin) }}</td>
+            <td class="px-6 py-3">
+              <span class="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                {{ ciclo.duracion || calcularDuracion(ciclo.Fecha_inicio, ciclo.Fecha_fin) }} días
+              </span>
+            </td>
+            <td class="px-6 py-3 text-gray-500 italic">{{ ciclo.observaciones || '—' }}</td>
           </tr>
         </tbody>
       </table>
@@ -199,6 +231,27 @@ const modalEliminar = ref(false)
 const esEdicion = ref(false)
 const cicloAEliminar = ref(null)
 const bovinos = ref([])
+
+const search = ref("")
+const filaSeleccionada = ref(null)
+
+const ciclosFiltrados = computed(() => {
+  if (!search.value) return store.ciclos
+  const query = search.value.toLowerCase()
+  return store.ciclos.filter(c => 
+    c.Id_ciclo?.toString().includes(query) ||
+    c.bovino?.nombre?.toLowerCase().includes(query) ||
+    c.observaciones?.toLowerCase().includes(query)
+  )
+})
+
+function seleccionarFila(fila) {
+  if (filaSeleccionada.value?.Id_ciclo === fila.Id_ciclo) {
+    filaSeleccionada.value = null
+  } else {
+    filaSeleccionada.value = fila
+  }
+}
 
 const form = reactive({
   idCiclo: '',
