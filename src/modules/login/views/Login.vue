@@ -7,7 +7,9 @@
       <!-- Panel verde izquierdo -->
       <div class="panel-verde">
         <div class="brand">
-          <span class="material-symbols-outlined">agriculture</span>
+          <div class="logo-box-small">
+            <img src="@/assets/logo.png" alt="Logo" class="brand-logo-small" />
+          </div>
           <span class="brand-text">Finca Valerio</span>
         </div>
 
@@ -20,7 +22,7 @@
         <div class="stats-grid">
           <div class="stat-card">
             <p class="stat-label">ANIMALES</p>
-            <p class="stat-value">256</p>
+            <p class="stat-value">{{ totalAnimales !== null ? totalAnimales : '...' }}</p>
           </div>
           <div class="stat-card">
             <p class="stat-label">HECTÁREAS</p>
@@ -109,7 +111,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/core/api/axios.js'
 
@@ -118,6 +120,18 @@ const cargando = ref(false)
 const error = ref('')
 const mostrarPassword = ref(false)
 const recordarSesion = ref(false)
+const totalAnimales = ref(null)
+
+onMounted(async () => {
+  try {
+    const { data } = await api.get('/bovino/listar')
+    if (Array.isArray(data)) {
+      totalAnimales.value = data.length
+    }
+  } catch (err) {
+    console.warn('No se pudo cargar el total de animales:', err)
+  }
+})
 
 const form = reactive({
   usuario: '',
@@ -199,14 +213,25 @@ async function iniciarSesion() {
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 3rem;
   padding-bottom: 1.5rem;
 }
 
-.brand .material-symbols-outlined {
-  font-size: 1.8rem;
-  font-variation-settings: 'FILL' 1;
+.logo-box-small {
+  background: #fcfcfc;
+  border-radius: 8px;
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.brand-logo-small {
+  height: 35px;
+  width: auto;
+  object-fit: contain;
 }
 
 .brand-text {

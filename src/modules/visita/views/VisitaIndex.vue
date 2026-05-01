@@ -201,6 +201,13 @@
                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#4c9a4c] focus:outline-none focus:ring-1 focus:ring-[#4c9a4c]" />
             </div>
 
+            <!-- Hora -->
+            <div>
+              <label class="mb-1 block text-sm font-medium">Hora</label>
+              <input v-model="form.hora" type="time"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#4c9a4c] focus:outline-none focus:ring-1 focus:ring-[#4c9a4c]" />
+            </div>
+
 
             <!-- Observaciones -->
             <div>
@@ -239,7 +246,7 @@
             </div>
             <div>
               <p class="font-bold text-[#0d1b0d]">{{ (citaDetalle.motivos || []).join(', ') || '—' }}</p>
-              <p class="text-sm text-[#757575]">{{ citaDetalle.fecha }}</p>
+              <p class="text-sm text-[#757575]">{{ citaDetalle.fecha }} <span v-if="citaDetalle.hora"> a las {{ citaDetalle.hora }}</span></p>
             </div>
           </div>
 
@@ -352,6 +359,7 @@ const form = reactive({
   motivos:        [],
   motivosFallback:[],
   fecha:          '',
+  hora:           '',
   observaciones:  ''
 })
 
@@ -359,7 +367,7 @@ function abrirModal() {
   Object.assign(form, {
     Id_veterinario: '', Id_bovino: '',
     motivos: [], motivosFallback: [],
-    fecha: fechaSeleccionadaISO.value, observaciones: ''
+    fecha: fechaSeleccionadaISO.value, hora: '', observaciones: ''
   })
   store.limpiarMensajes()
   modalAbierto.value = true
@@ -371,6 +379,7 @@ async function guardarCita() {
     Id_veterinario: form.Id_veterinario,
     Id_bovino:      form.Id_bovino,
     fecha:          form.fecha,
+    hora:           form.hora,
     observaciones:  form.observaciones,
     motivos:        form.motivos.length > 0 ? form.motivos : undefined
   })

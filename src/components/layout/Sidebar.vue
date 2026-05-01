@@ -3,7 +3,9 @@
 
     <!-- Brand -->
     <RouterLink to="/dashboard" class="flex items-center gap-3 px-2 py-4 border-b border-white/10 cursor-pointer hover:opacity-80 transition-opacity">
-      <span class="material-symbols-outlined text-[#4c9a4c] text-4xl" style="font-variation-settings:'FILL' 1;">grass</span>
+      <div class="bg-white rounded-lg p-1.5 shadow-sm flex items-center justify-center">
+        <img src="@/assets/logo.png" alt="Logo" class="h-7 w-auto object-contain" />
+      </div>
       <h1 class="text-xl font-bold text-white">Finca Valerio</h1>
     </RouterLink>
 
