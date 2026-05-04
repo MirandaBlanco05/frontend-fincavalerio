@@ -35,6 +35,18 @@
           <span class="card-arrow material-symbols-outlined">chevron_right</span>
         </RouterLink>
 
+        <!-- Card Compras -->
+        <RouterLink to="/compra" class="card card--clickable">
+          <div class="card-icon card-icon--orange">
+            <span class="material-symbols-outlined">inventory_2</span>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">Compras</h3>
+            <p class="card-desc">Registro de compras y proveedores</p>
+          </div>
+          <span class="card-arrow material-symbols-outlined">chevron_right</span>
+        </RouterLink>
+
         <!-- Card Ciclo Celo -->
         <RouterLink to="/celo" class="card card--clickable">
           <div class="card-icon card-icon--pink">

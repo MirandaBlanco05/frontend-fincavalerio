@@ -13,7 +13,9 @@
 
       <!-- Página -->
       <main class="flex-1 p-4 sm:p-6" :class="mostrarLayout ? 'mt-16' : ''">
-        <RouterView />
+        <RouterView v-slot="{ Component }">
+          <component :is="Component" :key="$route.fullPath" />
+        </RouterView>
       </main>
     </div>
 

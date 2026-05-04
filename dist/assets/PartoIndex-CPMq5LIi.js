@@ -1,0 +1,1 @@
+import{_ as o,a as t,c as n,k as r,m as a}from"./index-yC5sYXBd.js";const s={name:"PartosIndex"};function c(_,p,d,m,i,l){const e=a("router-view");return t(),n("div",null,[r(e)])}const f=o(s,[["render",c]]);export{f as default};
