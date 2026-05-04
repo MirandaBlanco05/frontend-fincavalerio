@@ -1,0 +1,1 @@
+import{a as r}from"./axios-BcB5iGDJ.js";const o={async listar(){const{data:a}=await r.get("/embarazo/listar");return a},async crear(a){const{data:t}=await r.post("/embarazo/crear",a);return t},async actualizar(a,t){const{data:e}=await r.put(`/embarazo/update/${a}`,t);return e},async eliminar(a){const{data:t}=await r.delete(`/embarazo/delete/${a}`);return t}};export{o as e};

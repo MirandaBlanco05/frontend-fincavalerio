@@ -1,0 +1,1 @@
+import{_ as n,a as o,c as t,k as c,m as r}from"./index-yC5sYXBd.js";const s={name:"InseminacionIndex"};function a(_,i,m,p,d,l){const e=r("router-view");return o(),t("div",null,[c(e)])}const f=n(s,[["render",a]]);export{f as default};

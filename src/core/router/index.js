@@ -11,6 +11,7 @@ const ProduccionIndex = () => import('@/modules/produccion/views/ProduccionIndex
 const CeloIndex       = () => import('@/modules/celo/views/CeloIndex.vue')
 const EmpleadoIndex   = () => import('@/modules/empleado/views/EmpleadoIndex.vue')
 const OrdenioIndex    = () => import('@/modules/ordenio/views/OrdenioIndex.vue')
+const CompraIndex     = () => import('@/modules/compra/views/compraindex.vue')
 
 const VentaIndex      = () => import('@/modules/venta/views/VentaIndex.vue')
 const VentaForm       = () => import('@/modules/venta/views/VentaForm.vue')
@@ -39,6 +40,7 @@ const routes = [
   { path: '/ordenio',    name: 'Ordenio',    component: OrdenioIndex },
   
   { path: '/venta',       name: 'Venta',       component: VentaIndex },
+  { path: '/compra',      name: 'Compra',      component: CompraIndex },
   { path: '/venta/nueva', name: 'VentaNueva',  component: VentaForm },
 
   {
