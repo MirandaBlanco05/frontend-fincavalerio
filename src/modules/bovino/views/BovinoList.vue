@@ -163,9 +163,18 @@
 
           <!-- Campos -->
           <div class="flex flex-col gap-4 p-4">
+            <!-- NUEVO: Filtro por Grupo -->
+            <div>
+              <label class="mb-1 block text-sm font-medium">Grupo</label>
+              <select v-model="filtros.grupo" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary focus:bg-gray-50">
+                <option value="">Todos los grupos</option>
+                <option v-for="g in gruposUnicos" :key="g" :value="g">Grupo {{ g }}</option>
+              </select>
+            </div>
+            
             <div>
               <label class="mb-1 block text-sm font-medium">Edad</label>
-              <select v-model="filtros.edad" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+              <select v-model="filtros.edad" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary focus:bg-gray-50">
                 <option value="">Todas</option>
                 <option value="menos1">Menos de 1 año</option>
                 <option value="1a3">1–3 años</option>
@@ -174,7 +183,7 @@
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium">Sexo</label>
-              <select v-model="filtros.sexo" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+              <select v-model="filtros.sexo" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary focus:bg-gray-50">
                 <option value="">Todos</option>
                 <option value="Macho">Macho</option>
                 <option value="Hembra">Hembra</option>
@@ -182,7 +191,7 @@
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium">Estado</label>
-              <select v-model="filtros.estado" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+              <select v-model="filtros.estado" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary focus:bg-gray-50">
                 <option value="">Todos</option>
                 <option value="Activo">Activo</option>
                 <option value="Vendido">Vendido</option>
@@ -258,8 +267,14 @@ async function confirmarEliminar() {
 
 // ── Filtros ───────────────────────────────────────
 const modalFiltros = ref(false)
-const filtros = ref({ edad: '', sexo: '', estado: '' })
-const filtrosAplicados = ref({ edad: '', sexo: '', estado: '' })
+const filtros = ref({ grupo: '', edad: '', sexo: '', estado: '' })
+const filtrosAplicados = ref({ grupo: '', edad: '', sexo: '', estado: '' })
+
+// NUEVO: Obtener lista única de grupos
+const gruposUnicos = computed(() => {
+  const grupos = [...new Set(store.bovinos.map(b => b.Id_grupo))].sort((a, b) => a - b)
+  return grupos
+})
 
 function aplicarFiltros() {
   filtrosAplicados.value = { ...filtros.value }
@@ -267,14 +282,17 @@ function aplicarFiltros() {
 }
 
 function limpiarFiltros() {
-  filtros.value = { edad: '', sexo: '', estado: '' }
-  filtrosAplicados.value = { edad: '', sexo: '', estado: '' }
+  filtros.value = { grupo: '', edad: '', sexo: '', estado: '' }
+  filtrosAplicados.value = { grupo: '', edad: '', sexo: '', estado: '' }
   modalFiltros.value = false
 }
 
 const bovinosFiltrados = computed(() => {
   return store.bovinos.filter(b => {
-    const { edad, sexo, estado } = filtrosAplicados.value
+    const { grupo, edad, sexo, estado } = filtrosAplicados.value
+
+    // NUEVO: Filtro por grupo
+    const okGrupo = !grupo || b.Id_grupo === parseInt(grupo)
 
     let okEdad = true
     if (edad === 'menos1') okEdad = Number(b.edad) < 1
@@ -284,7 +302,7 @@ const bovinosFiltrados = computed(() => {
     const okSexo   = !sexo   || b.sexo   === sexo
     const okEstado = !estado || b.estado === estado
 
-    return okEdad && okSexo && okEstado
+    return okGrupo && okEdad && okSexo && okEstado
   })
 })
 </script>

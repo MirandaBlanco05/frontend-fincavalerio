@@ -1,188 +1,219 @@
 <template>
-  <div class="empleado-root">
+  <div class="relative min-h-screen w-full">
 
-    <!-- Header -->
-    <div class="page-header">
-      <div class="header-left">
-        <div class="checkbox-menu">
-          <input type="checkbox" class="checkbox-toggle" />
-        </div>
-        <h1 class="page-title">Gestión de Empleados</h1>
-      </div>
-      <div class="header-search">
-        <input 
-          v-model="busqueda" 
-          type="text" 
-          placeholder="Buscar por nombre o cédula..." 
-          class="search-input"
-        />
-        <button class="btn-icon-search">
-          <span class="material-symbols-outlined">search</span>
-        </button>
-      </div>
+    <!-- Action Bar -->
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+      <!-- Nuevo Empleado -->
+      <button
+        @click="abrirModal()"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">add</span>
+        <span class="truncate">Nuevo Empleado</span>
+      </button>
+
+      <!-- Editar (activo solo si hay fila seleccionada) -->
+      <button
+        @click="editarEmpleado()"
+        :disabled="!filaSeleccionada"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">edit</span>
+        <span class="truncate">Editar</span>
+      </button>
+
+      <!-- Eliminar (activo solo si hay fila seleccionada) -->
+      <button
+        @click="confirmarEliminar()"
+        :disabled="!filaSeleccionada"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">delete</span>
+        <span class="truncate">Eliminar</span>
+      </button>
     </div>
 
-    <!-- Card Formulario -->
-    <div class="form-card">
-      <div class="form-header">
-        <div class="checkbox-toggle-wrap">
-          <input type="checkbox" class="checkbox-toggle" />
-        </div>
-        <h2 class="form-title">Nuevo Empleado</h2>
-        <button @click="limpiarForm" class="btn-limpiar">
-          <span class="material-symbols-outlined">restart_alt</span>
-          Limpiar
-        </button>
-      </div>
-
-      <form @submit.prevent="guardarEmpleado" class="form-grid">
-        
-        <!-- Nombre completo -->
-        <div class="form-group span-full">
-          <label class="form-label required">
-            <span class="material-symbols-outlined">person</span>
-            Nombre completo
-          </label>
-          <input 
-            v-model="form.nombre" 
-            type="text" 
-            placeholder="Ej: Juan Antonio Pérez"
-            class="form-input"
-            required
-          />
-        </div>
-
-        <!-- Nacionalidad y Cédula -->
-        <div class="form-group">
-          <label class="form-label required">
-            <span class="material-symbols-outlined">flag</span>
-            Nacionalidad
-          </label>
-          <select v-model="form.nacionalidad" class="form-select" required>
-            <option value="">-- Seleccionar --</option>
-            <option value="Dominicana">Dominicana</option>
-            <option value="Haitiana">Haitiana</option>
-            <option value="Venezolana">Venezolana</option>
-            <option value="Otra">Otra</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">
-            <span class="material-symbols-outlined">badge</span>
-            Cédula
-          </label>
-          <input 
-            v-model="form.cedula" 
-            type="text" 
-            placeholder="Ej: 001-0000000-0"
-            class="form-input"
-          />
-        </div>
-
-        <!-- Teléfono y Salario -->
-        <div class="form-group">
-          <label class="form-label required">
-            <span class="material-symbols-outlined">phone</span>
-            Teléfono
-          </label>
-          <input 
-            v-model="form.telefono" 
-            type="tel" 
-            placeholder="Ej: 809-000-0000"
-            class="form-input"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">
-            <span class="material-symbols-outlined">payments</span>
-            Salario (RD$)
-          </label>
-          <input 
-            v-model="form.salario" 
-            type="number" 
-            step="0.01"
-            placeholder="Ej: 15000"
-            class="form-input"
-          />
-        </div>
-
-        <!-- Botón submit -->
-        <div class="span-full">
-          <button type="submit" :disabled="store.cargando" class="btn-submit">
-            <span class="material-symbols-outlined">save</span>
-            {{ store.cargando ? 'Guardando...' : 'Guardar Empleado' }}
-          </button>
-        </div>
-
-      </form>
+    <!-- Alerta de error -->
+    <div
+      v-if="store.error"
+      class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+    >
+      <span class="material-symbols-outlined text-base">warning</span>
+      {{ store.error }}
     </div>
 
-    <!-- Card Tabla -->
-    <div class="table-card">
-      <div class="table-header">
-        <div class="checkbox-toggle-wrap">
-          <input type="checkbox" class="checkbox-toggle" />
-        </div>
-        <h2 class="table-title">Empleados Registrados</h2>
-        <button @click="store.cargarEmpleados()" class="btn-actualizar">
-          <span class="material-symbols-outlined">refresh</span>
-          Actualizar
-        </button>
-      </div>
-
-      <!-- Loading / Empty -->
-      <div v-if="store.cargando" class="loading-state">
-        <div class="spinner"></div>
-        <p>Cargando empleados...</p>
-      </div>
-
-      <div v-else-if="empleadosFiltrados.length === 0" class="empty-state">
-        <span class="material-symbols-outlined">group_off</span>
-        <p>No hay empleados registrados</p>
-      </div>
-
-      <!-- Tabla -->
-      <div v-else class="table-wrapper">
-        <table class="tabla">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>EMPLEADO</th>
-              <th>NACIONALIDAD</th>
-              <th>CÉDULA</th>
-              <th>TELÉFONO</th>
-              <th>SALARIO</th>
-              <th>ACCIONES</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(empleado, index) in empleadosFiltrados" :key="empleado.Id_empleado">
-              <td class="text-center font-bold">{{ index + 1 }}</td>
-              <td class="font-bold">{{ empleado.nombre }}</td>
-              <td>{{ empleado.nacionalidad }}</td>
-              <td class="font-mono">{{ empleado.cedula || '—' }}</td>
-              <td class="font-mono">{{ empleado.telefono }}</td>
-              <td class="text-right font-bold">{{ formatearSalario(empleado.salario) }}</td>
-              <td>
-                <div class="acciones">
-                  <button @click="editarEmpleado(empleado)" class="btn-icon btn-icon--edit" title="Editar">
-                    <span class="material-symbols-outlined">edit</span>
-                  </button>
-                  <button @click="confirmarEliminar(empleado)" class="btn-icon btn-icon--delete" title="Eliminar">
-                    <span class="material-symbols-outlined">delete</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- Alerta de éxito -->
+    <div
+      v-if="store.mensaje"
+      class="mb-4 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+    >
+      <span class="material-symbols-outlined text-base">check_circle</span>
+      {{ store.mensaje }}
     </div>
 
-    <!-- Modal confirmación eliminar -->
+    <!-- Tabla -->
+    <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
+      <table class="w-full text-left text-sm text-text-primary">
+        <!-- Encabezado -->
+        <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
+          <tr>
+            <th class="px-6 py-4">ID</th>
+            <th class="px-6 py-4">Nombre</th>
+            <th class="px-6 py-4">Nacionalidad</th>
+            <th class="px-6 py-4">Cédula</th>
+            <th class="px-6 py-4">Teléfono</th>
+            <th class="px-6 py-4">Salario</th>
+          </tr>
+        </thead>
+
+        <!-- Cuerpo -->
+        <tbody>
+          <!-- Cargando -->
+          <tr v-if="store.cargando">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
+              <p class="mt-2">Cargando empleados...</p>
+            </td>
+          </tr>
+
+          <!-- Sin datos -->
+          <tr v-else-if="store.empleados.length === 0">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined text-4xl">group_off</span>
+              <p class="mt-2">No hay empleados registrados.</p>
+            </td>
+          </tr>
+
+          <!-- Filas -->
+          <tr
+            v-else
+            v-for="emp in store.empleados"
+            :key="emp.Id_empleado"
+            @click="seleccionarFila(emp)"
+            class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10"
+            :class="{ 'bg-primary/20': filaSeleccionada?.Id_empleado === emp.Id_empleado }"
+          >
+            <td class="px-6 py-3">{{ emp.Id_empleado }}</td>
+            <td class="px-6 py-3 font-medium">{{ emp.nombre }}</td>
+            <td class="px-6 py-3">{{ emp.nacionalidad }}</td>
+            <td class="px-6 py-3 font-mono">{{ emp.cedula ?? '—' }}</td>
+            <td class="px-6 py-3 font-mono">{{ emp.telefono }}</td>
+            <td class="px-6 py-3 text-right font-bold">{{ formatearSalario(emp.salario) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal Formulario -->
+    <Teleport to="body">
+      <div v-if="mostrarModal" class="modal-overlay">
+        <div class="modal-content">
+          
+          <!-- Encabezado -->
+          <div class="modal-header">
+            <div>
+              <h3 class="modal-title">{{ esEdicion ? 'Editar' : 'Nuevo' }} Empleado</h3>
+              <p class="modal-subtitle">Complete los datos del empleado</p>
+            </div>
+            <button type="button" @click="cerrarModal" class="btn-close">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <!-- Formulario -->
+          <form @submit.prevent="guardarEmpleado" class="modal-body">
+            
+            <!-- Nombre completo -->
+            <div class="form-group span-full">
+              <label class="form-label required">
+                <span class="material-symbols-outlined">person</span>
+                Nombre completo
+              </label>
+              <input 
+                v-model="form.nombre" 
+                type="text" 
+                placeholder="Ej: Juan Antonio Pérez"
+                class="form-input"
+                required
+              />
+            </div>
+
+            <div class="form-grid">
+              <!-- Nacionalidad -->
+              <div class="form-group">
+                <label class="form-label required">
+                  <span class="material-symbols-outlined">flag</span>
+                  Nacionalidad
+                </label>
+                <select v-model="form.nacionalidad" class="form-select" required>
+                  <option value="">Seleccione...</option>
+                  <option value="Dominicana">Dominicana</option>
+                  <option value="Haitiana">Haitiana</option>
+                </select>
+              </div>
+
+              <!-- Cédula -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="material-symbols-outlined">badge</span>
+                  Cédula
+                </label>
+                <input 
+                  v-model="form.cedula" 
+                  type="text" 
+                  placeholder="Ej: 001-0000000-0"
+                  class="form-input"
+                />
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <!-- Teléfono -->
+              <div class="form-group">
+                <label class="form-label required">
+                  <span class="material-symbols-outlined">phone</span>
+                  Teléfono
+                </label>
+                <input 
+                  v-model="form.telefono" 
+                  type="tel" 
+                  placeholder="Ej: 809-000-0000"
+                  class="form-input"
+                  required
+                />
+              </div>
+
+              <!-- Salario -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="material-symbols-outlined">payments</span>
+                  Salario (RD$)
+                </label>
+                <input 
+                  v-model="form.salario" 
+                  type="number" 
+                  step="0.01"
+                  placeholder="Ej: 15000"
+                  class="form-input"
+                />
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="modal-footer">
+              <button type="button" @click="cerrarModal" class="btn btn--secondary">Cancelar</button>
+              <button type="submit" :disabled="store.cargando" class="btn btn--primary">
+                <span class="material-symbols-outlined">save</span>
+                {{ store.cargando ? 'Guardando...' : (esEdicion ? 'Actualizar' : 'Guardar') }}
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Modal Eliminar -->
     <Teleport to="body">
       <div v-if="modalEliminar" class="modal-overlay" @click.self="modalEliminar = false">
         <div class="modal-content modal-content--small">
@@ -191,7 +222,7 @@
             <h3 class="modal-title">Eliminar Empleado</h3>
           </div>
           <div class="modal-body">
-            <p class="text-center">¿Está seguro que desea eliminar a <strong>{{ empleadoAEliminar?.nombre }}</strong>?</p>
+            <p class="text-center">¿Está seguro que desea eliminar a <strong>{{ filaSeleccionada?.nombre }}</strong>?</p>
             <p class="text-center text-sm text-muted">Esta acción no se puede deshacer.</p>
           </div>
           <div class="modal-footer">
@@ -209,13 +240,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useEmpleadoStore } from '@/modules/empleado/store/empleado.store.js'
 
 const store = useEmpleadoStore()
-const busqueda = ref('')
+const filaSeleccionada = ref(null)
+const mostrarModal = ref(false)
 const modalEliminar = ref(false)
-const empleadoAEliminar = ref(null)
 const esEdicion = ref(false)
 
 const form = reactive({
@@ -227,14 +258,24 @@ const form = reactive({
   salario: ''
 })
 
-const empleadosFiltrados = computed(() => {
-  if (!busqueda.value) return store.empleados
-  const query = busqueda.value.toLowerCase()
-  return store.empleados.filter(emp => 
-    emp.nombre?.toLowerCase().includes(query) ||
-    emp.cedula?.toLowerCase().includes(query)
-  )
-})
+function seleccionarFila(empleado) {
+  if (filaSeleccionada.value?.Id_empleado === empleado.Id_empleado) {
+    filaSeleccionada.value = null
+  } else {
+    filaSeleccionada.value = empleado
+    store.limpiarMensajes?.()
+  }
+}
+
+function abrirModal() {
+  limpiarForm()
+  mostrarModal.value = true
+}
+
+function cerrarModal() {
+  mostrarModal.value = false
+  limpiarForm()
+}
 
 function limpiarForm() {
   form.id = null
@@ -244,6 +285,19 @@ function limpiarForm() {
   form.telefono = ''
   form.salario = ''
   esEdicion.value = false
+}
+
+function editarEmpleado() {
+  if (!filaSeleccionada.value) return
+  const emp = filaSeleccionada.value
+  form.id = emp.Id_empleado
+  form.nombre = emp.nombre
+  form.nacionalidad = emp.nacionalidad
+  form.cedula = emp.cedula || ''
+  form.telefono = emp.telefono
+  form.salario = emp.salario || ''
+  esEdicion.value = true
+  mostrarModal.value = true
 }
 
 async function guardarEmpleado() {
@@ -262,31 +316,23 @@ async function guardarEmpleado() {
     exito = await store.crearEmpleado(datos)
   }
 
-  if (exito) limpiarForm()
+  if (exito) {
+    cerrarModal()
+    filaSeleccionada.value = null
+  }
 }
 
-function editarEmpleado(empleado) {
-  form.id = empleado.Id_empleado
-  form.nombre = empleado.nombre
-  form.nacionalidad = empleado.nacionalidad
-  form.cedula = empleado.cedula || ''
-  form.telefono = empleado.telefono
-  form.salario = empleado.salario || ''
-  esEdicion.value = true
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-}
-
-function confirmarEliminar(empleado) {
-  empleadoAEliminar.value = empleado
+function confirmarEliminar() {
+  if (!filaSeleccionada.value) return
   modalEliminar.value = true
 }
 
 async function eliminarEmpleado() {
-  if (!empleadoAEliminar.value) return
-  const exito = await store.eliminarEmpleado(empleadoAEliminar.value.Id_empleado)
+  if (!filaSeleccionada.value) return
+  const exito = await store.eliminarEmpleado(filaSeleccionada.value.Id_empleado)
   if (exito) {
     modalEliminar.value = false
-    empleadoAEliminar.value = null
+    filaSeleccionada.value = null
   }
 }
 
@@ -308,147 +354,88 @@ onMounted(() => {
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
 
-.empleado-root {
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
   font-family: 'DM Sans', sans-serif;
-  background: #f5f7f5;
-  min-height: 100vh;
-  padding: 2rem;
 }
 
-/* ── Page Header ──────────────────────────── */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  gap: 2rem;
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.checkbox-menu {
-  display: flex;
-  align-items: center;
-}
-
-.checkbox-toggle {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: #2d5a2d;
-}
-
-.page-title {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #2d5a2d;
-  margin: 0;
-}
-
-.header-search {
-  position: relative;
-  flex: 1;
+.modal-content--small {
   max-width: 450px;
 }
 
-.search-input {
-  width: 100%;
-  padding: 0.75rem 3rem 0.75rem 1.25rem;
-  border: 2px solid #d4e4d4;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #1b1b1b;
-  background: white;
-  transition: border-color 0.2s;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #4c9a4c;
-}
-
-.btn-icon-search {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 8px;
-  background: none;
-  border: none;
-  color: #6b7280;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: all 0.2s;
-}
-
-.btn-icon-search:hover {
-  background: #f3f4f6;
-  color: #4c9a4c;
-}
-
-/* ── Cards ────────────────────────────────── */
-.form-card, .table-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  border: 2px solid #e8f3e8;
-  margin-bottom: 2rem;
-}
-
-.form-header, .table-header {
+.modal-header {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1.5px solid #f0f0ed;
+}
+
+.modal-header--danger {
+  flex-direction: column;
   align-items: center;
   gap: 1rem;
-  padding: 1.5rem 2rem;
-  border-bottom: 2px solid #f0f8f0;
 }
 
-.checkbox-toggle-wrap {
-  display: flex;
-  align-items: center;
+.modal-header--danger .material-symbols-outlined {
+  font-size: 3rem;
+  color: #dc2626;
 }
 
-.form-title, .table-title {
-  flex: 1;
-  font-size: 1.25rem;
+.modal-title {
+  font-size: 1.5rem;
   font-weight: 800;
-  color: #2d5a2d;
-  margin: 0;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
 }
 
-.btn-limpiar, .btn-actualizar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0.65rem 1.25rem;
-  background: #f0f8f0;
-  border: 2px solid #d4e4d4;
-  border-radius: 10px;
+.modal-subtitle {
   font-size: 0.85rem;
-  font-weight: 700;
-  color: #2d5a2d;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.btn-close {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  color: #9ca3af;
   transition: all 0.2s;
 }
 
-.btn-limpiar:hover, .btn-actualizar:hover {
-  background: #e8f3e8;
-  border-color: #4c9a4c;
+.btn-close:hover {
+  background: #f5f5f5;
+  color: #1a1a1a;
 }
 
-/* ── Form ─────────────────────────────────── */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+.modal-body {
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
+/* Form */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -463,11 +450,9 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #374151;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
 .form-label .material-symbols-outlined {
@@ -476,25 +461,26 @@ onMounted(() => {
 }
 
 .form-label.required::after {
-  content: ' *';
+  content: '*';
   color: #dc2626;
+  margin-left: 4px;
 }
 
-.form-input, .form-select {
-  padding: 0.85rem 1rem;
-  border: 2px solid #e5e7eb;
+.form-input, .form-select, .form-textarea {
+  padding: 0.75rem;
+  border: 1.5px solid #e5e7eb;
   border-radius: 10px;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.9rem;
-  color: #1a1a1a;
-  transition: border-color 0.2s;
-  background: #fafafa;
+  transition: all 0.2s;
+  width: 100%;
+  background: white;
 }
 
-.form-input:focus, .form-select:focus {
+.form-input:focus, .form-select:focus, .form-textarea:focus {
   outline: none;
   border-color: #4c9a4c;
-  background: white;
+  background: #f0f9f0;
 }
 
 .form-select {
@@ -507,181 +493,16 @@ onMounted(() => {
   padding-right: 2.5rem;
 }
 
-.btn-submit {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 1rem;
-  background: #2d5a2d;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 0.5rem;
-}
-
-.btn-submit:hover:not(:disabled) {
-  background: #1f4a1f;
-  transform: translateY(-1px);
-}
-
-.btn-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ── Table ────────────────────────────────── */
-.loading-state, .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #f0f8f0;
-  border-top-color: #4c9a4c;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.empty-state .material-symbols-outlined {
-  font-size: 4rem;
-  color: #d1d5db;
-}
-
-.empty-state p {
-  color: #6b7280;
-  font-weight: 600;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-.tabla {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.tabla thead {
-  background: #f0f8f0;
-}
-
-.tabla th {
-  padding: 1rem;
-  text-align: left;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: #2d5a2d;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 2px solid #e8f3e8;
-}
-
-.tabla td {
-  padding: 1rem;
-  font-size: 0.9rem;
-  color: #1a1a1a;
-  border-bottom: 1px solid #f5f5f5;
-}
-
-.tabla tr:hover {
-  background: #fafafa;
-}
-
-.font-mono { font-family: 'Courier New', monospace; }
-.font-bold { font-weight: 700; }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.text-muted { color: #9ca3af; font-style: italic; }
-
-.acciones {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}
-
-.btn-icon {
-  padding: 6px;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-icon .material-symbols-outlined {
-  font-size: 1.1rem;
-}
-
-.btn-icon--edit { color: #4c9a4c; }
-.btn-icon--edit:hover { background: #e8f3e8; }
-
-.btn-icon--delete { color: #dc2626; }
-.btn-icon--delete:hover { background: #fef2f2; }
-
-/* ── Modal ────────────────────────────────── */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  background: white;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 450px;
-}
-
-.modal-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem 2rem 1.5rem;
-  border-bottom: 1.5px solid #f0f0ed;
-}
-
-.modal-header--danger .material-symbols-outlined {
-  font-size: 3rem;
-  color: #dc2626;
-}
-
-.modal-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #1a1a1a;
-  text-align: center;
-}
-
-.modal-body {
-  padding: 2rem;
 }
 
 .modal-footer {
   display: flex;
   gap: 12px;
-  padding: 1.5rem 2rem;
+  padding-top: 1rem;
   border-top: 1.5px solid #f0f0ed;
 }
 
@@ -699,6 +520,22 @@ onMounted(() => {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+.btn--primary {
+  background: #4c9a4c;
+  color: white;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #3d7a3d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
+}
+
+.btn--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn--secondary {
@@ -719,35 +556,17 @@ onMounted(() => {
   background: #b91c1c;
 }
 
+.font-mono { font-family: 'Courier New', monospace; }
+.text-center { text-align: center; }
 .text-sm { font-size: 0.85rem; }
+.text-muted { color: #9ca3af; }
 
-/* ── Responsive ───────────────────────────── */
-@media (max-width: 968px) {
+@media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;
   }
-
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .header-search {
-    max-width: none;
-  }
-}
-
-@media (max-width: 640px) {
-  .empleado-root {
-    padding: 1.5rem 1rem;
-  }
-
-  .form-grid {
+  .modal-body {
     padding: 1.5rem;
-  }
-
-  .table-wrapper {
-    font-size: 0.85rem;
   }
 }
 </style>

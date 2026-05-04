@@ -298,7 +298,7 @@ async function guardar() {
 
 .form-label .material-symbols-outlined {
   font-size: 1rem;
-  color: #6E420C;
+  color: #4c9a4c;
 }
 
 .form-label.required::after {
@@ -313,13 +313,15 @@ async function guardar() {
   border-radius: 10px;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.9rem;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
   width: 100%;
+  background: white;
 }
 
 .form-input:focus, .form-select:focus, .form-textarea:focus {
   outline: none;
-  border-color: #6E420C;
+  border-color: #4c9a4c;
+  background: #f0f9f0;
 }
 
 .form-grid {
@@ -352,12 +354,14 @@ async function guardar() {
 }
 
 .btn--primary {
-  background: #6E420C;
+  background: #4c9a4c;
   color: white;
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: #5a360a;
+  background: #3d7a3d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
 }
 
 .btn--primary:disabled {
@@ -382,4 +386,4 @@ async function guardar() {
     padding: 1.5rem;
   }
 }
-</style>t>
+</style>
