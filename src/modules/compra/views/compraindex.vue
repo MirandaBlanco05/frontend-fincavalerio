@@ -9,10 +9,10 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
-          <button class="rounded-full border border-border-color bg-white px-4 py-2 text-sm font-semibold text-text-primary transition hover:bg-background-light">Resumen</button>
-          <button class="rounded-full border border-border-color bg-white px-4 py-2 text-sm font-semibold text-text-primary transition hover:bg-background-light">Proveedores</button>
-          <button class="rounded-full border border-border-color bg-white px-4 py-2 text-sm font-semibold text-text-primary transition hover:bg-background-light">Facturas</button>
-          <button class="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary/90">Descargar Reporte</button>
+          <button @click="mostrarResumen" class="rounded-full border border-border-color bg-white px-4 py-2 text-sm font-semibold text-text-primary transition hover:bg-background-light">Resumen</button>
+          <button @click="irProveedores" class="rounded-full border border-border-color bg-white px-4 py-2 text-sm font-semibold text-text-primary transition hover:bg-background-light">Proveedores</button>
+          <button @click="filtrarFacturas" class="rounded-full border border-border-color bg-white px-4 py-2 text-sm font-semibold text-text-primary transition hover:bg-background-light">Facturas</button>
+          <button @click="descargarReporte" class="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary/90">Descargar Reporte</button>
         </div>
       </div>
     </section>
@@ -48,15 +48,20 @@
 
         <div class="space-y-2">
           <label class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Proveedor</label>
-          <select
-            v-model="form.id_proveedor"
+          <input
+            v-model="form.nombre_proveedor"
+            list="proveedores-disponibles"
+            type="text"
+            placeholder="Escribe o selecciona un proveedor"
             class="w-full rounded-3xl border border-border-color bg-background-light px-5 py-3 text-sm text-text-primary outline-none transition focus:border-primary focus:ring-1 focus:ring-primary focus:bg-gray-50"
-          >
-            <option value="">Seleccionar proveedor</option>
-            <option v-for="proveedor in store.proveedores" :key="proveedor.id_proveedor" :value="proveedor.id_proveedor">
-              {{ proveedor.nombre }}
-            </option>
-          </select>
+          />
+          <datalist id="proveedores-disponibles">
+            <option
+              v-for="proveedor in store.proveedores"
+              :key="proveedor.id_proveedor"
+              :value="proveedor.nombre"
+            />
+          </datalist>
         </div>
 
         <div class="space-y-2">
@@ -85,7 +90,10 @@
             <span class="material-symbols-outlined rounded-2xl bg-white/90 p-2 text-lg text-text-primary shadow-sm">upload_file</span>
             <div>
               <p class="font-semibold">Adjuntar factura</p>
-              <p class="text-sm text-gray-500">Formatos permitidos: JPG, PNG, PDF (Máx 5MB)</p>
+              <p class="text-sm text-gray-500">
+                <span v-if="form.nombreFactura" class="text-green-600">✓ {{ form.nombreFactura }}</span>
+                <span v-else>Formatos permitidos: JPG, PNG, PDF (Máx 5MB)</span>
+              </p>
             </div>
           </div>
 
@@ -113,7 +121,7 @@
           <h3 class="text-xl font-semibold text-text-primary">Historial Reciente</h3>
           <p class="mt-1 text-sm text-gray-500">Revisa las compras registradas más recientes.</p>
         </div>
-        <button class="text-sm font-semibold text-primary transition hover:text-primary/80">Ver todo el historial →</button>
+        <button @click="verTodoHistorial" class="text-sm font-semibold text-primary transition hover:text-primary/80">Ver todo el historial →</button>
       </div>
 
       <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
@@ -202,9 +210,12 @@ const compraAEliminar = ref(null)
 
 const form = reactive({
   id_compra: '',
+  nombre_proveedor: '',
   id_proveedor: '',
   fecha: '',
-  ncf: ''
+  ncf: '',
+  factura: null,
+  nombreFactura: ''
 })
 
 const comprasFiltradas = computed(() => store.compras || [])
@@ -217,32 +228,69 @@ const cargarDatos = async () => {
 
 function limpiarForm() {
   form.id_compra = ''
+  form.nombre_proveedor = ''
   form.id_proveedor = ''
   form.fecha = ''
   form.ncf = ''
+  form.factura = null
+  form.nombreFactura = ''
   esEdicion.value = false
 }
 
 async function guardarCompra() {
-  if (!form.id_compra || !form.id_proveedor || !form.fecha) return
+  if (!form.id_compra || !form.nombre_proveedor || !form.fecha) {
+    alert('Por favor completa los campos obligatorios')
+    return
+  }
 
-  const datos = {
-    id_compra: form.id_compra,
-    id_proveedor: form.id_proveedor,
-    fecha: form.fecha,
-    ncf: form.ncf || null
+  // Buscar el ID del proveedor por su nombre
+  const proveedorSeleccionado = store.proveedores.find(
+    p => p.nombre.toLowerCase() === form.nombre_proveedor.toLowerCase()
+  )
+
+  if (!proveedorSeleccionado) {
+    alert('Por favor selecciona un proveedor válido de la lista')
+    return
+  }
+
+  form.id_proveedor = proveedorSeleccionado.id_proveedor
+
+  let datos
+  
+  // Si hay archivo, usar FormData para enviar archivo + datos
+  if (form.factura) {
+    datos = new FormData()
+    datos.append('id_compra', form.id_compra)
+    datos.append('id_proveedor', form.id_proveedor)
+    datos.append('fecha', form.fecha)
+    datos.append('ncf', form.ncf || '')
+    datos.append('factura', form.factura)
+  } else {
+    // Sin archivo, enviar solo datos JSON
+    datos = {
+      id_compra: form.id_compra,
+      id_proveedor: form.id_proveedor,
+      fecha: form.fecha,
+      ncf: form.ncf || null
+    }
   }
 
   const exito = esEdicion.value
     ? await store.actualizarCompra(form.id_compra, datos)
     : await store.crearCompra(datos)
 
-  if (exito) limpiarForm()
+  if (exito) {
+    alert('Compra guardada exitosamente')
+    limpiarForm()
+  } else {
+    alert('Error al guardar la compra: ' + store.error)
+  }
 }
 
 function editarCompra(compra) {
   form.id_compra = compra.id_compra
   form.id_proveedor = compra.id_proveedor
+  form.nombre_proveedor = compra.proveedor?.nombre || ''
   form.fecha = compra.fecha
   form.ncf = compra.ncf
   esEdicion.value = true
@@ -271,6 +319,84 @@ function formatearFecha(fecha) {
 
 function cargarFactura(event) {
   if (!event.target.files?.length) return
+  
+  const archivo = event.target.files[0]
+  const tiposPermitidos = ['image/jpeg', 'image/png', 'application/pdf']
+  const tamanioMax = 5 * 1024 * 1024 // 5MB
+  
+  // Validar tipo de archivo
+  if (!tiposPermitidos.includes(archivo.type)) {
+    alert('Solo se aceptan archivos JPG, PNG o PDF')
+    event.target.value = ''
+    return
+  }
+  
+  // Validar tamaño
+  if (archivo.size > tamanioMax) {
+    alert('El archivo no puede exceder 5MB')
+    event.target.value = ''
+    return
+  }
+  
+  // Guardar el archivo en el formulario
+  form.factura = archivo
+  form.nombreFactura = archivo.name
+  console.log('Archivo cargado:', archivo.name)
+}
+
+function mostrarResumen() {
+  alert('Resumen de compras - Funcionalidad en desarrollo')
+}
+
+function irProveedores() {
+  // Navegar a la sección de proveedores
+  window.location.href = '/proveedores'
+}
+
+function filtrarFacturas() {
+  // Mostrar solo compras con NCF
+  alert('Filtrar por facturas - Funcionalidad en desarrollo')
+}
+
+function descargarReporte() {
+  // Generar y descargar reporte en CSV o Excel
+  const csv = generarReporteCSV()
+  descargarCSV(csv, 'reporte-compras.csv')
+}
+
+function generarReporteCSV() {
+  const headers = ['ID Compra', 'Proveedor', 'Fecha', 'NCF']
+  const rows = store.compras.map(compra => [
+    compra.id_compra,
+    compra.proveedor?.nombre || 'Sin proveedor',
+    compra.fecha,
+    compra.ncf || '---'
+  ])
+  
+  const csv = [headers, ...rows]
+    .map(row => row.map(cell => `"${cell}"`).join(','))
+    .join('\n')
+  
+  return csv
+}
+
+function descargarCSV(contenido, nombre) {
+  const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+  
+  link.setAttribute('href', url)
+  link.setAttribute('download', nombre)
+  link.style.visibility = 'hidden'
+  
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+function verTodoHistorial() {
+  // Scroll hacia la tabla de historial
+  document.querySelector('table')?.scrollIntoView({ behavior: 'smooth' })
 }
 
 onMounted(() => {
