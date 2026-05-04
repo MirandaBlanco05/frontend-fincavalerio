@@ -67,13 +67,16 @@
       </RouterLink>
 
       <li class="px-4 pt-3 pb-1">
-        <p class="text-[10px] font-bold uppercase tracking-widest text-white/30">Próximamente</p>
+        <p class="text-[10px] font-bold uppercase tracking-widest text-white/30">Ventas</p>
       </li>
 
-      <li class="flex h-12 items-center gap-4 rounded-lg px-4 opacity-30 cursor-not-allowed">
-        <span class="material-symbols-outlined text-white/60">shopping_cart</span>
-        <p class="text-sm font-bold text-white/80">Compra y Venta</p>
-      </li>
+      <RouterLink to="/venta" custom v-slot="{ isActive, navigate }">
+        <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
+          :class="isActive ? 'bg-[#4c9a4c]/20' : 'hover:bg-white/8'">
+          <span class="material-symbols-outlined" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/60'">receipt_long</span>
+          <p class="text-sm font-bold" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/80'">Facturación</p>
+        </li>
+      </RouterLink>
 
     </ul>
 

@@ -1,14 +1,23 @@
-// src/modules/produccion/services/produccion.service.js
 import api from '@/core/api/axios.js'
 
 export const produccionService = {
-  listarNacimientos() { return api.get('/nacimiento/listar') },
-  crearNacimiento(d)  { return api.post('/nacimiento/crear', d) },
-  listarIngresos()    { return api.get('/ingreso/listar') },
-  listarGastos()      { return api.get('/gasto/listar') },
-  crearGasto(d)       { return api.post('/gasto/crear', d) },
-  listarVentas()      { return api.get('/venta/listar') },
-  crearVenta(d)       { return api.post('/venta/crear', d) },
-  // Reporte PDF — devuelve blob
-  reporteIngresos()   { return api.get('/reportes/ingresos', { responseType: 'blob' }) },
+  // CRUD listas — rutas corregidas según el backend real
+  listarNacimientos()    { return api.get('/parto/listar') },
+  crearNacimiento(d)     { return api.post('/parto/crear', d) },
+  listarIngresos()       { return api.get('/ingreso/') },
+  listarGastos()         { return api.get('/gasto/') },
+  crearGasto(d)          { return api.post('/gasto/', d) },
+  listarVentas()         { return api.get('/ingreso/') },
+  crearVenta(d)          { return api.post('/ingreso/', d) },
+
+  // Endpoints de dashboard (módulo PRODUCCION)
+  dashboardPrincipal()   { return api.get('/produccion/dashboard') },
+  dashboardGastos()      { return api.get('/produccion/gastos') },
+  dashboardIngresos()    { return api.get('/produccion/ingresos') },
+  dashboardNacimientos() { return api.get('/produccion/nacimientos') },
+  dashboardReproduccion(){ return api.get('/produccion/reproduccion') },
+  dashboardLeche()       { return api.get('/produccion/leche') },
+
+  // Reporte PDF
+  reporteIngresos()      { return api.get('/reportes/ingresos', { responseType: 'blob' }) },
 }

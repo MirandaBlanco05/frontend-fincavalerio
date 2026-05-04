@@ -144,19 +144,17 @@ async function iniciarSesion() {
 
   try {
     const { data } = await api.post('/login', {
-      Usuario: form.usuario,
-      Contrasena: form.contrasena
+      usuario: form.usuario,
+      contrasena: form.contrasena
     })
 
-    // Guardar sesión
-    localStorage.setItem('usuario', data.Usuario)
-    localStorage.setItem('tipo_usuario', data.Tipo_usuario)
+    localStorage.setItem('usuario', data.usuario)
+    localStorage.setItem('tipo_usuario', data.tipo)
 
-    // Redirigir al dashboard
     router.push('/dashboard')
 
   } catch (err) {
-    error.value = err.response?.data?.mensaje || 'Usuario o contraseña incorrectos'
+    error.value = err.response?.data?.error || 'Usuario o contraseña incorrectos'
     console.error('Error login:', err)
   } finally {
     cargando.value = false

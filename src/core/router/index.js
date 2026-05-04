@@ -12,6 +12,9 @@ const CeloIndex       = () => import('@/modules/celo/views/CeloIndex.vue')
 const EmpleadoIndex   = () => import('@/modules/empleado/views/EmpleadoIndex.vue')
 const OrdenioIndex    = () => import('@/modules/ordenio/views/OrdenioIndex.vue')
 
+const VentaIndex      = () => import('@/modules/venta/views/VentaIndex.vue')
+const VentaForm       = () => import('@/modules/venta/views/VentaForm.vue')
+
 const InseminacionIndex   = () => import('@/modules/inseminacion/InseminacionIndex.vue')
 const InseminacionForm    = () => import('@/modules/inseminacion/InseminacionForm.vue')
 const NewInseminacionForm = () => import('@/modules/inseminacion/NewInseminacionForm.vue')
@@ -34,6 +37,9 @@ const routes = [
   { path: '/celo',       name: 'Celo',       component: CeloIndex },
   { path: '/empleado',   name: 'Empleado',   component: EmpleadoIndex },
   { path: '/ordenio',    name: 'Ordenio',    component: OrdenioIndex },
+  
+  { path: '/venta',       name: 'Venta',       component: VentaIndex },
+  { path: '/venta/nueva', name: 'VentaNueva',  component: VentaForm },
 
   {
     path: '/bovinos',

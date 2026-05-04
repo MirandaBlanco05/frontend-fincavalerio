@@ -35,7 +35,7 @@
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div class="flex flex-col gap-2 rounded-lg p-6 bg-[#f3eee7]">
           <p class="text-[#6E420C] text-base font-medium">Nacimientos (Mes)</p>
-          <p class="text-3xl font-bold text-[#1a1a1a]">{{ store.nacimientos.length || 12 }}</p>
+          <p class="text-3xl font-bold text-[#1a1a1a]">{{ kpiNacimientosMes }}</p>
           <div class="flex items-center gap-1 text-green-700">
             <span class="material-symbols-outlined text-base">arrow_upward</span>
             <p class="text-sm font-medium">+2 vs mes anterior</p>
@@ -51,7 +51,7 @@
         </div>
         <div class="flex flex-col gap-2 rounded-lg p-6 bg-[#f3eee7]">
           <p class="text-[#6E420C] text-base font-medium">Total de Animales</p>
-          <p class="text-3xl font-bold text-[#1a1a1a]">256</p>
+          <p class="text-3xl font-bold text-[#1a1a1a]">{{ kpiTotalAnimales }}</p>
           <div class="flex items-center gap-1 text-green-700">
             <span class="material-symbols-outlined text-base">arrow_upward</span>
             <p class="text-sm font-medium">+8 este mes</p>
@@ -66,22 +66,22 @@
         <div class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-6">
           <p class="text-base font-medium text-[#1a1a1a]">Detalle de Reproducción</p>
           <div class="flex items-baseline gap-2">
-            <p class="text-[32px] font-bold text-[#1a1a1a]">24</p>
+            <p class="text-[32px] font-bold text-[#1a1a1a]">{{ totalInsemMes }}</p>
             <p class="text-base text-gray-500">Inseminaciones este mes</p>
           </div>
           <p class="text-sm text-green-700 font-medium">+15% vs. Mes Anterior</p>
           <div class="relative min-h-[180px] w-full">
             <div class="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
-              <p class="text-4xl font-bold text-[#6E420C]">85%</p>
+              <p class="text-4xl font-bold text-[#6E420C]">{{ tasaExitoInsem }}%</p>
               <p class="text-sm text-[#6E420C]/80">Tasa de éxito</p>
             </div>
             <svg class="h-full w-full" viewBox="0 0 36 36">
               <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                 fill="none" stroke="#f3eee7" stroke-width="4"/>
               <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                fill="none" stroke="#6E420C" stroke-dasharray="85,100" stroke-linecap="round" stroke-width="4" transform="rotate(90 18 18)"/>
+                fill="none" stroke="#6E420C" :stroke-dasharray="`${tasaExitoInsem},100`" stroke-linecap="round" stroke-width="4" transform="rotate(90 18 18)"/>
               <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                fill="none" stroke="#4c9a4c" stroke-dasharray="70,100" stroke-dashoffset="-85" stroke-linecap="round" stroke-width="4" transform="rotate(90 18 18)"/>
+                fill="none" stroke="#4c9a4c" :stroke-dasharray="`${tasaPrenezPct},100`" :stroke-dashoffset="`-${tasaExitoInsem}`" stroke-linecap="round" stroke-width="4" transform="rotate(90 18 18)"/>
             </svg>
           </div>
           <div class="flex justify-center gap-6 text-sm">
@@ -123,10 +123,10 @@
             <p class="text-sm font-semibold uppercase tracking-wider text-gray-500">Gasto Total Mensual</p>
             <span class="material-symbols-outlined text-[#6E420C]">payments</span>
           </div>
-          <p class="text-3xl font-extrabold text-[#1a1a1a]">$12,450.00</p>
+          <p class="text-3xl font-extrabold text-[#1a1a1a]">{{ kpiGastoTotal }}</p>
           <div class="flex items-center gap-1 text-green-600">
             <span class="material-symbols-outlined text-base">trending_down</span>
-            <p class="text-sm font-bold">-4.2% vs mes anterior</p>
+            <p class="text-sm font-bold">{{ kpiGastoVariacion }} vs mes anterior</p>
           </div>
         </div>
         <div class="flex flex-col gap-2 rounded-xl bg-[#f3eee7] border border-[#6E420C]/10 p-6">
@@ -134,15 +134,15 @@
             <p class="text-sm font-semibold uppercase tracking-wider text-[#6E420C]/80">Categoría Mayor Gasto</p>
             <span class="material-symbols-outlined text-[#6E420C]">agriculture</span>
           </div>
-          <p class="text-3xl font-extrabold text-[#6E420C]">Alimento</p>
-          <p class="text-sm font-bold text-[#6E420C]/70">$5,600.00 (45%)</p>
+          <p class="text-3xl font-extrabold text-[#6E420C]">{{ kpiGastoCategoriaNombre }}</p>
+          <p class="text-sm font-bold text-[#6E420C]/70">{{ kpiGastoCategoriaDetalle }}</p>
         </div>
         <div class="flex flex-col gap-2 rounded-xl bg-[#e7f3e7] border border-[#4c9a4c]/10 p-6">
           <div class="flex items-center justify-between">
             <p class="text-sm font-semibold uppercase tracking-wider text-[#4c9a4c]/80">Variación Presupuesto</p>
             <span class="material-symbols-outlined text-[#4c9a4c]">analytics</span>
           </div>
-          <p class="text-3xl font-extrabold text-[#4c9a4c]">+2.5%</p>
+          <p class="text-3xl font-extrabold text-[#4c9a4c]">{{ kpiGastoVariacion }}</p>
           <p class="text-sm font-bold text-[#3d7a3d]">Dentro del margen esperado</p>
         </div>
       </div>
@@ -160,18 +160,16 @@
             <div class="relative size-48 flex-shrink-0">
               <svg viewBox="0 0 200 200" class="w-full h-full">
                 <circle cx="100" cy="100" r="80" fill="transparent" stroke="#f3eee7" stroke-width="30"/>
-                <circle cx="100" cy="100" r="80" fill="transparent" stroke="#6E420C"
-                  stroke-dasharray="226 503" stroke-dashoffset="0" stroke-width="30" transform="rotate(-90 100 100)"/>
-                <circle cx="100" cy="100" r="80" fill="transparent" stroke="#4c9a4c"
-                  stroke-dasharray="125 503" stroke-dashoffset="-226" stroke-width="30" transform="rotate(-90 100 100)"/>
-                <circle cx="100" cy="100" r="80" fill="transparent" stroke="#b45309"
-                  stroke-dasharray="75 503" stroke-dashoffset="-351" stroke-width="30" transform="rotate(-90 100 100)"/>
-                <circle cx="100" cy="100" r="80" fill="transparent" stroke="#9ca3af"
-                  stroke-dasharray="77 503" stroke-dashoffset="-426" stroke-width="30" transform="rotate(-90 100 100)"/>
+                <circle v-for="cat in categoriasGasto" :key="cat.label"
+                  cx="100" cy="100" r="80" fill="transparent"
+                  :stroke="cat.color"
+                  :stroke-dasharray="`${cat.arc} ${503}`"
+                  :stroke-dashoffset="`-${cat.offset}`"
+                  stroke-width="30" transform="rotate(-90 100 100)"/>
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center">
                 <span class="text-xs text-gray-400 font-bold uppercase">Total</span>
-                <span class="text-lg font-extrabold">$12.4k</span>
+                <span class="text-lg font-extrabold">{{ totalGastosLabel }}</span>
               </div>
             </div>
             <div class="flex-1 space-y-3 w-full">
@@ -237,7 +235,7 @@
             <p class="text-[#4c9a4c] font-bold text-sm">Ingreso Bruto Mensual</p>
             <span class="material-symbols-outlined text-[#4c9a4c]">account_balance_wallet</span>
           </div>
-          <p class="text-3xl font-extrabold text-[#3d7a3d] mt-1">$12,450.00</p>
+          <p class="text-3xl font-extrabold text-[#3d7a3d] mt-1">{{ kpiIngresoTotal }}</p>
           <div class="flex items-center gap-1 text-[#3d7a3d] mt-2">
             <span class="material-symbols-outlined text-sm">trending_up</span>
             <p class="text-xs font-bold">+12% vs. mes anterior</p>
@@ -248,15 +246,15 @@
             <p class="text-[#6E420C] font-bold text-sm">Venta de Ganado</p>
             <span class="material-symbols-outlined text-[#6E420C]">pest_control_rodent</span>
           </div>
-          <p class="text-3xl font-extrabold text-[#6E420C] mt-1">$8,200.00</p>
-          <p class="text-xs font-bold text-[#6E420C] mt-2">66% del ingreso total</p>
+          <p class="text-3xl font-extrabold text-[#6E420C] mt-1">{{ kpiVentaGanado }}</p>
+          <p class="text-xs font-bold text-[#6E420C] mt-2">{{ kpiVentaGanadoPct }}</p>
         </div>
         <div class="flex flex-col gap-1 rounded-2xl bg-white border border-gray-200 shadow-sm p-5">
           <div class="flex justify-between items-start">
             <p class="text-gray-500 font-bold text-sm">Venta Leche/Prod.</p>
             <span class="material-symbols-outlined text-gray-400">water_drop</span>
           </div>
-          <p class="text-3xl font-extrabold text-gray-900 mt-1">$4,250.00</p>
+          <p class="text-3xl font-extrabold text-gray-900 mt-1">{{ kpiVentaLeche }}</p>
           <div class="flex items-center gap-1 text-gray-500 mt-2">
             <span class="material-symbols-outlined text-sm">info</span>
             <p class="text-xs font-bold">Producción estable</p>
@@ -394,7 +392,7 @@
         <div class="flex flex-col gap-1 rounded-2xl bg-[#4c9a4c] text-white p-5 shadow-lg">
           <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Nacimientos Trimestre</p>
           <div class="flex items-end justify-between mt-1">
-            <p class="text-4xl font-extrabold">{{ store.nacimientos.length || 42 }}</p>
+            <p class="text-4xl font-extrabold">{{ kpiNacimientosTrimestre }}</p>
             <span class="material-symbols-outlined opacity-30 text-3xl">counter_1</span>
           </div>
           <div class="flex items-center gap-1 mt-2">
@@ -405,7 +403,7 @@
         <div class="flex flex-col gap-1 rounded-2xl bg-[#6E420C] text-white p-5 shadow-lg">
           <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Tasa Supervivencia</p>
           <div class="flex items-end justify-between mt-1">
-            <p class="text-4xl font-extrabold">98%</p>
+            <p class="text-4xl font-extrabold">{{ kpiTasaSupervivencia }}%</p>
             <span class="material-symbols-outlined opacity-30 text-3xl">verified_user</span>
           </div>
           <p class="text-[10px] font-bold mt-2 opacity-80">Neonatal</p>
@@ -423,13 +421,13 @@
             <svg class="h-full w-full" viewBox="0 0 36 36">
               <circle cx="18" cy="18" fill="transparent" r="16" stroke="#f3eee7" stroke-width="4"/>
               <circle cx="18" cy="18" fill="transparent" r="16" stroke="#6E420C"
-                stroke-dasharray="55 100" stroke-linecap="round" stroke-width="4" transform="rotate(-90 18 18)"/>
+                :stroke-dasharray="`${pctMachos} 100`" stroke-linecap="round" stroke-width="4" transform="rotate(-90 18 18)"/>
               <circle cx="18" cy="18" fill="transparent" r="16" stroke="#4c9a4c"
-                stroke-dasharray="45 100" stroke-dashoffset="-55" stroke-linecap="round" stroke-width="4" transform="rotate(-90 18 18)"/>
+                :stroke-dasharray="`${pctHembras} 100`" :stroke-dashoffset="`-${pctMachos}`" stroke-linecap="round" stroke-width="4" transform="rotate(-90 18 18)"/>
             </svg>
             <div class="absolute inset-0 flex items-center justify-center flex-col">
               <span class="text-[10px] font-bold text-gray-400 uppercase">Total</span>
-              <span class="text-xl font-extrabold text-gray-800">{{ store.nacimientos.length || 42 }}</span>
+              <span class="text-xl font-extrabold text-gray-800">{{ totalNac }}</span>
             </div>
           </div>
           <div class="flex-1 space-y-5">
@@ -468,11 +466,18 @@
                 <stop offset="100%" stop-color="#4c9a4c" stop-opacity="0"/>
               </linearGradient>
             </defs>
-            <path d="M0,100 L0,70 Q40,40 75,60 T150,30 T225,50 T300,10 L300,100 Z" fill="url(#chartGradient)"/>
-            <path d="M0,70 Q40,40 75,60 T150,30 T225,50 T300,10" fill="none" stroke="#6E420C" stroke-linecap="round" stroke-width="3"/>
-            <circle cx="75"  cy="60" fill="#6E420C" r="5" stroke="white" stroke-width="2"/>
-            <circle cx="150" cy="30" fill="#6E420C" r="5" stroke="white" stroke-width="2"/>
-            <circle cx="300" cy="10" fill="#6E420C" r="5" stroke="white" stroke-width="2"/>
+            <template v-if="estacionalidad">
+              <path :d="estacionalidad.area" fill="url(#chartGradient)"/>
+              <path :d="estacionalidad.line" fill="none" stroke="#6E420C" stroke-linecap="round" stroke-width="3"/>
+              <circle v-for="(p, i) in estacionalidad.pts" :key="i" :cx="p.x" :cy="p.y" fill="#6E420C" r="5" stroke="white" stroke-width="2"/>
+            </template>
+            <template v-else>
+              <path d="M0,100 L0,70 Q40,40 75,60 T150,30 T225,50 T300,10 L300,100 Z" fill="url(#chartGradient)"/>
+              <path d="M0,70 Q40,40 75,60 T150,30 T225,50 T300,10" fill="none" stroke="#6E420C" stroke-linecap="round" stroke-width="3"/>
+              <circle cx="75"  cy="60" fill="#6E420C" r="5" stroke="white" stroke-width="2"/>
+              <circle cx="150" cy="30" fill="#6E420C" r="5" stroke="white" stroke-width="2"/>
+              <circle cx="300" cy="10" fill="#6E420C" r="5" stroke="white" stroke-width="2"/>
+            </template>
           </svg>
         </div>
         <div class="flex justify-between mt-4 text-[10px] font-extrabold text-gray-400 px-1">
@@ -547,7 +552,7 @@
             <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">+4.2%</span>
           </div>
           <p class="text-sm font-semibold uppercase tracking-wide text-gray-500">Producción Diaria</p>
-          <p class="text-3xl font-extrabold text-[#1a1a1a] mt-1">1,240 <span class="text-lg font-medium text-gray-500">Lts</span></p>
+          <p class="text-3xl font-extrabold text-[#1a1a1a] mt-1">{{ kpiProduccionDiaria }} <span class="text-lg font-medium text-gray-500">Lts</span></p>
         </div>
         <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
           <div class="flex justify-between items-start mb-4">
@@ -555,7 +560,7 @@
             <span class="text-xs font-bold text-[#6E420C] bg-[#f3eee7] px-2 py-1 rounded-full">Estable</span>
           </div>
           <p class="text-sm font-semibold uppercase tracking-wide text-gray-500">Promedio por Vaca</p>
-          <p class="text-3xl font-extrabold text-[#1a1a1a] mt-1">18.5 <span class="text-lg font-medium text-gray-500">Lts</span></p>
+          <p class="text-3xl font-extrabold text-[#1a1a1a] mt-1">{{ kpiPromedioPorVaca }} <span class="text-lg font-medium text-gray-500">Lts</span></p>
         </div>
         <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
           <div class="flex justify-between items-start mb-4">
@@ -829,10 +834,18 @@ import { produccionService } from '../services/produccion.service.js'
 
 const store = useProduccionStore()
 
-onMounted(async () => {
-  await store.cargarNacimientos()
-  await store.cargarVentas()
-  await store.cargarGastos()
+onMounted(() => {
+  Promise.all([
+    store.cargarNacimientos(),
+    store.cargarVentas(),
+    store.cargarGastos(),
+    store.cargarDashPrincipal(),
+    store.cargarDashGastos(),
+    store.cargarDashIngresos(),
+    store.cargarDashNacimientos(),
+    store.cargarDashReproduccion(),
+    store.cargarDashLeche(),
+  ])
 })
 
 // ── Tabs ──────────────────────────────────────────────
@@ -846,46 +859,253 @@ const tabs = [
 ]
 const tabActivo = computed(() => tabs.find(t => t.id === tabId.value))
 
-// ── Nacimientos: cálculo sexo ─────────────────────────
-const machos     = computed(() => store.nacimientos.filter(n => n.sexo === 'Macho').length  || 23)
-const hembras    = computed(() => store.nacimientos.filter(n => n.sexo === 'Hembra').length || 19)
-const totalNac   = computed(() => machos.value + hembras.value || 42)
-const pctMachos  = computed(() => Math.round((machos.value / totalNac.value) * 100))
+// ── Helpers ───────────────────────────────────────────
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+function mesCorto(str) {
+  const m = parseInt(str?.split('-')[1]) - 1
+  return MESES[m] ?? str
+}
+function normalizarBarras(arr, key, maxH = 90) {
+  const max = Math.max(...arr.map(a => Number(a[key]) || 0), 1)
+  return arr.map(a => Math.round((Number(a[key]) / max) * maxH))
+}
+function fmt(n) {
+  return Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 })
+}
+
+// ── Atajos a dashboards del store ─────────────────────
+const dn = computed(() => store.dashNacimientos)
+const dg = computed(() => store.dashGastos)
+const di = computed(() => store.dashIngresos)
+const dp = computed(() => store.dashPrincipal)
+const dl = computed(() => store.dashLeche)
+const dr = computed(() => store.dashReproduccion)
+
+// ── Donut inseminaciones (Tab Resumen) ────────────────
+const tasaExitoInsem       = computed(() => dr.value?.tasaExitoInseminacion ?? 85)
+const tasaPrenezPct        = computed(() => parseFloat(dr.value?.tasaPrenez ?? 70))
+const totalInsemMes        = computed(() => dr.value?.totalInseminacionesMes ?? 24)
+
+// ── KPIs Resumen ──────────────────────────────────────
+const kpiNacimientosMes = computed(() => dn.value?.resumen?.totalMes ?? 12)
+const kpiTotalAnimales  = computed(() => dp.value?.kpis?.totalBovinos ?? 256)
+
+// ── Nacimientos: sexo ─────────────────────────────────
+const machos = computed(() => {
+  const d = dn.value?.nacimientosPorSexo
+  return d ? (d.find(x => x.sexo_cria === 'Macho')?.cantidad ?? 0) : 23
+})
+const hembras = computed(() => {
+  const d = dn.value?.nacimientosPorSexo
+  return d ? (d.find(x => x.sexo_cria === 'Hembra')?.cantidad ?? 0) : 19
+})
+const totalNac   = computed(() => (machos.value + hembras.value) || 42)
+const pctMachos  = computed(() => Math.round((machos.value / totalNac.value) * 100) || 55)
 const pctHembras = computed(() => 100 - pctMachos.value)
 
-// ── Datos estáticos de gráficas (idénticos a los HTMLs) ─
-const mesesResumen = [
-  {label:'Ene',nac:40,baj:10},{label:'Feb',nac:60,baj:5},
-  {label:'Mar',nac:85,baj:15},{label:'Abr',nac:70,baj:10},
-  {label:'May',nac:75,baj:12},{label:'Jun',nac:90,baj:8}
-]
-const mesesIngresos = [
-  {label:'ENE',ani:60,ot:30},{label:'FEB',ani:45,ot:40},
-  {label:'MAR',ani:85,ot:25},{label:'ABR',ani:70,ot:35},
-  {label:'MAY',ani:55,ot:65},{label:'JUN',ani:90,ot:20}
-]
-const categoriasGasto = [
-  {label:'Alimento',        pct:45, valor:'5,600', color:'#6E420C'},
-  {label:'Veterinario',     pct:25, valor:'3,112', color:'#4c9a4c'},
-  {label:'Infraestructura', pct:15, valor:'1,867', color:'#b45309'},
-  {label:'Otros',           pct:15, valor:'1,871', color:'#9ca3af'},
-]
-const topVacas = [
-  {nombre:'Vaca #452 (Bessie)', litros:32.4, pct:95},
-  {nombre:'Vaca #210 (Daisy)',  litros:29.8, pct:88},
-  {nombre:'Vaca #118 (Luna)',   litros:28.5, pct:84},
-  {nombre:'Vaca #095 (Marta)',  litros:26.1, pct:77},
-  {nombre:'Vaca #334 (Perla)',  litros:24.9, pct:73},
-]
-const tendenciaMensual = [
-  {label:'Ene',label2:'32k',h:56},{label:'Feb',label2:'34k',h:64},
-  {label:'Mar',label2:'38k',h:80},{label:'Abr',label2:'31k',h:48},
-  {label:'May',label2:'36k',h:72},{label:'Jun',label2:'40k',h:80},
-]
-const proximosPartos = [
-  {nombre:'Vaca "Mariposa"', mes:'Mayo', dia:12, estado:'Seguimiento especial', bg:'bg-[#e7f3e7] border-[#4c9a4c]/10', textColor:'text-[#4c9a4c]'},
-  {nombre:'Vaca "Estrella"', mes:'Mayo', dia:15, estado:'Normal',               bg:'bg-[#f3eee7] border-[#6E420C]/10', textColor:'text-[#6E420C]'},
-]
+const kpiNacimientosTrimestre = computed(() => dn.value?.resumen?.totalMes ?? 42)
+const kpiTasaSupervivencia    = computed(() => dn.value?.resumen?.tasaSupervivencia ?? 98)
+
+// ── Barras: Nacimientos vs Bajas (Tab Resumen) ────────
+const mesesResumen = computed(() => {
+  const trend = dn.value?.tendenciaMensual
+  if (!trend?.length) return [
+    {label:'Ene',nac:40,baj:10},{label:'Feb',nac:60,baj:5},
+    {label:'Mar',nac:85,baj:15},{label:'Abr',nac:70,baj:10},
+    {label:'May',nac:75,baj:12},{label:'Jun',nac:90,baj:8},
+  ]
+  const heights = normalizarBarras(trend, 'cantidad')
+  return trend.map((t, i) => ({ label: mesCorto(t.mes), nac: heights[i], baj: 0 }))
+})
+
+// ── Barras: Ingresos (Tab Ingresos) ──────────────────
+const mesesIngresos = computed(() => {
+  const trend = di.value?.tendenciaMensual
+  if (!trend?.length) return [
+    {label:'ENE',ani:60,ot:30},{label:'FEB',ani:45,ot:40},
+    {label:'MAR',ani:85,ot:25},{label:'ABR',ani:70,ot:35},
+    {label:'MAY',ani:55,ot:65},{label:'JUN',ani:90,ot:20},
+  ]
+  const heights = normalizarBarras(trend, 'total')
+  const tipos = di.value?.ingresosPorTipo || []
+  const totalTipos = tipos.reduce((s, t) => s + Number(t.total), 0)
+  const pctAni = totalTipos > 0
+    ? Number(tipos.find(t => t.tipo === 'Venta Animal')?.total || 0) / totalTipos
+    : 0.66
+  return trend.map((t, i) => ({
+    label: mesCorto(t.mes).toUpperCase(),
+    ani:   Math.round(heights[i] * pctAni),
+    ot:    Math.round(heights[i] * (1 - pctAni)),
+  }))
+})
+
+// ── Pie: Gastos por categoría ─────────────────────────
+const COLORES_GASTO = ['#6E420C', '#4c9a4c', '#b45309', '#9ca3af']
+const CIRCUM = 503 // 2 * Math.PI * 80
+
+const categoriasGasto = computed(() => {
+  const cats = dg.value?.gastosPorCategoria
+  if (!cats?.length) return [
+    { label:'Alimento',        pct:45, valor:'5,600', color:'#6E420C', arc: Math.round(0.45*CIRCUM), offset: 0 },
+    { label:'Veterinario',     pct:25, valor:'3,112', color:'#4c9a4c', arc: Math.round(0.25*CIRCUM), offset: Math.round(0.45*CIRCUM) },
+    { label:'Infraestructura', pct:15, valor:'1,867', color:'#b45309', arc: Math.round(0.15*CIRCUM), offset: Math.round(0.70*CIRCUM) },
+    { label:'Otros',           pct:15, valor:'1,871', color:'#9ca3af', arc: Math.round(0.15*CIRCUM), offset: Math.round(0.85*CIRCUM) },
+  ]
+  const total = cats.reduce((s, c) => s + Number(c.total), 0)
+  let offset = 0
+  return cats.map((c, i) => {
+    const pct = total > 0 ? Number(c.total) / total : 0
+    const arc = Math.round(pct * CIRCUM)
+    const item = { label: c.categoria, pct: Math.round(pct * 100), valor: fmt(c.total), color: COLORES_GASTO[i % COLORES_GASTO.length], arc, offset }
+    offset += arc
+    return item
+  })
+})
+
+const totalGastosLabel = computed(() => {
+  const v = dg.value?.resumen?.totalMes
+  if (!v) return '$12.4k'
+  const n = Number(v)
+  return n >= 1000 ? `$${(n / 1000).toFixed(1)}k` : `$${n.toFixed(0)}`
+})
+
+// ── KPIs Gastos ───────────────────────────────────────
+const kpiGastoTotal = computed(() =>
+  dg.value?.resumen?.totalMes ? `$${fmt(dg.value.resumen.totalMes)}.00` : '$12,450.00'
+)
+const kpiGastoVariacion = computed(() => {
+  const v = dg.value?.resumen?.porcentajeCambio
+  return v != null ? `${v >= 0 ? '+' : ''}${v}%` : '+2.5%'
+})
+const kpiGastoCategoriaNombre = computed(() => {
+  const cats = dg.value?.gastosPorCategoria
+  if (!cats?.length) return 'Alimento'
+  return [...cats].sort((a, b) => Number(b.total) - Number(a.total))[0].categoria
+})
+const kpiGastoCategoriaDetalle = computed(() => {
+  const cats = dg.value?.gastosPorCategoria
+  if (!cats?.length) return '$5,600.00 (45%)'
+  const total = cats.reduce((s, c) => s + Number(c.total), 0)
+  const top   = [...cats].sort((a, b) => Number(b.total) - Number(a.total))[0]
+  const pct   = total > 0 ? Math.round(Number(top.total) / total * 100) : 0
+  return `$${fmt(top.total)} (${pct}%)`
+})
+
+// ── KPIs Ingresos ─────────────────────────────────────
+const kpiIngresoTotal = computed(() =>
+  di.value?.resumen?.totalMes ? `$${fmt(di.value.resumen.totalMes)}.00` : '$12,450.00'
+)
+const kpiVentaGanado = computed(() => {
+  const t = di.value?.ingresosPorTipo
+  if (!t) return '$8,200.00'
+  const v = t.find(x => x.tipo === 'Venta Animal')
+  return v ? `$${fmt(v.total)}.00` : '$0.00'
+})
+const kpiVentaGanadoPct = computed(() => {
+  const t = di.value?.ingresosPorTipo
+  if (!t) return '66% del ingreso total'
+  const total = t.reduce((s, x) => s + Number(x.total), 0)
+  const vg    = Number(t.find(x => x.tipo === 'Venta Animal')?.total || 0)
+  return `${total > 0 ? Math.round(vg / total * 100) : 0}% del ingreso total`
+})
+const kpiVentaLeche = computed(() => {
+  const t = di.value?.ingresosPorTipo
+  if (!t) return '$4,250.00'
+  const v = t.find(x => x.tipo === 'Venta Leche')
+  return v ? `$${fmt(v.total)}.00` : '$0.00'
+})
+
+// ── KPIs Producción (Leche) ───────────────────────────
+const kpiProduccionDiaria = computed(() => {
+  const v = dl.value?.resumen?.totalLitros
+  return v ? Number(v).toLocaleString() : '1,240'
+})
+const kpiPromedioPorVaca = computed(() => {
+  const v = dl.value?.resumen?.promedioOrdenio
+  return v ? Number(v).toFixed(1) : '18.5'
+})
+
+// ── Línea SVG: Estacionalidad Nacimientos ─────────────
+const estacionalidad = computed(() => {
+  const trend = dn.value?.tendenciaMensual
+  if (!trend || trend.length < 2) return null
+  const max = Math.max(...trend.map(t => Number(t.cantidad)), 1)
+  const n   = trend.length
+  const pts = trend.map((t, i) => ({
+    x: Math.round((i / (n - 1)) * 300),
+    y: Math.round(90 - (Number(t.cantidad) / max) * 80),
+  }))
+  let line = `M${pts[0].x},${pts[0].y}`
+  for (let i = 1; i < pts.length; i++) {
+    const mx = Math.round((pts[i - 1].x + pts[i].x) / 2)
+    line += ` Q${mx},${pts[i - 1].y} ${pts[i].x},${pts[i].y}`
+  }
+  const last = pts[n - 1]
+  const area = `M0,100 L${pts[0].x},${pts[0].y}` + line.slice(line.indexOf(' ')) + ` L${last.x},100 Z`
+  return { line, area, pts: pts.slice(1) }
+})
+
+// ── Top 5 vacas (producción leche) ───────────────────
+const MESES_LARGO = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+
+const topVacas = computed(() => {
+  const vacas = dl.value?.produccionPorVaca
+  if (!vacas?.length) return [
+    {nombre:'Vaca #452 (Bessie)', litros:32.4, pct:95},
+    {nombre:'Vaca #210 (Daisy)',  litros:29.8, pct:88},
+    {nombre:'Vaca #118 (Luna)',   litros:28.5, pct:84},
+    {nombre:'Vaca #095 (Marta)',  litros:26.1, pct:77},
+    {nombre:'Vaca #334 (Perla)',  litros:24.9, pct:73},
+  ]
+  const max = Math.max(...vacas.map(v => Number(v.total_litros)), 1)
+  return vacas.map(v => ({
+    nombre: `Vaca #${v.numero_crotal} (${v.nombre})`,
+    litros: parseFloat(Number(v.total_litros).toFixed(1)),
+    pct:    Math.round((Number(v.total_litros) / max) * 100),
+  }))
+})
+
+// ── Tendencia mensual leche (barras verticales) ───────
+const tendenciaMensual = computed(() => {
+  const trend = dl.value?.tendenciaMensual
+  if (!trend?.length) return [
+    {label:'Ene',label2:'32k',h:56},{label:'Feb',label2:'34k',h:64},
+    {label:'Mar',label2:'38k',h:80},{label:'Abr',label2:'31k',h:48},
+    {label:'May',label2:'36k',h:72},{label:'Jun',label2:'40k',h:80},
+  ]
+  const max = Math.max(...trend.map(t => Number(t.total)), 1)
+  return trend.map(t => {
+    const total = Number(t.total)
+    return {
+      label:  mesCorto(t.mes),
+      label2: total >= 1000 ? `${(total / 1000).toFixed(0)}k` : `${total.toFixed(0)}`,
+      h:      Math.round((total / max) * 80),
+    }
+  })
+})
+
+// ── Próximos partos ───────────────────────────────────
+const BG_COLORS    = ['bg-[#e7f3e7] border-[#4c9a4c]/10','bg-[#f3eee7] border-[#6E420C]/10','bg-blue-50 border-blue-200']
+const TEXT_COLORS  = ['text-[#4c9a4c]','text-[#6E420C]','text-blue-600']
+
+const proximosPartos = computed(() => {
+  const partos = store.dashReproduccion?.proximosPartos
+  if (!partos?.length) return [
+    {nombre:'Vaca "Mariposa"', mes:'Mayo', dia:12, estado:'Seguimiento especial', bg:'bg-[#e7f3e7] border-[#4c9a4c]/10', textColor:'text-[#4c9a4c]'},
+    {nombre:'Vaca "Estrella"', mes:'Mayo', dia:15, estado:'Normal',               bg:'bg-[#f3eee7] border-[#6E420C]/10', textColor:'text-[#6E420C]'},
+  ]
+  return partos.map((p, i) => {
+    const fecha = new Date(p.Fecha_prevista_parto)
+    return {
+      nombre:    `Vaca #${p.numero_crotal} (${p.nombre_bovino})`,
+      mes:       MESES_LARGO[fecha.getMonth()],
+      dia:       fecha.getDate(),
+      estado:    p.fase || 'En gestación',
+      bg:        BG_COLORS[i % BG_COLORS.length],
+      textColor: TEXT_COLORS[i % TEXT_COLORS.length],
+    }
+  })
+})
 
 // ── Modales ────────────────────────────────────────────
 const modalVenta      = ref(false)
@@ -909,7 +1129,6 @@ async function guardarGasto() {
   if (ok) { modalGasto.value = false; Object.assign(formGasto, {categoria:'',fecha:'',concepto:'',monto:''}) }
 }
 
-// ── Reporte PDF (igual que ingresos.html) ──────────────
 async function generarReportePDF() {
   try {
     const response = await produccionService.reporteIngresos()

@@ -1,11 +1,10 @@
-// src/modules/produccion/store/produccion.store.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { produccionService } from '../services/produccion.service.js'
 
 export const useProduccionStore = defineStore('produccion', () => {
 
-  // ── Estado ────────────────────────────────
+  // ── Estado CRUD ───────────────────────────────────────
   const nacimientos = ref([])
   const ingresos    = ref([])
   const gastos      = ref([])
@@ -15,7 +14,15 @@ export const useProduccionStore = defineStore('produccion', () => {
   const error       = ref(null)
   const mensaje     = ref(null)
 
-  // ── Cargar datos ──────────────────────────
+  // ── Estado Dashboard ──────────────────────────────────
+  const dashPrincipal    = ref(null)
+  const dashGastos       = ref(null)
+  const dashIngresos     = ref(null)
+  const dashNacimientos  = ref(null)
+  const dashReproduccion = ref(null)
+  const dashLeche        = ref(null)
+
+  // ── Helper CRUD (listas) ──────────────────────────────
   async function cargar(fn, destino) {
     cargando.value = true
     error.value = null
@@ -23,7 +30,6 @@ export const useProduccionStore = defineStore('produccion', () => {
       const { data } = await fn()
       destino.value = data
     } catch (e) {
-      // Si el endpoint no existe aún, simplemente deja vacío
       console.warn('Endpoint no disponible:', e.message)
       destino.value = []
     } finally {
@@ -31,12 +37,32 @@ export const useProduccionStore = defineStore('produccion', () => {
     }
   }
 
+  // ── Helper Dashboard (objetos, sin sobreescribir con []) ─
+  async function cargarDash(fn, destino) {
+    try {
+      const { data } = await fn()
+      destino.value = data
+    } catch (e) {
+      console.warn('Dashboard endpoint no disponible:', e.message)
+      destino.value = null
+    }
+  }
+
+  // ── Loaders CRUD ──────────────────────────────────────
   const cargarNacimientos = () => cargar(produccionService.listarNacimientos, nacimientos)
   const cargarIngresos    = () => cargar(produccionService.listarIngresos,    ingresos)
   const cargarGastos      = () => cargar(produccionService.listarGastos,      gastos)
   const cargarVentas      = () => cargar(produccionService.listarVentas,      ventas)
 
-  // ── Crear registros ───────────────────────
+  // ── Loaders Dashboard ─────────────────────────────────
+  const cargarDashPrincipal    = () => cargarDash(produccionService.dashboardPrincipal,    dashPrincipal)
+  const cargarDashGastos       = () => cargarDash(produccionService.dashboardGastos,       dashGastos)
+  const cargarDashIngresos     = () => cargarDash(produccionService.dashboardIngresos,     dashIngresos)
+  const cargarDashNacimientos  = () => cargarDash(produccionService.dashboardNacimientos,  dashNacimientos)
+  const cargarDashReproduccion = () => cargarDash(produccionService.dashboardReproduccion, dashReproduccion)
+  const cargarDashLeche        = () => cargarDash(produccionService.dashboardLeche,        dashLeche)
+
+  // ── Crear registros ───────────────────────────────────
   async function crear(fn, payload) {
     cargando.value = true
     error.value = null
@@ -61,10 +87,18 @@ export const useProduccionStore = defineStore('produccion', () => {
   function limpiarMensajes() { error.value = null; mensaje.value = null }
 
   return {
+    // CRUD state
     nacimientos, ingresos, gastos, ventas, resumen,
     cargando, error, mensaje,
+    // Dashboard state
+    dashPrincipal, dashGastos, dashIngresos,
+    dashNacimientos, dashReproduccion, dashLeche,
+    // CRUD actions
     cargarNacimientos, cargarIngresos, cargarGastos, cargarVentas,
     crearNacimiento, crearIngreso, crearGasto, crearVenta,
-    limpiarMensajes
+    limpiarMensajes,
+    // Dashboard actions
+    cargarDashPrincipal, cargarDashGastos, cargarDashIngresos,
+    cargarDashNacimientos, cargarDashReproduccion, cargarDashLeche,
   }
 })
