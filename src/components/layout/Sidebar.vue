@@ -1,92 +1,212 @@
 <template>
   <aside class="fixed left-0 top-0 z-50 hidden h-full w-64 flex-col gap-4 bg-[#e8f5e9] p-4 shadow-xl lg:flex font-display">
 
-    <!-- Brand - Solo Logo SIN fondo -->
+    <!-- Brand -->
     <RouterLink to="/dashboard" class="flex items-center justify-center px-2 py-6 border-b border-[#5a3a1a]/10 cursor-pointer hover:opacity-90 transition-opacity">
       <img src="@/assets/logo.png" alt="Finca Valerio" class="h-24 w-auto object-contain" />
     </RouterLink>
 
     <!-- Nav -->
-    <ul class="flex flex-col gap-1">
+    <ul class="flex flex-col gap-4 overflow-y-auto">
 
-      <!-- Producción -->
-      <RouterLink to="/produccion" custom v-slot="{ isActive, navigate }">
+      <!-- Dashboard -->
+      <RouterLink to="/dashboard" custom v-slot="{ isActive, navigate }">
         <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
           :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
           <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'"
-            :style="isActive ? `font-variation-settings:'FILL' 1` : ''">monitoring</span>
-          <p class="text-sm font-bold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Producción</p>
+            :style="isActive ? `font-variation-settings:'FILL' 1` : ''">dashboard</span>
+          <p class="text-sm font-bold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Dashboard</p>
         </li>
       </RouterLink>
 
-      <li class="px-4 pt-3 pb-1">
-        <p class="text-[10px] font-bold uppercase tracking-widest text-[#5a3a1a]/40">Gestión</p>
+      <!-- Ganadería -->
+      <li class="px-4 pt-2">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-[#5a3a1a]/40">Ganadería</p>
+        <ul class="mt-2 space-y-1">
+          <RouterLink to="/bovinos" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">pest_control</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Bovino</p>
+            </li>
+          </RouterLink>
+
+          <RouterLink to="/ordenio" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">water_drop</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Ordenio</p>
+            </li>
+          </RouterLink>
+        </ul>
       </li>
 
-      <RouterLink to="/bovinos" custom v-slot="{ isActive, navigate }">
-        <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
-          :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
-          <svg :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'" class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M10.5 18a.5.5 0 0 1 .5.5a.5.5 0 0 1-.5.5a.5.5 0 0 1-.5-.5a.5.5 0 0 1 .5-.5m3 0a.5.5 0 0 1 .5.5a.5.5 0 0 1-.5.5a.5.5 0 0 1-.5-.5a.5.5 0 0 1 .5-.5M10 11a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1m4 0a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1m4 7c0 2.21-2.69 4-6 4s-6-1.79-6-4c0-.9.45-1.73 1.2-2.4c-.75-1-1.2-2.25-1.2-3.6l.12-1.22c-.54.15-1.19.15-1.72 0c-1.02-.28-2.56-1.43-2.33-2.23s2.14-.95 3.16-.65c.59.17 1.22.6 1.59 1.06l.57-.81C6.79 7.05 7 4 10 3l-.09.14c-.28.44-1 1.83-.24 3.33a6.02 6.02 0 0 1 4.66 0c.76-1.5.04-2.89-.24-3.33L14 3c3 1 3.21 4.05 2.61 5.15l.57.81c.37-.46 1-.89 1.59-1.06c1.02-.3 2.93-.15 3.16.65s-1.31 1.95-2.33 2.23c-.53.15-1.18.15-1.72 0L18 12c0 1.35-.45 2.6-1.2 3.6c.75.67 1.2 1.5 1.2 2.4m-6-2c-2.21 0-4 .9-4 2s1.79 2 4 2s4-.9 4-2s-1.79-2-4-2m0-2c1.12 0 2.17.21 3.07.56c.58-.69.93-1.56.93-2.56a4 4 0 0 0-4-4a4 4 0 0 0-4 4c0 1 .35 1.87.93 2.56c.9-.35 1.95-.56 3.07-.56m2.09-10.86"/></svg>
-          <p class="text-sm font-bold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Animales</p>
-        </li>
-      </RouterLink>
+      <!-- Salud y Bienestar -->
+      <li class="px-4 pt-2">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-[#5a3a1a]/40">Salud y Bienestar</p>
+        <ul class="mt-2 space-y-1">
+          <RouterLink to="/veterinarios" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">medical_services</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Veterinarios</p>
+            </li>
+          </RouterLink>
 
-      <RouterLink to="/visitas" custom v-slot="{ isActive, navigate }">
-        <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
-          :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
-          <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'"
-            :style="isActive ? `font-variation-settings:'FILL' 1` : ''">medical_services</span>
-          <p class="text-sm font-bold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Visitas Veterinarias</p>
-        </li>
-      </RouterLink>
+          <RouterLink to="/agenda-veterinaria" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">event</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Agenda Veterinaria</p>
+            </li>
+          </RouterLink>
 
-      <RouterLink to="/celo" custom v-slot="{ isActive, navigate }">
-        <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
-          :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
-          <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'"
-            :style="isActive ? `font-variation-settings:'FILL' 1` : ''">favorite</span>
-          <p class="text-sm font-bold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Ciclo Celo</p>
-        </li>
-      </RouterLink>
+          <RouterLink to="/visitas" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">health_and_safety</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Visitas Veterinarias</p>
+            </li>
+          </RouterLink>
 
-      <RouterLink to="/empleado" custom v-slot="{ isActive, navigate }">
-        <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
-          :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
-          <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'"
-            :style="isActive ? `font-variation-settings:'FILL' 1` : ''">badge</span>
-          <p class="text-sm font-bold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Empleados</p>
-        </li>
-      </RouterLink>
+          <RouterLink to="/historial-enfermedades" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">history_edu</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Historial Enfermedades</p>
+            </li>
+          </RouterLink>
 
-      <RouterLink to="/ordenio" custom v-slot="{ isActive, navigate }">
-        <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
-          :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
-          <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'"
-            :style="isActive ? `font-variation-settings:'FILL' 1` : ''">water_drop</span>
-          <p class="text-sm font-bold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Ordeño</p>
-        </li>
-      </RouterLink>
+          <RouterLink to="/vacunas" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">vaccines</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Vacunas</p>
+            </li>
+          </RouterLink>
 
-      <li class="px-4 pt-3 pb-1">
-        <p class="text-[10px] font-bold uppercase tracking-widest text-[#5a3a1a]/40">Ventas</p>
+          <!-- NUEVO: Tratamientos -->
+          <RouterLink to="/tratamientos" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">medication</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Tratamientos</p>
+            </li>
+          </RouterLink>
+        </ul>
       </li>
 
-      <RouterLink to="/venta" custom v-slot="{ isActive, navigate }">
-        <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
-          :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
-          <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'"
-            :style="isActive ? `font-variation-settings:'FILL' 1` : ''">receipt_long</span>
-          <p class="text-sm font-bold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Facturación</p>
-        </li>
-      </RouterLink>
+      <!-- Reproducción -->
+      <li class="px-4 pt-2">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-[#5a3a1a]/40">Reproducción</p>
+        <ul class="mt-2 space-y-1">
+          <RouterLink to="/celo" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">favorite</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Ciclo celo</p>
+            </li>
+          </RouterLink>
 
-      <RouterLink to="/compra" custom v-slot="{ isActive, navigate }">
-        <li @click="navigate" class="flex h-12 cursor-pointer items-center gap-4 rounded-lg px-4 transition-colors"
-          :class="isActive ? 'bg-[#4c9a4c]/20' : 'hover:bg-white/8'">
-          <span class="material-symbols-outlined" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/60'">inventory_2</span>
-          <p class="text-sm font-bold" :class="isActive ? 'text-[#4c9a4c]' : 'text-white/80'">Compras</p>
-        </li>
-      </RouterLink>
+          <RouterLink to="/inseminaciones" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">science</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Inseminación</p>
+            </li>
+          </RouterLink>
+
+          <RouterLink to="/embarazos" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">pregnant_woman</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Embarazo</p>
+            </li>
+          </RouterLink>
+
+          <RouterLink to="/partos" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">child_friendly</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Parto</p>
+            </li>
+          </RouterLink>
+        </ul>
+      </li>
+
+      <!-- Facturación -->
+      <li class="px-4 pt-2">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-[#5a3a1a]/40">Facturación</p>
+        <ul class="mt-2 space-y-1">
+          <RouterLink to="/compra" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">inventory_2</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Compra</p>
+            </li>
+          </RouterLink>
+
+          <RouterLink to="/venta" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">receipt_long</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Venta</p>
+            </li>
+          </RouterLink>
+        </ul>
+      </li>
+
+      <!-- Inventario -->
+      <li class="px-4 pt-2">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-[#5a3a1a]/40">Inventario</p>
+        <ul class="mt-2 space-y-1">
+          <RouterLink to="/productos" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">inventory</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Producto</p>
+            </li>
+          </RouterLink>
+
+          <RouterLink to="/insumos" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">construction</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Insumo</p>
+            </li>
+          </RouterLink>
+        </ul>
+      </li>
+
+      <!-- Contactos -->
+      <li class="px-4 pt-2">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-[#5a3a1a]/40">Contactos</p>
+        <ul class="mt-2 space-y-1">
+          <RouterLink to="/empleado" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">badge</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Empleado</p>
+            </li>
+          </RouterLink>
+
+          <RouterLink to="/clientes" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">groups</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Clientes</p>
+            </li>
+          </RouterLink>
+
+          <RouterLink to="/proveedores" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">support_agent</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Proveedores</p>
+            </li>
+          </RouterLink>
+        </ul>
+      </li>
 
     </ul>
 
