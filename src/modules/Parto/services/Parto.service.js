@@ -1,9 +1,15 @@
+// src/modules/parto/services/parto.service.js
 import api from '@/core/api/axios.js'
 
 const partoService = {
 
   async listar() {
     const { data } = await api.get('/parto/listar')
+    return data
+  },
+
+  async obtener(id) {
+    const { data } = await api.get(`/parto/${id}`)  // ← Correcto según backend
     return data
   },
 

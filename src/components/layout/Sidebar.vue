@@ -3,7 +3,7 @@
 
     <!-- Brand -->
     <RouterLink to="/dashboard" class="flex items-center justify-center px-2 py-6 border-b border-[#5a3a1a]/10 cursor-pointer hover:opacity-90 transition-opacity">
-      <img src="@/assets/logo.png" alt="Finca Valerio" class="h-24 w-auto object-contain" />
+      <img src="@/assets/logo.png" alt="Finca Valerio" class="h-16 w-auto object-contain" />
     </RouterLink>
 
     <!-- Nav -->

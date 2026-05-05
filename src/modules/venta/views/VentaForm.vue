@@ -242,7 +242,11 @@
             <span class="material-symbols-outlined">save</span>
             Guardar
           </button>
-          <button class="px-8 py-3 bg-gray-100 text-gray-700 rounded-lg font-bold hover:bg-gray-200 transition-colors flex items-center gap-2">
+          <button 
+            @click="imprimirFactura" 
+            :disabled="!facturaGuardada"
+            class="px-8 py-3 bg-gray-100 text-gray-700 rounded-lg font-bold hover:bg-gray-200 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <span class="material-symbols-outlined">print</span>
             Imprimir
           </button>
@@ -255,16 +259,26 @@
       </div>
     </div>
 
+    <!-- Componente de Factura Imprimible (invisible) -->
+    <FacturaImprimible 
+      ref="facturaImprimibleRef" 
+      :factura="datosParaImprimir" 
+    />
+
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useVentaStore } from '@/modules/venta/store/venta.store.js'
+import FacturaImprimible from '@/modules/venta/components/FacturaImprimible.vue'
 
 const router = useRouter()
 const store = useVentaStore()
+
+const facturaImprimibleRef = ref(null)
+const facturaGuardada = ref(false)
 
 const factura = reactive({
   numero_factura: 'FAC-001',
@@ -282,7 +296,24 @@ const productos = ref([])
 const productoSeleccionado = ref('')
 const cantidadProducto = ref(1)
 
-// Mock data - TODO: Cargar desde stores reales
+const datosParaImprimir = computed(() => ({
+  numero_factura: factura.numero_factura,
+  fecha: factura.fecha,
+  cliente_nombre: factura.cliente_nombre,
+  productos: productos.value.map(p => ({
+    descripcion: p.descripcion,
+    cantidad: p.cantidad,
+    precio: p.precio,
+    total: p.total
+  })),
+  subtotal: calcularSubtotal(),
+  impuestos: calcularImpuestos(),
+  total: calcularTotal(),
+  banco: 'Banreservas',
+  cuenta: '0123 4567 8901',
+  alias: 'Finca Valerio'
+}))
+
 const clientes = ref([
   { id_cliente: 1, nombre: 'Agropecuaria El Valle', rnc: '123456789', direccion: 'Calle Principal #10', telefono: '809-555-1234' },
   { id_cliente: 2, nombre: 'Inversiones Ganaderas RD', rnc: '987654321', direccion: 'Av. Central #45', telefono: '809-555-5678' }
@@ -334,8 +365,16 @@ function eliminarProducto(index) {
   productos.value.splice(index, 1)
 }
 
-function calcularTotal() {
+function calcularSubtotal() {
   return productos.value.reduce((sum, p) => sum + p.total, 0)
+}
+
+function calcularImpuestos() {
+  return calcularSubtotal() * 0.05
+}
+
+function calcularTotal() {
+  return calcularSubtotal() + calcularImpuestos()
 }
 
 function formatearNumero(numero) {
@@ -356,6 +395,7 @@ function limpiarFormulario() {
     productos.value = []
     productoSeleccionado.value = ''
     cantidadProducto.value = 1
+    facturaGuardada.value = false
   }
 }
 
@@ -387,10 +427,21 @@ async function guardarFactura() {
   const resultado = await store.crearVenta(datos)
   
   if (resultado.success) {
+    facturaGuardada.value = true
     alert('Factura guardada correctamente')
-    router.push({ name: 'Venta' })
   } else {
     alert('Error: ' + resultado.error)
+  }
+}
+
+function imprimirFactura() {
+  if (!facturaGuardada.value) {
+    alert('Primero debe guardar la factura')
+    return
+  }
+
+  if (facturaImprimibleRef.value) {
+    facturaImprimibleRef.value.imprimir()
   }
 }
 </script>

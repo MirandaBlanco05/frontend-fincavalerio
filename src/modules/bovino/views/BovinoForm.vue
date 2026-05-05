@@ -8,7 +8,7 @@
           <h3 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nuevo' }} Animal</h3>
           <p class="modal-subtitle">Complete los datos del animal</p>
         </div>
-        <button type="button" @click="router.push({ name: 'Bovinos' })" class="btn-close">
+        <button type="button" @click="router.push({ name: 'BovinosList' })" class="btn-close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
@@ -318,10 +318,18 @@ async function guardar() {
   background: white;
 }
 
-.form-input:focus, .form-select:focus, .form-textarea:focus {
+/* Input con focus verde */
+.form-input:focus {
   outline: none;
   border-color: #4c9a4c;
   background: #f0f9f0;
+}
+
+/* Select con focus gris */
+.form-select:focus {
+  outline: none;
+  border-color: #9ca3af;
+  background: #f3f4f6;
 }
 
 .form-grid {

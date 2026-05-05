@@ -1,68 +1,48 @@
 <template>
-  <div class="relative min-h-screen w-full p-0">
+  <div class="relative min-h-screen w-full">
 
     <!-- Action Bar -->
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <!-- Nuevo -->
-      <button
-        @click="mostrarModal = true"
-        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none"
-      >
+      <button @click="abrirModal()" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
         <span class="material-symbols-outlined text-base">add</span>
-        <span class="truncate">Nuevo Ciclo</span>
+        <span class="truncate">Nuevo</span>
       </button>
 
-      <!-- Editar -->
-      <button
-        @click="editarCiclo(filaSeleccionada)"
-        :disabled="!filaSeleccionada"
-        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
-      >
+      <button @click="abrirModal(filaSeleccionada)" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">edit</span>
         <span class="truncate">Editar</span>
       </button>
 
-      <!-- Eliminar -->
-      <button
-        @click="confirmarEliminar(filaSeleccionada)"
-        :disabled="!filaSeleccionada"
-        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
-      >
+      <button @click="confirmarEliminar()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">delete</span>
         <span class="truncate">Eliminar</span>
       </button>
-
-      <!-- Búsqueda -->
-      <div class="relative flex flex-1 items-center min-w-[200px] sm:flex-none">
-        <span class="material-symbols-outlined absolute left-3 text-gray-400 text-base">search</span>
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Buscar..."
-          class="w-full rounded-lg border border-border-color bg-white py-2 pl-9 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-        />
-      </div>
     </div>
 
-    <!-- Alertas -->
     <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
       <span class="material-symbols-outlined text-base">warning</span>
       {{ store.error }}
     </div>
 
-    <!-- Tabla de ciclos -->
+    <div v-if="store.mensaje" class="mb-4 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+      <span class="material-symbols-outlined text-base">check_circle</span>
+      {{ store.mensaje }}
+    </div>
+
+    <!-- Tabla -->
     <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
       <table class="w-full text-left text-sm text-text-primary">
         <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
-            <th class="px-6 py-4">ID Ciclo</th>
+            <th class="px-6 py-4">ID</th>
             <th class="px-6 py-4">Bovino</th>
             <th class="px-6 py-4">Fecha Inicio</th>
             <th class="px-6 py-4">Fecha Fin</th>
-            <th class="px-6 py-4">Duración</th>
+            <th class="px-6 py-4">Duración (días)</th>
             <th class="px-6 py-4">Observaciones</th>
           </tr>
         </thead>
+
         <tbody>
           <tr v-if="store.cargando">
             <td colspan="6" class="px-6 py-12 text-center text-gray-400">
@@ -70,145 +50,114 @@
               <p class="mt-2">Cargando ciclos...</p>
             </td>
           </tr>
-          <tr v-else-if="ciclosFiltrados.length === 0">
+
+          <tr v-else-if="store.ciclos.length === 0">
             <td colspan="6" class="px-6 py-12 text-center text-gray-400">
-              <span class="material-symbols-outlined text-4xl">search_off</span>
+              <span class="material-symbols-outlined text-4xl">favorite</span>
               <p class="mt-2">No hay ciclos registrados.</p>
             </td>
           </tr>
-          <tr
-            v-else
-            v-for="ciclo in ciclosFiltrados"
-            :key="ciclo.Id_ciclo"
-            @click="seleccionarFila(ciclo)"
-            class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10"
-            :class="{ 'bg-primary/20': filaSeleccionada?.Id_ciclo === ciclo.Id_ciclo }"
-          >
-            <td class="px-6 py-3 font-medium">{{ ciclo.Id_ciclo }}</td>
-            <td class="px-6 py-3 font-bold">{{ ciclo.bovino?.nombre || 'N/A' }}</td>
-            <td class="px-6 py-3">{{ formatearFecha(ciclo.Fecha_inicio) }}</td>
-            <td class="px-6 py-3">{{ formatearFecha(ciclo.Fecha_fin) }}</td>
-            <td class="px-6 py-3">
-              <span class="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
-                {{ ciclo.duracion || calcularDuracion(ciclo.Fecha_inicio, ciclo.Fecha_fin) }} días
-              </span>
-            </td>
-            <td class="px-6 py-3 text-gray-500 italic">{{ ciclo.observaciones || '—' }}</td>
+
+          <tr v-else v-for="ciclo in store.ciclos" :key="ciclo.id_ciclo_celo" @click="seleccionarFila(ciclo)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_ciclo_celo === ciclo.id_ciclo_celo }">
+            <td class="px-6 py-3 font-bold">#{{ ciclo.id_ciclo_celo }}</td>
+            <td class="px-6 py-3">{{ ciclo.bovino?.nombre || `Bovino #${ciclo.id_bovino}` }}</td>
+            <td class="px-6 py-3">{{ formatearFecha(ciclo.fecha_inicio) }}</td>
+            <td class="px-6 py-3">{{ ciclo.fecha_fin ? formatearFecha(ciclo.fecha_fin) : '—' }}</td>
+            <td class="px-6 py-3">{{ calcularDuracion(ciclo.fecha_inicio, ciclo.fecha_fin) }}</td>
+            <td class="px-6 py-3">{{ ciclo.observaciones || '—' }}</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Modal Formulario -->
+    <!-- Modal Form -->
     <Teleport to="body">
-      <div v-if="mostrarModal" class="modal-overlay" @click.self="cerrarModal">
+      <div v-if="modalAbierto" class="modal-overlay" @click.self="cerrarModal">
         <div class="modal-content">
           <div class="modal-header">
             <div>
-              <h3 class="modal-title">{{ esEdicion ? 'Editar' : 'Nuevo' }} Ciclo Celo</h3>
-              <p class="modal-subtitle">Complete los datos del ciclo reproductivo</p>
+              <h3 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nuevo' }} Ciclo Celo</h3>
+              <p class="modal-subtitle">Complete los datos del ciclo</p>
             </div>
-            <button @click="cerrarModal" class="btn-close">
+            <button type="button" @click="cerrarModal" class="btn-close">
               <span class="material-symbols-outlined">close</span>
             </button>
           </div>
 
-          <form @submit.prevent="guardarCiclo" class="modal-body">
-
-            <!-- ID Ciclo (solo lectura si es edición) -->
-            <div class="form-group">
-              <label class="form-label">
-                <span class="material-symbols-outlined">tag</span>
-                ID Ciclo
-              </label>
-              <input v-model="form.idCiclo" type="text" class="form-input" placeholder="C-2023-089" 
-                :disabled="esEdicion" :class="{ 'input-disabled': esEdicion }" />
-            </div>
-
-            <!-- Bovino -->
+          <form @submit.prevent="guardar" class="modal-body">
             <div class="form-group">
               <label class="form-label required">
                 <span class="material-symbols-outlined">pets</span>
                 Bovino
               </label>
-              <select v-model="form.Id_bovino" class="form-select" required>
-                <option value="">Seleccione el ejemplar</option>
+              <select v-model="form.id_bovino" required class="form-select">
+                <option value="">Seleccione...</option>
                 <option v-for="bovino in bovinos" :key="bovino.id_bovino" :value="bovino.id_bovino">
-                  {{ bovino.nombre }} ({{ bovino.id_bovino }})
+                  {{ bovino.nombre }}
                 </option>
               </select>
             </div>
 
-            <!-- Fechas en grid 2 columnas -->
             <div class="form-grid">
               <div class="form-group">
                 <label class="form-label required">
                   <span class="material-symbols-outlined">event</span>
                   Fecha Inicio
                 </label>
-                <input v-model="form.Fecha_inicio" type="date" class="form-input" required />
+                <input v-model="form.fecha_inicio" type="date" required class="form-input" @change="calcularDuracionAuto" />
               </div>
 
               <div class="form-group">
-                <label class="form-label required">
-                  <span class="material-symbols-outlined">event</span>
+                <label class="form-label">
+                  <span class="material-symbols-outlined">event_available</span>
                   Fecha Fin
                 </label>
-                <input v-model="form.Fecha_fin" type="date" class="form-input" required />
+                <input v-model="form.fecha_fin" type="date" class="form-input" @change="calcularDuracionAuto" />
               </div>
             </div>
 
-            <!-- Duración (calculada automáticamente) -->
-            <div class="form-group">
+            <div class="form-group" v-if="duracionCalculada !== null">
               <label class="form-label">
                 <span class="material-symbols-outlined">schedule</span>
-                Duración (Días)
+                Duración
               </label>
-              <div class="duracion-display">
-                <span class="duracion-value">{{ duracionCalculada }}</span>
-                <span class="duracion-label">días</span>
-              </div>
+              <input :value="duracionCalculada + ' días'" type="text" class="form-input bg-gray-50" readonly />
             </div>
 
-            <!-- Observaciones -->
             <div class="form-group">
               <label class="form-label">
-                <span class="material-symbols-outlined">notes</span>
+                <span class="material-symbols-outlined">description</span>
                 Observaciones
               </label>
-              <textarea v-model="form.observaciones" rows="3" class="form-textarea"
-                placeholder="Detalles sobre el comportamiento..."></textarea>
+              <textarea v-model="form.observaciones" class="form-input" rows="3"></textarea>
             </div>
 
-            <!-- Botones -->
             <div class="modal-footer">
               <button type="button" @click="cerrarModal" class="btn btn--secondary">Cancelar</button>
-              <button type="submit" :disabled="store.cargando" class="btn btn--primary">
+              <button type="submit" :disabled="guardando" class="btn btn--primary">
                 <span class="material-symbols-outlined">save</span>
-                {{ store.cargando ? 'Guardando...' : 'Guardar Registro' }}
+                {{ guardando ? 'Guardando...' : (modoEdicion ? 'Actualizar' : 'Guardar') }}
               </button>
             </div>
-
           </form>
         </div>
       </div>
     </Teleport>
 
-    <!-- Modal confirmación eliminar -->
+    <!-- Modal Eliminar -->
     <Teleport to="body">
       <div v-if="modalEliminar" class="modal-overlay" @click.self="modalEliminar = false">
         <div class="modal-content modal-content--small">
           <div class="modal-header modal-header--danger">
-            <span class="material-symbols-outlined text-red-600">warning</span>
-            <h3 class="modal-title">Eliminar Ciclo</h3>
+            <span class="material-symbols-outlined">warning</span>
+            <h3 class="modal-title">Eliminar Ciclo Celo</h3>
           </div>
           <div class="modal-body">
-            <p class="text-center">¿Está seguro que desea eliminar este ciclo de celo?</p>
-            <p class="text-center text-sm text-muted">Esta acción no se puede deshacer.</p>
+            <p class="text-center">¿Está seguro que desea eliminar este ciclo?</p>
           </div>
           <div class="modal-footer">
             <button @click="modalEliminar = false" class="btn btn--secondary">Cancelar</button>
-            <button @click="eliminarCiclo" class="btn btn--danger">
+            <button @click="eliminar" class="btn btn--danger">
               <span class="material-symbols-outlined">delete</span>
               Eliminar
             </button>
@@ -223,132 +172,120 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useCeloStore } from '@/modules/celo/store/celo.store.js'
-import api from '@/core/api/axios.js'
+import { useBovinoStore } from '@/modules/bovino/store/bovino.store.js'
 
 const store = useCeloStore()
-const mostrarModal = ref(false)
-const modalEliminar = ref(false)
-const esEdicion = ref(false)
-const cicloAEliminar = ref(null)
-const bovinos = ref([])
-
-const search = ref("")
+const bovinoStore = useBovinoStore()
 const filaSeleccionada = ref(null)
-
-const ciclosFiltrados = computed(() => {
-  if (!search.value) return store.ciclos
-  const query = search.value.toLowerCase()
-  return store.ciclos.filter(c => 
-    c.Id_ciclo?.toString().includes(query) ||
-    c.bovino?.nombre?.toLowerCase().includes(query) ||
-    c.observaciones?.toLowerCase().includes(query)
-  )
-})
-
-function seleccionarFila(fila) {
-  if (filaSeleccionada.value?.Id_ciclo === fila.Id_ciclo) {
-    filaSeleccionada.value = null
-  } else {
-    filaSeleccionada.value = fila
-  }
-}
+const modalAbierto = ref(false)
+const modalEliminar = ref(false)
+const guardando = ref(false)
+const bovinos = ref([])
+const duracionCalculada = ref(null)
 
 const form = reactive({
-  idCiclo: '',
-  Id_bovino: '',
-  Fecha_inicio: '',
-  Fecha_fin: '',
+  id_bovino: '',
+  fecha_inicio: '',
+  fecha_fin: '',
   observaciones: ''
 })
 
-const duracionCalculada = computed(() => {
-  if (!form.Fecha_inicio || !form.Fecha_fin) return 0
-  const inicio = new Date(form.Fecha_inicio)
-  const fin = new Date(form.Fecha_fin)
-  const diff = fin - inicio
-  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
-})
+const modoEdicion = computed(() => !!filaSeleccionada.value)
+
+function seleccionarFila(ciclo) {
+  if (filaSeleccionada.value?.id_ciclo_celo === ciclo.id_ciclo_celo) {
+    filaSeleccionada.value = null
+  } else {
+    filaSeleccionada.value = ciclo
+    store.limpiarMensajes?.()
+  }
+}
+
+function abrirModal(ciclo = null) {
+  if (ciclo) {
+    form.id_bovino = ciclo.id_bovino
+    form.fecha_inicio = ciclo.fecha_inicio
+    form.fecha_fin = ciclo.fecha_fin || ''
+    form.observaciones = ciclo.observaciones || ''
+    calcularDuracionAuto()
+  } else {
+    resetForm()
+    filaSeleccionada.value = null
+  }
+  modalAbierto.value = true
+}
+
+function cerrarModal() {
+  modalAbierto.value = false
+  resetForm()
+  duracionCalculada.value = null
+}
+
+function resetForm() {
+  form.id_bovino = ''
+  form.fecha_inicio = ''
+  form.fecha_fin = ''
+  form.observaciones = ''
+}
+
+function calcularDuracionAuto() {
+  if (form.fecha_inicio && form.fecha_fin) {
+    const inicio = new Date(form.fecha_inicio)
+    const fin = new Date(form.fecha_fin)
+    const diff = Math.floor((fin - inicio) / (1000 * 60 * 60 * 24))
+    duracionCalculada.value = diff >= 0 ? diff : null
+  } else {
+    duracionCalculada.value = null
+  }
+}
+
+async function guardar() {
+  guardando.value = true
+  let resultado
+
+  if (modoEdicion.value) {
+    resultado = await store.actualizarCiclo(filaSeleccionada.value.id_ciclo_celo, form)
+  } else {
+    resultado = await store.crearCiclo(form)
+  }
+
+  guardando.value = false
+
+  if (resultado.success) {
+    cerrarModal()
+    filaSeleccionada.value = null
+  }
+}
+
+function confirmarEliminar() {
+  if (!filaSeleccionada.value) return
+  modalEliminar.value = true
+}
+
+async function eliminar() {
+  if (!filaSeleccionada.value) return
+  const resultado = await store.eliminarCiclo(filaSeleccionada.value.id_ciclo_celo)
+  if (resultado.success) {
+    modalEliminar.value = false
+    filaSeleccionada.value = null
+  }
+}
 
 function formatearFecha(fecha) {
   if (!fecha) return '—'
-  return new Date(fecha).toLocaleDateString('es-DO', { year: 'numeric', month: 'short', day: 'numeric' })
+  return new Date(fecha).toLocaleDateString('es-DO')
 }
 
 function calcularDuracion(inicio, fin) {
   if (!inicio || !fin) return '—'
-  const diff = new Date(fin) - new Date(inicio)
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  const diff = Math.floor((new Date(fin) - new Date(inicio)) / (1000 * 60 * 60 * 24))
+  return `${diff} días`
 }
 
-function limpiarForm() {
-  form.idCiclo = ''
-  form.Id_bovino = ''
-  form.Fecha_inicio = ''
-  form.Fecha_fin = ''
-  form.observaciones = ''
-  esEdicion.value = false
-}
-
-function cerrarModal() {
-  mostrarModal.value = false
-  limpiarForm()
-}
-
-async function guardarCiclo() {
-  const datos = {
-    Id_bovino: parseInt(form.Id_bovino),
-    Fecha_inicio: form.Fecha_inicio,
-    Fecha_fin: form.Fecha_fin,
-    duracion: duracionCalculada.value.toString(),
-    observaciones: form.observaciones || null
-  }
-
-  let exito = false
-  if (esEdicion.value) {
-    exito = await store.actualizarCiclo(form.idCiclo, datos)
-  } else {
-    exito = await store.crearCiclo(datos)
-  }
-
-  if (exito) cerrarModal()
-}
-
-function editarCiclo(ciclo) {
-  form.idCiclo = ciclo.Id_ciclo
-  form.Id_bovino = ciclo.Id_bovino || ciclo.bovino?.id_bovino
-  form.Fecha_inicio = ciclo.Fecha_inicio
-  form.Fecha_fin = ciclo.Fecha_fin
-  form.observaciones = ciclo.observaciones || ''
-  esEdicion.value = true
-  mostrarModal.value = true
-}
-
-function confirmarEliminar(ciclo) {
-  cicloAEliminar.value = ciclo
-  modalEliminar.value = true
-}
-
-async function eliminarCiclo() {
-  if (!cicloAEliminar.value) return
-  const exito = await store.eliminarCiclo(cicloAEliminar.value.Id_ciclo)
-  if (exito) {
-    modalEliminar.value = false
-    cicloAEliminar.value = null
-  }
-}
-
-async function cargarBovinos() {
-  try {
-    const { data } = await api.get('/bovino/listar')
-    bovinos.value = data
-  } catch (error) {
-    console.error('Error cargando bovinos:', error)
-  }
-}
-
-onMounted(() => {
+onMounted(async () => {
   store.cargarCiclos()
-  cargarBovinos()
+  const result = await bovinoStore.cargarBovinos()
+  if (result) bovinos.value = bovinoStore.bovinos
 })
 </script>
 
@@ -360,189 +297,6 @@ onMounted(() => {
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
 
-.celo-root {
-  font-family: 'DM Sans', sans-serif;
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-/* Header */
-.header-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-}
-
-.title {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #1a1a1a;
-  margin-bottom: 0.25rem;
-}
-
-.subtitle {
-  font-size: 0.9rem;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.btn-nuevo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0.75rem 1.5rem;
-  background: #6E420C;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-nuevo:hover {
-  background: #5a360a;
-  transform: translateY(-1px);
-}
-
-.btn-nuevo .material-symbols-outlined {
-  font-size: 1.2rem;
-}
-
-/* Alertas */
-.alert {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 1rem 1.25rem;
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.alert--error {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-}
-
-/* Table Card */
-.table-card {
-  background: white;
-  border: 1.5px solid #f0f0ed;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.loading, .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  gap: 1rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #f0f0ed;
-  border-top-color: #6E420C;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.empty-state .material-symbols-outlined {
-  font-size: 4rem;
-  color: #d1d5db;
-}
-
-.empty-state p {
-  color: #6b7280;
-  font-weight: 600;
-}
-
-.btn-empty {
-  margin-top: 1rem;
-  padding: 0.65rem 1.25rem;
-  background: #6E420C;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-/* Tabla */
-.tabla {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.tabla thead {
-  background: #fafaf8;
-  border-bottom: 2px solid #f0f0ed;
-}
-
-.tabla th {
-  padding: 1rem;
-  text-align: left;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.tabla td {
-  padding: 1rem;
-  font-size: 0.9rem;
-  color: #1a1a1a;
-  border-bottom: 1px solid #f5f5f5;
-}
-
-.tabla tr:hover {
-  background: #fafaf8;
-}
-
-.font-mono { font-family: 'Courier New', monospace; font-weight: 600; }
-.font-bold { font-weight: 700; }
-.text-muted { color: #9ca3af; font-style: italic; }
-
-.acciones {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-icon {
-  padding: 6px;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-icon .material-symbols-outlined {
-  font-size: 1.1rem;
-}
-
-.btn-icon--edit { color: #6E420C; }
-.btn-icon--edit:hover { background: #f3eee7; }
-
-.btn-icon--delete { color: #dc2626; }
-.btn-icon--delete:hover { background: #fef2f2; }
-
-/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -553,6 +307,7 @@ onMounted(() => {
   z-index: 1000;
   padding: 1rem;
   backdrop-filter: blur(4px);
+  font-family: 'DM Sans', sans-serif;
 }
 
 .modal-content {
@@ -578,12 +333,13 @@ onMounted(() => {
 
 .modal-header--danger {
   flex-direction: column;
-  gap: 1rem;
   align-items: center;
+  gap: 1rem;
 }
 
 .modal-header--danger .material-symbols-outlined {
   font-size: 3rem;
+  color: #dc2626;
 }
 
 .modal-title {
@@ -621,7 +377,6 @@ onMounted(() => {
   gap: 1.5rem;
 }
 
-/* Form */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -639,7 +394,7 @@ onMounted(() => {
 
 .form-label .material-symbols-outlined {
   font-size: 1rem;
-  color: #6E420C;
+  color: #4c9a4c;
 }
 
 .form-label.required::after {
@@ -648,56 +403,37 @@ onMounted(() => {
   margin-left: 4px;
 }
 
-.form-input, .form-select, .form-textarea {
+.form-input, .form-select {
   padding: 0.75rem;
   border: 1.5px solid #e5e7eb;
   border-radius: 10px;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.9rem;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
+  width: 100%;
+  background: white;
 }
 
-.form-input:focus, .form-select:focus, .form-textarea:focus {
+.form-input:focus, .form-select:focus {
   outline: none;
-  border-color: #6E420C;
+  border-color: #4c9a4c;
+  background: #f0f9f0;
 }
 
-.input-disabled {
-  background: #f9fafb;
-  color: #9ca3af;
-  cursor: not-allowed;
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 80px;
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
-}
-
-.duracion-display {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 0.75rem;
-  background: #f3eee7;
-  border-radius: 10px;
-}
-
-.duracion-value {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #6E420C;
-}
-
-.duracion-label {
-  font-size: 0.9rem;
-  color: #8b6f47;
-  font-weight: 600;
 }
 
 .modal-footer {
@@ -724,12 +460,14 @@ onMounted(() => {
 }
 
 .btn--primary {
-  background: #6E420C;
+  background: #4c9a4c;
   color: white;
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: #5a360a;
+  background: #3d7a3d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
 }
 
 .btn--primary:disabled {
@@ -756,24 +494,10 @@ onMounted(() => {
 }
 
 .text-center { text-align: center; }
-.text-sm { font-size: 0.85rem; }
 
 @media (max-width: 640px) {
-  .celo-root {
-    padding: 1.5rem 1rem;
-  }
-
-  .header-section {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
   .form-grid {
     grid-template-columns: 1fr;
-  }
-
-  .modal-body {
-    padding: 1.5rem;
   }
 }
 </style>
