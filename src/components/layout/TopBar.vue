@@ -30,7 +30,6 @@ const route = useRoute()
 const router = useRouter()
 
 const titulos = {
-  Dashboard:     'Panel de Control',
   Bovinos:       'Registro de animales',
   BovinoNuevo:   'Nuevo Bovino',
   BovinoEditar:  'Editar Bovino',

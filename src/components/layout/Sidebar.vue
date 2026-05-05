@@ -26,7 +26,7 @@
           <RouterLink to="/bovinos" custom v-slot="{ isActive, navigate }">
             <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
               :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
-              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">pest_control</span>
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">pets</span>
               <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Bovino</p>
             </li>
           </RouterLink>
@@ -58,14 +58,6 @@
               :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
               <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">event</span>
               <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Agenda Veterinaria</p>
-            </li>
-          </RouterLink>
-
-          <RouterLink to="/visitas" custom v-slot="{ isActive, navigate }">
-            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
-              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
-              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">health_and_safety</span>
-              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Visitas Veterinarias</p>
             </li>
           </RouterLink>
 
@@ -103,7 +95,7 @@
           <RouterLink to="/celo" custom v-slot="{ isActive, navigate }">
             <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
               :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
-              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">favorite</span>
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">cruelty_free</span>
               <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Ciclo celo</p>
             </li>
           </RouterLink>
@@ -119,7 +111,7 @@
           <RouterLink to="/embarazos" custom v-slot="{ isActive, navigate }">
             <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 transition-colors"
               :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
-              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">pregnant_woman</span>
+              <span class="material-symbols-outlined" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">pregnancy</span>
               <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Embarazo</p>
             </li>
           </RouterLink>

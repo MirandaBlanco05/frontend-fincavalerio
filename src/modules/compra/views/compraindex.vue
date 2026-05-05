@@ -1,196 +1,246 @@
 <template>
-  <div class="compra-page space-y-8">
+  <div class="relative min-h-screen w-full space-y-8">
 
-    <section class="rounded-[28px] border border-border-color bg-white p-6 shadow-sm">
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <!-- ══════════════════════════════════════════
+         SECCIÓN 1: FORMULARIO NUEVA/EDITAR COMPRA
+    ═══════════════════════════════════════════ -->
+    <div class="min-h-screen bg-[#fafafa]">
+
+      <!-- Header -->
+      <div class="mb-6 flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-semibold text-text-primary">Registro de Compras</h1>
-          <p class="mt-2 text-sm text-gray-500">Administra tus compras, proveedores y comprobantes fiscales desde una misma vista.</p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3">
-          <button @click="mostrarResumen" class="rounded-full border border-border-color bg-white px-4 py-2 text-sm font-semibold text-text-primary transition hover:bg-background-light">Resumen</button>
-          <button @click="irProveedores" class="rounded-full border border-border-color bg-white px-4 py-2 text-sm font-semibold text-text-primary transition hover:bg-background-light">Proveedores</button>
-          <button @click="filtrarFacturas" class="rounded-full border border-border-color bg-white px-4 py-2 text-sm font-semibold text-text-primary transition hover:bg-background-light">Facturas</button>
-          <button @click="descargarReporte" class="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary/90">Descargar Reporte</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="rounded-[32px] bg-white p-6 shadow-[0_30px_60px_-40px_rgba(15,23,42,0.18)]">
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <h2 class="text-2xl font-semibold text-text-primary">Nueva Transacción</h2>
-          <p class="mt-1 text-sm text-gray-500">Registra una nueva compra con su comprobante fiscal y proveedor.</p>
+          <h1 class="text-2xl font-bold text-gray-900">{{ esEdicion ? 'Editar Compra' : 'Nueva Compra' }}</h1>
+          <p class="text-sm text-gray-600">Complete los datos de la compra y adjunte el comprobante fiscal</p>
         </div>
       </div>
 
-      <div class="mt-8 grid gap-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
-        <div class="space-y-2">
-          <label class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">ID de compra</label>
-          <input
-            v-model="form.id_compra"
-            list="compras-registradas"
-            type="text"
-            placeholder="PUR-2023-001"
-            class="w-full rounded-3xl border border-border-color bg-background-light px-5 py-3 text-sm text-text-primary outline-none transition focus:border-primary focus:ring-1 focus:ring-primary focus:bg-gray-50"
-          />
-          <datalist id="compras-registradas">
-            <option
-              v-for="compra in store.compras"
-              :key="compra.id_compra"
-              :value="compra.id_compra"
-            >
-              {{ compra.id_compra }} - {{ compra.proveedor?.nombre || 'Sin proveedor' }}
-            </option>
-          </datalist>
-        </div>
+      <!-- Card Datos Compra -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
+        <h2 class="text-xl font-bold mb-6 pb-3 border-b-2 border-gray-100">Datos de la Compra</h2>
 
-        <div class="space-y-2">
-          <label class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Proveedor</label>
-          <input
-            v-model="form.nombre_proveedor"
-            list="proveedores-disponibles"
-            type="text"
-            placeholder="Escribe o selecciona un proveedor"
-            class="w-full rounded-3xl border border-border-color bg-background-light px-5 py-3 text-sm text-text-primary outline-none transition focus:border-primary focus:ring-1 focus:ring-primary focus:bg-gray-50"
-          />
-          <datalist id="proveedores-disponibles">
-            <option
-              v-for="proveedor in store.proveedores"
-              :key="proveedor.id_proveedor"
-              :value="proveedor.nombre"
-            />
-          </datalist>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        <div class="space-y-2">
-          <label class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Fecha de operación</label>
-          <input
-            v-model="form.fecha"
-            type="date"
-            class="w-full rounded-3xl border border-border-color bg-background-light px-5 py-3 text-sm text-text-primary outline-none transition focus:border-primary focus:ring-1 focus:ring-primary focus:bg-gray-50"
-          />
-        </div>
+          <!-- Columna 1: Proveedor + Adjuntar -->
+          <div class="space-y-6">
+            <div class="form-group">
+              <label class="form-label required">
+                <span class="material-symbols-outlined">support_agent</span>
+                Proveedor
+              </label>
+              <input
+                v-model="form.nombre_proveedor"
+                list="proveedores-disponibles"
+                type="text"
+                placeholder="Escribe o selecciona un proveedor"
+                class="form-input"
+              />
+              <datalist id="proveedores-disponibles">
+                <option
+                  v-for="proveedor in store.proveedores"
+                  :key="proveedor.id_proveedor"
+                  :value="proveedor.nombre"
+                />
+              </datalist>
+            </div>
 
-        <div class="space-y-2">
-          <label class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">NCF (comprobante fiscal)</label>
-          <input
-            v-model="form.ncf"
-            type="text"
-            placeholder="B0100000001"
-            class="w-full rounded-3xl border border-border-color bg-background-light px-5 py-3 text-sm text-text-primary outline-none transition focus:border-primary focus:ring-1 focus:ring-primary focus:bg-gray-50"
-          />
-        </div>
-      </div>
-
-      <div class="mt-6 rounded-[28px] border border-dashed border-border-color bg-background-light p-5">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div class="flex items-center gap-3 text-text-primary">
-            <span class="material-symbols-outlined rounded-2xl bg-white/90 p-2 text-lg text-text-primary shadow-sm">upload_file</span>
-            <div>
-              <p class="font-semibold">Adjuntar factura</p>
-              <p class="text-sm text-gray-500">
-                <span v-if="form.nombreFactura" class="text-green-600">✓ {{ form.nombreFactura }}</span>
-                <span v-else>Formatos permitidos: JPG, PNG, PDF (Máx 5MB)</span>
-              </p>
+            <div class="form-group">
+              <label class="form-label">
+                <span class="material-symbols-outlined">upload_file</span>
+                Adjuntar Factura
+              </label>
+              <label class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-6 cursor-pointer hover:bg-gray-100 transition-colors">
+                <span class="material-symbols-outlined text-3xl text-gray-400">cloud_upload</span>
+                <span v-if="form.nombreFactura" class="text-sm font-semibold text-green-600">✓ {{ form.nombreFactura }}</span>
+                <span v-else class="text-sm text-gray-500">JPG, PNG, PDF · Máx 5MB</span>
+                <input type="file" class="hidden" @change="cargarFactura" accept=".jpg,.jpeg,.png,.pdf" />
+              </label>
             </div>
           </div>
 
-          <label class="inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 cursor-pointer">
-            <input type="file" class="hidden" @change="cargarFactura" />
-            Subir foto de factura
-          </label>
-        </div>
-      </div>
+          <!-- Columna 2: ID Compra + NCF -->
+          <div class="space-y-6">
+            <div class="form-group">
+              <label class="form-label required">
+                <span class="material-symbols-outlined">tag</span>
+                ID de Compra
+              </label>
+              <input
+                v-model="form.id_compra"
+                list="compras-registradas"
+                type="text"
+                placeholder="PUR-2023-001"
+                class="form-input"
+                :readonly="esEdicion"
+              />
+              <datalist id="compras-registradas">
+                <option
+                  v-for="compra in store.compras"
+                  :key="compra.id_compra"
+                  :value="compra.id_compra"
+                >
+                  {{ compra.id_compra }} - {{ compra.proveedor?.nombre || 'Sin proveedor' }}
+                </option>
+              </datalist>
+            </div>
 
-      <div class="mt-6 flex justify-end">
-        <button
-          @click="guardarCompra"
-          :disabled="store.cargando"
-          class="inline-flex items-center justify-center rounded-3xl bg-primary px-7 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {{ esEdicion ? 'Actualizar Compra' : 'Registrar Compra' }}
-        </button>
-      </div>
-    </section>
-
-    <section class="space-y-4">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 class="text-xl font-semibold text-text-primary">Historial Reciente</h3>
-          <p class="mt-1 text-sm text-gray-500">Revisa las compras registradas más recientes.</p>
-        </div>
-        <button @click="verTodoHistorial" class="text-sm font-semibold text-primary transition hover:text-primary/80">Ver todo el historial →</button>
-      </div>
-
-      <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
-
-        <div v-if="store.cargando" class="flex min-h-[240px] items-center justify-center px-6 py-16">
-          <div class="flex flex-col items-center gap-3 text-gray-400">
-            <span class="material-symbols-outlined animate-spin text-4xl">progress_activity</span>
-            <p>Cargando compras...</p>
+            <div class="form-group">
+              <label class="form-label">
+                <span class="material-symbols-outlined">verified_user</span>
+                NCF (Comprobante Fiscal)
+              </label>
+              <input
+                v-model="form.ncf"
+                type="text"
+                placeholder="B0100000001"
+                class="form-input"
+              />
+            </div>
           </div>
-        </div>
 
-        <div v-else-if="comprasFiltradas.length === 0" class="flex min-h-[240px] flex-col items-center justify-center gap-3 px-6 py-16 text-gray-400">
-          <span class="material-symbols-outlined text-5xl">shopping_cart_off</span>
-          <p>No hay compras registradas aún.</p>
-        </div>
+          <!-- Columna 3: Fecha -->
+          <div class="space-y-6">
+            <div class="form-group">
+              <label class="form-label required">
+                <span class="material-symbols-outlined">calendar_today</span>
+                Fecha de Operación
+              </label>
+              <input
+                v-model="form.fecha"
+                type="date"
+                class="form-input"
+              />
+            </div>
+          </div>
 
-        <table v-else class="w-full text-left text-sm text-text-primary">
-          <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              <th class="px-6 py-4">ID compra</th>
-              <th class="px-6 py-4">Proveedor</th>
-              <th class="px-6 py-4">Fecha</th>
-              <th class="px-6 py-4">NCF</th>
-              <th class="px-6 py-4">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="compra in comprasFiltradas"
-              :key="compra.id_compra"
-              class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10"
-            >
-              <td class="whitespace-nowrap px-6 py-5 font-semibold text-text-primary">{{ compra.id_compra }}</td>
-              <td class="px-6 py-5">{{ compra.proveedor?.nombre || 'Sin proveedor' }}</td>
-              <td class="px-6 py-5 text-gray-500">{{ formatearFecha(compra.fecha) }}</td>
-              <td class="px-6 py-5">
-                <span class="inline-flex rounded-full bg-secondary/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
-                  {{ compra.ncf || '---' }}
-                </span>
-              </td>
-              <td class="px-6 py-5">
-                <div class="flex items-center gap-2">
-                  <button @click="editarCompra(compra)" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-background-light text-text-primary transition hover:bg-border-color/50">
-                    <span class="material-symbols-outlined">visibility</span>
-                  </button>
-                  <button @click="confirmarEliminar(compra)" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-700 transition hover:bg-red-200">
-                    <span class="material-symbols-outlined">delete</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        </div>
       </div>
-    </section>
 
+      <!-- Footer Formulario: botones guardar/limpiar -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="flex items-center justify-end gap-3 flex-wrap">
+          <button
+            @click="guardarCompra"
+            :disabled="store.cargando"
+            class="px-8 py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary/90 transition-all shadow-lg flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <span class="material-symbols-outlined">save</span>
+            {{ esEdicion ? 'Actualizar Compra' : 'Guardar Compra' }}
+          </button>
+          <button
+            @click="limpiarForm"
+            class="px-8 py-3 bg-gray-100 text-gray-700 rounded-lg font-bold hover:bg-gray-200 transition-colors flex items-center gap-2"
+          >
+            <span class="material-symbols-outlined">delete_sweep</span>
+            Limpiar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SECCIÓN 2: TABLA HISTORIAL
+    ═══════════════════════════════════════════ -->
+
+    <!-- Action Bar tabla -->
+    <div class="flex flex-wrap items-center gap-3">
+      <button
+        @click="editarCompraDesdeTabla(filaSeleccionada)"
+        :disabled="!filaSeleccionada"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">edit</span>
+        <span class="truncate">Editar</span>
+      </button>
+
+      <button
+        @click="confirmarEliminar(filaSeleccionada)"
+        :disabled="!filaSeleccionada"
+        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+      >
+        <span class="material-symbols-outlined text-base">delete</span>
+        <span class="truncate">Eliminar</span>
+      </button>
+    </div>
+
+    <!-- Alerta error -->
+    <div v-if="store.error" class="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <span class="material-symbols-outlined text-base">warning</span>
+      {{ store.error }}
+    </div>
+
+    <!-- Alerta éxito -->
+    <div v-if="store.mensaje" class="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+      <span class="material-symbols-outlined text-base">check_circle</span>
+      {{ store.mensaje }}
+    </div>
+
+    <!-- Tabla -->
+    <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
+      <table class="w-full text-left text-sm text-text-primary">
+        <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
+          <tr>
+            <th class="px-6 py-4">ID Compra</th>
+            <th class="px-6 py-4">Proveedor</th>
+            <th class="px-6 py-4">Fecha</th>
+            <th class="px-6 py-4">NCF</th>
+            <th class="px-6 py-4">Factura</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="store.cargando">
+            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
+              <p class="mt-2">Cargando compras...</p>
+            </td>
+          </tr>
+
+          <tr v-else-if="store.compras.length === 0">
+            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined text-4xl">inventory_2</span>
+              <p class="mt-2">No hay compras registradas aún.</p>
+            </td>
+          </tr>
+
+          <tr
+            v-else
+            v-for="compra in store.compras"
+            :key="compra.id_compra"
+            @click="seleccionarFila(compra)"
+            class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10"
+            :class="{ 'bg-primary/20': filaSeleccionada?.id_compra === compra.id_compra }"
+          >
+            <td class="px-6 py-3 font-bold">#{{ compra.id_compra }}</td>
+            <td class="px-6 py-3">{{ compra.proveedor?.nombre || 'Sin proveedor' }}</td>
+            <td class="px-6 py-3">{{ formatearFecha(compra.fecha) }}</td>
+            <td class="px-6 py-3 font-mono text-xs">{{ compra.ncf || '—' }}</td>
+            <td class="px-6 py-3">
+              <span v-if="compra.url_factura" class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700">
+                <span class="material-symbols-outlined text-xs">attach_file</span> Adjunta
+              </span>
+              <span v-else class="text-gray-400 text-xs">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal Eliminar -->
     <Teleport to="body">
       <div v-if="modalEliminar" class="modal-overlay" @click.self="modalEliminar = false">
         <div class="modal-content">
-          <div class="modal-header">
+          <div class="modal-header modal-header--danger">
             <span class="material-symbols-outlined">warning</span>
             <h3 class="modal-title">Eliminar Compra</h3>
           </div>
           <div class="modal-body">
-            <p class="text-center">¿Seguro que deseas eliminar esta compra?</p>
+            <p>¿Está seguro que desea eliminar esta compra?</p>
           </div>
           <div class="modal-footer">
             <button @click="modalEliminar = false" class="btn btn--secondary">Cancelar</button>
-            <button @click="eliminarCompra" class="btn btn--danger">Eliminar</button>
+            <button @click="eliminarCompra" class="btn btn--danger">
+              <span class="material-symbols-outlined">delete</span>
+              Eliminar
+            </button>
           </div>
         </div>
       </div>
@@ -207,30 +257,31 @@ const store = useComprasStore()
 const esEdicion = ref(false)
 const modalEliminar = ref(false)
 const compraAEliminar = ref(null)
+const filaSeleccionada = ref(null)
 
 const form = reactive({
   id_compra: '',
   nombre_proveedor: '',
   id_proveedor: '',
-  fecha: '',
+  fecha: new Date().toISOString().split('T')[0],
   ncf: '',
   factura: null,
   nombreFactura: ''
 })
 
-const comprasFiltradas = computed(() => store.compras || [])
-
+// ── Cargar datos ───────────────────────────────
 const cargarDatos = async () => {
   await store.cargarCompras()
   await store.cargarProveedores()
-  await store.cargarSecuenciasNCF()
+  await store.cargarSecuenciasNCF?.()
 }
 
+// ── Form ───────────────────────────────────────
 function limpiarForm() {
   form.id_compra = ''
   form.nombre_proveedor = ''
   form.id_proveedor = ''
-  form.fecha = ''
+  form.fecha = new Date().toISOString().split('T')[0]
   form.ncf = ''
   form.factura = null
   form.nombreFactura = ''
@@ -243,7 +294,6 @@ async function guardarCompra() {
     return
   }
 
-  // Buscar el ID del proveedor por su nombre
   const proveedorSeleccionado = store.proveedores.find(
     p => p.nombre.toLowerCase() === form.nombre_proveedor.toLowerCase()
   )
@@ -256,8 +306,7 @@ async function guardarCompra() {
   form.id_proveedor = proveedorSeleccionado.id_proveedor
 
   let datos
-  
-  // Si hay archivo, usar FormData para enviar archivo + datos
+
   if (form.factura) {
     datos = new FormData()
     datos.append('id_compra', form.id_compra)
@@ -266,7 +315,6 @@ async function guardarCompra() {
     datos.append('ncf', form.ncf || '')
     datos.append('factura', form.factura)
   } else {
-    // Sin archivo, enviar solo datos JSON
     datos = {
       id_compra: form.id_compra,
       id_proveedor: form.id_proveedor,
@@ -287,206 +335,152 @@ async function guardarCompra() {
   }
 }
 
-function editarCompra(compra) {
-  form.id_compra = compra.id_compra
-  form.id_proveedor = compra.id_proveedor
+function cargarFactura(event) {
+  if (!event.target.files?.length) return
+
+  const archivo = event.target.files[0]
+  const tiposPermitidos = ['image/jpeg', 'image/png', 'application/pdf']
+  const tamanioMax = 5 * 1024 * 1024
+
+  if (!tiposPermitidos.includes(archivo.type)) {
+    alert('Solo se aceptan archivos JPG, PNG o PDF')
+    event.target.value = ''
+    return
+  }
+  if (archivo.size > tamanioMax) {
+    alert('El archivo no puede exceder 5MB')
+    event.target.value = ''
+    return
+  }
+
+  form.factura = archivo
+  form.nombreFactura = archivo.name
+}
+
+// ── Tabla / Selección ──────────────────────────
+function seleccionarFila(compra) {
+  if (filaSeleccionada.value?.id_compra === compra.id_compra) {
+    filaSeleccionada.value = null
+  } else {
+    filaSeleccionada.value = compra
+    store.limpiarMensajes?.()
+  }
+}
+
+function editarCompraDesdeTabla(compra) {
+  if (!compra) return
+  form.id_compra        = compra.id_compra
+  form.id_proveedor     = compra.id_proveedor
   form.nombre_proveedor = compra.proveedor?.nombre || ''
-  form.fecha = compra.fecha
-  form.ncf = compra.ncf
-  esEdicion.value = true
+  form.fecha            = compra.fecha
+  form.ncf              = compra.ncf || ''
+  form.factura          = null
+  form.nombreFactura    = ''
+  esEdicion.value       = true
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 function confirmarEliminar(compra) {
+  if (!compra) return
   compraAEliminar.value = compra
-  modalEliminar.value = true
+  modalEliminar.value   = true
 }
 
 async function eliminarCompra() {
   if (!compraAEliminar.value) return
   const exito = await store.eliminarCompra(compraAEliminar.value.id_compra)
   if (exito) {
-    modalEliminar.value = false
+    modalEliminar.value   = false
     compraAEliminar.value = null
+    filaSeleccionada.value = null
   }
 }
 
 function formatearFecha(fecha) {
-  if (!fecha) return '-'
-  const date = new Date(fecha)
-  return date.toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  if (!fecha) return '—'
+  return new Date(fecha).toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
-function cargarFactura(event) {
-  if (!event.target.files?.length) return
-  
-  const archivo = event.target.files[0]
-  const tiposPermitidos = ['image/jpeg', 'image/png', 'application/pdf']
-  const tamanioMax = 5 * 1024 * 1024 // 5MB
-  
-  // Validar tipo de archivo
-  if (!tiposPermitidos.includes(archivo.type)) {
-    alert('Solo se aceptan archivos JPG, PNG o PDF')
-    event.target.value = ''
-    return
-  }
-  
-  // Validar tamaño
-  if (archivo.size > tamanioMax) {
-    alert('El archivo no puede exceder 5MB')
-    event.target.value = ''
-    return
-  }
-  
-  // Guardar el archivo en el formulario
-  form.factura = archivo
-  form.nombreFactura = archivo.name
-  console.log('Archivo cargado:', archivo.name)
-}
-
-function mostrarResumen() {
-  alert('Resumen de compras - Funcionalidad en desarrollo')
-}
-
-function irProveedores() {
-  // Navegar a la sección de proveedores
-  window.location.href = '/proveedores'
-}
-
-function filtrarFacturas() {
-  // Mostrar solo compras con NCF
-  alert('Filtrar por facturas - Funcionalidad en desarrollo')
-}
-
-function descargarReporte() {
-  // Generar y descargar reporte en CSV o Excel
-  const csv = generarReporteCSV()
-  descargarCSV(csv, 'reporte-compras.csv')
-}
-
-function generarReporteCSV() {
-  const headers = ['ID Compra', 'Proveedor', 'Fecha', 'NCF']
-  const rows = store.compras.map(compra => [
-    compra.id_compra,
-    compra.proveedor?.nombre || 'Sin proveedor',
-    compra.fecha,
-    compra.ncf || '---'
-  ])
-  
-  const csv = [headers, ...rows]
-    .map(row => row.map(cell => `"${cell}"`).join(','))
-    .join('\n')
-  
-  return csv
-}
-
-function descargarCSV(contenido, nombre) {
-  const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  const url = URL.createObjectURL(blob)
-  
-  link.setAttribute('href', url)
-  link.setAttribute('download', nombre)
-  link.style.visibility = 'hidden'
-  
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-}
-
-function verTodoHistorial() {
-  // Scroll hacia la tabla de historial
-  document.querySelector('table')?.scrollIntoView({ behavior: 'smooth' })
-}
-
-onMounted(() => {
-  cargarDatos()
-})
+onMounted(() => cargarDatos())
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+* { font-family: 'DM Sans', sans-serif; }
+
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, .55);
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-}
+.form-group { display: flex; flex-direction: column; gap: 8px; }
 
-.modal-content {
-  width: min(100%, 420px);
+.form-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.85rem; font-weight: 700; color: #374151;
+}
+.form-label .material-symbols-outlined { font-size: 1rem; color: #4c9a4c; }
+.form-label.required::after { content: '*'; color: #dc2626; margin-left: 4px; }
+
+.form-input {
+  padding: 0.75rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  width: 100%;
   background: white;
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: 0 40px 80px rgba(15, 23, 42, 0.18);
+}
+.form-input:focus {
+  outline: none;
+  border-color: #4c9a4c;
+  background: #f0f9f0;
+}
+.form-input[readonly] {
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
 }
 
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+.modal-content {
+  background: white; border-radius: 20px;
+  width: 100%; max-width: 450px;
+}
 .modal-header {
-  display: grid;
-  place-items: center;
-  padding: 2rem 1.5rem 0;
-  gap: 1rem;
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1.5px solid #f0f0ed;
 }
-
-.modal-header .material-symbols-outlined {
-  font-size: 3rem;
-  color: #B91C1C;
+.modal-header--danger {
+  flex-direction: column; align-items: center; gap: 1rem;
 }
-
-.modal-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #0f172a;
-  text-align: center;
+.modal-header--danger .material-symbols-outlined {
+  font-size: 3rem; color: #dc2626;
 }
-
-.modal-body {
-  padding: 1.5rem;
-  text-align: center;
-  color: #475569;
-  font-size: 0.95rem;
-}
-
+.modal-title { font-size: 1.5rem; font-weight: 800; color: #1a1a1a; }
+.modal-body { padding: 2rem; text-align: center; color: #475569; font-size: 0.95rem; }
 .modal-footer {
-  display: flex;
-  gap: 0.75rem;
-  padding: 1.5rem;
-  background: #f8fafc;
+  display: flex; gap: 12px;
+  padding: 1.5rem 2rem;
+  border-top: 1.5px solid #f0f0ed;
 }
-
 .btn {
-  flex: 1;
-  border: none;
-  border-radius: 999px;
-  padding: 0.95rem 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background .2s ease;
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 0.85rem; border: none; border-radius: 12px;
+  font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
 }
-
-.btn--secondary {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.btn--secondary:hover {
-  background: #e2e8f0;
-}
-
-.btn--danger {
-  background: #dc2626;
-  color: white;
-}
-
-.btn--danger:hover {
-  background: #b91c1c;
-}
+.btn--secondary { background: #f5f5f5; color: #374151; }
+.btn--secondary:hover { background: #e5e7eb; }
+.btn--danger { background: #dc2626; color: white; }
+.btn--danger:hover { background: #b91c1c; }
 </style>

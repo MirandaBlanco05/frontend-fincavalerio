@@ -144,14 +144,14 @@ onMounted(() => {
 }
 
 .dashboard-root {
-  min-height: calc(100vh - 64px);
+  min-height: auto;
   background: #f8f8f6;
   font-family: 'DM Sans', sans-serif;
 }
 
 /* ── Content ─────────────────────────────── */
 .dashboard-content {
-  padding: 3rem 2rem;
+  padding: 0.75rem 2rem 3rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -159,7 +159,7 @@ onMounted(() => {
 .cards-wrapper {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
+  gap: 1rem;
   max-width: 1000px;
 }
 
@@ -167,8 +167,8 @@ onMounted(() => {
 .card {
   position: relative;
   display: flex;
-  gap: 1.25rem;
-  padding: 1.75rem;
+  gap: 1rem;
+  padding: 1.25rem;
   background: white;
   border-radius: 20px;
   text-decoration: none;
@@ -190,10 +190,10 @@ onMounted(() => {
 
 /* Card icon */
 .card-icon {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
-  border-radius: 14px;
+  border-radius: 12px;
   background: #f3eee7;
   display: flex;
   align-items: center;
@@ -202,7 +202,7 @@ onMounted(() => {
 }
 
 .card-icon .material-symbols-outlined {
-  font-size: 1.7rem;
+  font-size: 1.5rem;
 }
 
 .card-icon--green {
@@ -235,19 +235,19 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.3rem;
 }
 
 .card-title {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0;
 }
 
 .card-desc {
-  font-size: 0.85rem;
-  line-height: 1.55;
+  font-size: 0.8rem;
+  line-height: 1.4;
   color: #7a7a7a;
   font-weight: 500;
 }
