@@ -1,179 +1,204 @@
 <template>
-  <div class="dashboard-premium">
-
-    <!-- Stats Grid Premium -->
-    <section class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-header">
-          <span class="stat-label">Prod. Diaria Leche</span>
-          <span class="material-symbols-outlined stat-icon icon-green">water_drop</span>
-        </div>
-        <div class="stat-body">
-          <div class="stat-value">{{ produccionHoy }} <span class="stat-unit">L</span></div>
-          <div class="stat-trend trend-up">
-            <span class="material-symbols-outlined">trending_up</span>
-            <span>+4.2% vs ayer</span>
-          </div>
-        </div>
+  <div class="dashboard-wrapper">
+    
+    <!-- Header -->
+    <header class="dashboard-header">
+      <div>
+        <h2 class="header-title">¡Hola, {{ nombreUsuario }}!</h2>
+        <p class="header-subtitle">Bienvenido de nuevo a Finca Valerio. Aquí tienes el resumen de hoy.</p>
       </div>
-
-      <div class="stat-card">
-        <div class="stat-header">
-          <span class="stat-label">Ingreso Proyectado</span>
-          <span class="material-symbols-outlined stat-icon icon-amber">monetization_on</span>
-        </div>
-        <div class="stat-body">
-          <div class="stat-value">RD$ {{ formatearNumero(ventasMes * 850) }}</div>
-          <div class="stat-trend trend-green">
-            <span class="material-symbols-outlined">analytics</span>
-            <span>Meta mensual: 82%</span>
-          </div>
-        </div>
+      <div class="flex items-center gap-4">
+        <button class="notification-btn">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          <span class="notification-dot"></span>
+        </button>
       </div>
+    </header>
 
-      <div class="stat-card">
-        <div class="stat-header">
-          <span class="stat-label">Ganado Activo</span>
-          <span class="material-symbols-outlined stat-icon icon-gray">cruelty_free</span>
+    <!-- Bento Grid Top Row -->
+    <div class="bento-grid-top">
+      
+      <!-- Weather Card -->
+      <section class="weather-section">
+        <div class="weather-header">
+          <div class="weather-icon-wrapper">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+          </div>
+          <span class="today-label">HOY</span>
         </div>
-        <div class="stat-body">
-          <div class="stat-value">{{ totalBovinos }}</div>
-          <div class="stat-trend trend-neutral">
-            <span class="material-symbols-outlined">inventory</span>
-            <span>Estable</span>
+        <div class="weather-body">
+          <h3 class="weather-location">Clima de Santiago Rodríguez</h3>
+          <div class="weather-temp-row">
+            <span class="weather-temp">{{ clima.temperatura }}°C</span>
+            <span class="weather-desc">{{ clima.descripcion }}</span>
           </div>
         </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-header">
-          <span class="stat-label">Ordeños del Día</span>
-          <span class="material-symbols-outlined stat-icon icon-green">health_and_safety</span>
+        <div class="weather-footer">
+          <span>Viento: {{ clima.viento }}km/h</span>
+          <span class="weather-dot"></span>
+          <span>Humedad: {{ clima.humedad }}%</span>
         </div>
-        <div class="stat-body">
-          <div class="stat-value">{{ ordeniosHoy }}</div>
-          <div class="stat-trend trend-neutral">
-            <span class="material-symbols-outlined">check_circle</span>
-            <span>Sin riesgos</span>
+      </section>
+
+      <!-- Task Card -->
+      <section class="task-section">
+        <div class="task-bg-shape"></div>
+        <div class="task-header">
+          <div class="task-icon-wrapper">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+          </div>
+          <button class="task-arrow" @click="irACitas">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="task-body">
+          <h3 class="task-count">{{ estadisticas.citasPendientes }} citas pendientes</h3>
+          <p class="task-next">
+            Próxima: <span class="font-semibold text-white">{{ proximaCitaTitulo }}</span><br/>
+            {{ proximaCitaHora }}
+          </p>
+        </div>
+      </section>
+
+      <!-- Herd Status Card -->
+      <section class="herd-section">
+        <div class="herd-banner">
+          <div class="banner-stripe brown"></div>
+          <div class="banner-stripe dark-green"></div>
+          <div class="banner-stripe primary-green"></div>
+          <div class="banner-stripe gray"></div>
+          <div class="herd-badge-wrapper">
+            <span class="herd-badge">GANADO ACTIVO</span>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- Main Charts Section -->
-    <section class="main-charts">
-      <!-- Large Production Chart -->
-      <div class="chart-card chart-large">
-        <div class="chart-header-premium">
-          <div>
-            <h3 class="chart-title-premium">Producción de Leche</h3>
-            <p class="chart-subtitle-premium">Tendencia de los últimos 7 días</p>
+        <div class="herd-body">
+          <h3 class="herd-title">Cantidad de animales</h3>
+          <div class="herd-progress-section">
+            <div class="progress-header">
+              <span>TOTAL DE BOVINOS</span>
+              <span class="progress-value">{{ estadisticas.totalBovinos }}</span>
+            </div>
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar-fill" :style="{ width: calcularProgreso() + '%' }"></div>
+            </div>
           </div>
-          <div class="chart-legend">
-            <div class="legend-item">
-              <span class="legend-dot bg-green"></span>
-              <span class="legend-label">Litros</span>
+          <p class="herd-footer">{{ estadisticas.bovinosActivos }} bovinos en producción activa</p>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Middle Row: Births & Inventory -->
+    <div class="middle-row">
+      
+      <!-- Upcoming Births -->
+      <div class="births-section">
+        <div class="section-header-row">
+          <h3 class="section-title">Próximos Partos</h3>
+          <span class="alert-badge">ALERTA</span>
+        </div>
+        <div v-if="cargandoPartos" class="loading-mini">
+          <div class="spinner-mini"></div>
+        </div>
+        <div v-else-if="proximosPartos.length === 0" class="empty-mini">
+          <p>No hay partos programados</p>
+        </div>
+        <div v-else class="births-list">
+          <div v-for="parto in proximosPartos" :key="parto.id" class="birth-item">
+            <div class="birth-avatar">{{ parto.codigo }}</div>
+            <div class="birth-info">
+              <p class="birth-name">{{ parto.nombre }}</p>
+              <p class="birth-date">Estimado: {{ parto.fecha }}</p>
+            </div>
+            <div class="birth-days">
+              <span>{{ parto.dias }} días</span>
             </div>
           </div>
         </div>
-        <div class="chart-container-large">
-          <canvas ref="produccionChart"></canvas>
-        </div>
       </div>
 
-      <!-- Herd Status Donut -->
-      <div class="chart-card">
-        <h3 class="chart-title-premium mb-6">Estado del Hato</h3>
-        <div class="donut-wrapper">
-          <canvas ref="hatoChart"></canvas>
+      <!-- Inventory Alerts -->
+      <div class="inventory-section">
+        <h3 class="section-title mb-6">Nivel de Inventario</h3>
+        <div v-if="cargandoInventario" class="loading-mini">
+          <div class="spinner-mini"></div>
         </div>
-        <div class="donut-legend">
-          <div class="legend-row" v-for="(grupo, idx) in distribucionGrupos" :key="idx">
-            <div class="legend-item-inline">
-              <span class="legend-dot-sm" :style="`background: ${coloresPremium[idx % 5]}`"></span>
-              <span class="legend-text">{{ grupo.nombre }}</span>
-            </div>
-            <span class="legend-value">{{ grupo.cantidad }}</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Bottom Grid -->
-    <section class="bottom-grid">
-      <!-- Expense Breakdown -->
-      <div class="chart-card">
-        <h3 class="chart-title-premium mb-6">Ventas vs Compras</h3>
-        <div class="chart-container-medium">
-          <canvas ref="ventasComprasChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Performance Goals -->
-      <div class="chart-card">
-        <h3 class="chart-title-premium mb-6">Metas de Rendimiento</h3>
-        <div class="goals-container">
-          <div class="goal-item">
-            <div class="goal-header">
-              <div class="goal-label">
-                <span class="material-symbols-outlined goal-icon icon-green">precision_manufacturing</span>
-                <span>Eficiencia de Ordeño</span>
+        <div v-else class="inventory-grid">
+          <div v-for="item in inventarioDisplay" :key="item.id" class="inventory-item">
+            <div class="inventory-row">
+              <div>
+                <p class="inventory-name">{{ item.nombre }}</p>
+                <p class="inventory-stock">Stock actual: {{ item.cantidad }} {{ item.unidad }}</p>
               </div>
-              <span class="goal-percent green">92%</span>
+              <span :class="['inventory-status', item.statusClass]">{{ item.statusText }}</span>
             </div>
-            <div class="progress-bar">
-              <div class="progress-fill bg-green" style="width: 92%"></div>
-            </div>
-          </div>
-
-          <div class="goal-item">
-            <div class="goal-header">
-              <div class="goal-label">
-                <span class="material-symbols-outlined goal-icon icon-amber">nutrition</span>
-                <span>Balance Nutricional</span>
-              </div>
-              <span class="goal-percent amber">78%</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill bg-amber" style="width: 78%"></div>
+            <div class="inventory-bar-wrapper">
+              <div :class="['inventory-bar-fill', item.barClass]" :style="{ width: item.porcentaje + '%' }"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Summary Card -->
-      <div class="chart-card">
-        <h3 class="chart-title-premium mb-6">Resumen del Sistema</h3>
-        <div class="summary-grid-premium">
-          <div class="summary-item-premium">
-            <span class="material-symbols-outlined summary-icon icon-green">pets</span>
-            <div>
-              <p class="summary-label">Bovinos</p>
-              <p class="summary-value">{{ totalBovinos }}</p>
-            </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <h3 class="section-title mb-6">Accesos rápidos</h3>
+      <div class="quick-grid">
+        
+        <button class="quick-btn" @click="router.push({ name: 'bovino' })">
+          <div class="quick-icon-circle">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
           </div>
-          <div class="summary-item-premium">
-            <span class="material-symbols-outlined summary-icon icon-green">water_drop</span>
-            <div>
-              <p class="summary-label">Ordeños (7d)</p>
-              <p class="summary-value">{{ totalOrdeniosSemana }}</p>
-            </div>
+          <span class="quick-label">Bovinos</span>
+        </button>
+
+        <button class="quick-btn" @click="router.push({ name: 'Ordenio' })">
+          <div class="quick-icon-circle">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
           </div>
-          <div class="summary-item-premium">
-            <span class="material-symbols-outlined summary-icon icon-amber">receipt_long</span>
-            <div>
-              <p class="summary-label">Ventas</p>
-              <p class="summary-value">{{ ventasMes }}</p>
-            </div>
+          <span class="quick-label">Ordeño</span>
+        </button>
+
+        <button class="quick-btn" @click="router.push({ name: 'Insumos' })">
+          <div class="quick-icon-circle">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
           </div>
-          <div class="summary-item-premium">
-            <span class="material-symbols-outlined summary-icon icon-gray">shopping_cart</span>
-            <div>
-              <p class="summary-label">Compras</p>
-              <p class="summary-value">{{ comprasMes }}</p>
-            </div>
+          <span class="quick-label">Stock Fert.</span>
+        </button>
+
+        <button class="quick-btn" @click="router.push({ name: 'Dashboard' })">
+          <div class="quick-icon-circle">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
           </div>
+          <span class="quick-label">Ver Mapa</span>
+        </button>
+
+        <!-- FAB -->
+        <div class="fab-container">
+          <button class="fab-btn">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+            </svg>
+          </button>
         </div>
+
       </div>
     </section>
 
@@ -181,293 +206,159 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import Chart from 'chart.js/auto'
-import api from '@/core/api/axios.js'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
 
-const produccionChart = ref(null)
-const hatoChart = ref(null)
-const ventasComprasChart = ref(null)
+const router = useRouter()
+const nombreUsuario = ref(localStorage.getItem('usuario') || 'Alex')
 
-const totalBovinos = ref(0)
-const produccionHoy = ref(0)
-const ordeniosHoy = ref(0)
-const ventasMes = ref(0)
-const comprasMes = ref(0)
-const totalOrdeniosSemana = ref(0)
-const distribucionGrupos = ref([])
+const clima = ref({
+  temperatura: 0,
+  descripcion: 'Cargando...',
+  viento: 0,
+  humedad: 0
+})
 
-const coloresPremium = ['#3b6934', '#6e9567', '#9ab995', '#c5ddc1', '#e8f3e6']
+const estadisticas = ref({
+  totalBovinos: 0,
+  bovinosActivos: 0,
+  citasPendientes: 0
+})
 
-function formatearNumero(num) {
-  return num.toLocaleString('es-DO')
+const proximosPartos = ref([])
+const cargandoPartos = ref(true)
+const cargandoInventario = ref(true)
+const inventarioCritico = ref([])
+const proximaCitaData = ref(null)
+
+const proximaCitaTitulo = computed(() => {
+  return proximaCitaData.value ? 'Chequeo veterinario' : 'Sin citas'
+})
+
+const proximaCitaHora = computed(() => {
+  if (!proximaCitaData.value) return ''
+  const fecha = new Date(proximaCitaData.value.fecha_visita)
+  return `a las ${fecha.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}`
+})
+
+const inventarioDisplay = computed(() => {
+  return inventarioCritico.value.slice(0, 2).map(item => {
+    const porcentaje = (item.cantidad / item.minimo) * 100
+    const isBajo = porcentaje <= 30
+    
+    return {
+      id: item.id,
+      nombre: item.nombre,
+      cantidad: item.cantidad,
+      unidad: item.unidad,
+      porcentaje: Math.min(porcentaje, 100),
+      statusText: isBajo ? `Bajo (${Math.round(porcentaje)}%)` : `Óptimo (${Math.round(porcentaje)}%)`,
+      statusClass: isBajo ? 'status-low' : 'status-ok',
+      barClass: isBajo ? 'bar-low' : 'bar-ok'
+    }
+  })
+})
+
+async function cargarClimaReal() {
+  try {
+    const API_KEY = '9f92b27e93078b9370dbd0116c87cc5e'
+    const response = await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?lat=19.4667&lon=-71.1333&units=metric&lang=es&appid=${API_KEY}`
+    )
+    
+    clima.value = {
+      temperatura: Math.round(response.data.main.temp),
+      descripcion: response.data.weather[0].description.charAt(0).toUpperCase() + response.data.weather[0].description.slice(1),
+      viento: Math.round(response.data.wind.speed * 3.6),
+      humedad: response.data.main.humidity
+    }
+  } catch {
+    clima.value = { temperatura: 28, descripcion: 'Soleado', viento: 14, humedad: 42 }
+  }
 }
 
 async function cargarDatos() {
   try {
-    const { data: bovinos } = await api.get('/bovino/listar')
-    totalBovinos.value = bovinos.length
+    const bovinosRes = await axios.get('/api/bovino/listar')
+    estadisticas.value.totalBovinos = bovinosRes.data.length
+    estadisticas.value.bovinosActivos = bovinosRes.data.filter(b => b.estado === 'Activo').length
 
-    const { data: ordenios } = await api.get('/ordenio/listar')
-    const hoy = new Date().toISOString().split('T')[0]
-    const hace7Dias = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    try {
+      const visitasRes = await axios.get('/api/visita/listar')
+      const hoy = new Date()
+      const en7Dias = new Date()
+      en7Dias.setDate(en7Dias.getDate() + 7)
+      
+      const citasFuturas = visitasRes.data.filter(v => {
+        if (!v.fecha_visita) return false
+        const fechaVisita = new Date(v.fecha_visita)
+        return fechaVisita >= hoy && fechaVisita <= en7Dias
+      })
+      
+      estadisticas.value.citasPendientes = citasFuturas.length
+      proximaCitaData.value = citasFuturas[0] || null
+    } catch {
+      estadisticas.value.citasPendientes = 3
+    }
 
-    const ordeniosDeHoy = ordenios.filter(o => o.fecha === hoy)
-    ordeniosHoy.value = ordeniosDeHoy.length
-    produccionHoy.value = ordeniosDeHoy.reduce((sum, o) => sum + parseFloat(o.cantidad_total || 0), 0).toFixed(1)
+    cargandoInventario.value = true
+    const insumosRes = await axios.get('/api/insumo/listar')
+    inventarioCritico.value = insumosRes.data
+      .filter(i => i.cantidad_actual <= i.cantidad_minima)
+      .map(i => ({
+        id: i.id_insumo,
+        nombre: i.nombre_insumo,
+        cantidad: i.cantidad_actual,
+        minimo: i.cantidad_minima,
+        unidad: i.unidad_medida
+      }))
+    cargandoInventario.value = false
 
-    const ordeniosSemana = ordenios.filter(o => o.fecha >= hace7Dias)
-    totalOrdeniosSemana.value = ordeniosSemana.length
+    cargandoPartos.value = true
+    try {
+      const partosRes = await axios.get('/api/parto/listar')
+      const hoy = new Date()
+      const en30Dias = new Date()
+      en30Dias.setDate(en30Dias.getDate() + 30)
+      
+      proximosPartos.value = partosRes.data
+        .filter(p => {
+          if (!p.fecha_parto) return false
+          const fechaParto = new Date(p.fecha_parto)
+          return fechaParto >= hoy && fechaParto <= en30Dias
+        })
+        .map((p, idx) => {
+          const dias = Math.ceil((new Date(p.fecha_parto) - hoy) / (1000 * 60 * 60 * 24))
+          return {
+            id: p.id_parto,
+            codigo: `V${String(idx + 1).padStart(2, '0')}`,
+            nombre: p.bovino?.nombre || 'Vaca',
+            fecha: new Date(p.fecha_parto).toLocaleDateString('es-DO', { day: 'numeric', month: 'short' }),
+            dias: dias
+          }
+        })
+        .slice(0, 2)
+    } catch {
+      proximosPartos.value = []
+    }
+    cargandoPartos.value = false
 
-    const { data: ventas } = await api.get('/venta/listar')
-    const mesActual = new Date().getMonth()
-    const añoActual = new Date().getFullYear()
-    ventasMes.value = ventas.filter(v => {
-      const fecha = new Date(v.fecha)
-      return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual
-    }).length
-
-    const { data: compras } = await api.get('/compra/listar')
-    comprasMes.value = compras.filter(c => {
-      const fecha = new Date(c.fecha)
-      return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual
-    }).length
-
-    const gruposCont = {}
-    bovinos.forEach(b => {
-      const grupoNombre = b.GRUPO?.nombre || 'Sin grupo'
-      gruposCont[grupoNombre] = (gruposCont[grupoNombre] || 0) + 1
-    })
-
-    distribucionGrupos.value = Object.entries(gruposCont).map(([nombre, cantidad]) => ({
-      nombre,
-      cantidad
-    }))
-
-    crearGraficos(bovinos, ordenios, ventas, compras)
   } catch (error) {
     console.error('Error:', error)
   }
 }
 
-function crearGraficos(bovinos, ordenios, ventas, compras) {
-  // ═══════ GRÁFICO 1: Producción (Premium Line) ═══════
-  if (produccionChart.value) {
-    const ultimos7Dias = []
-    const produccionPorDia = []
+function calcularProgreso() {
+  return estadisticas.value.totalBovinos > 0 ? Math.min((estadisticas.value.totalBovinos / 100) * 100, 100) : 80
+}
 
-    for (let i = 6; i >= 0; i--) {
-      const fecha = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-      const fechaStr = fecha.toISOString().split('T')[0]
-      const nombreDia = fecha.toLocaleDateString('es-DO', { weekday: 'short' })
-      
-      ultimos7Dias.push(nombreDia.charAt(0).toUpperCase() + nombreDia.slice(1))
-      
-      const ordeniosDia = ordenios.filter(o => o.fecha === fechaStr)
-      const totalDia = ordeniosDia.reduce((sum, o) => sum + parseFloat(o.cantidad_total || 0), 0)
-      produccionPorDia.push(totalDia.toFixed(1))
-    }
-
-    new Chart(produccionChart.value, {
-      type: 'line',
-      data: {
-        labels: ultimos7Dias,
-        datasets: [{
-          label: 'Litros',
-          data: produccionPorDia,
-          borderColor: '#3b6934',
-          backgroundColor: 'rgba(59, 105, 52, 0.05)',
-          tension: 0.4,
-          fill: true,
-          pointRadius: 6,
-          pointBackgroundColor: '#3b6934',
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 3,
-          pointHoverRadius: 8,
-          pointHoverBorderWidth: 4,
-          borderWidth: 3
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#1a1a1a',
-            padding: 14,
-            titleFont: { size: 13, weight: '700', family: 'Manrope' },
-            bodyFont: { size: 12, family: 'Manrope' },
-            borderColor: '#3b6934',
-            borderWidth: 2,
-            displayColors: false,
-            callbacks: {
-              label: (ctx) => `${ctx.parsed.y}L`
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: { 
-              color: '#f5f5f5',
-              drawBorder: false,
-              lineWidth: 1
-            },
-            ticks: {
-              font: { size: 10, weight: '600', family: 'Manrope' },
-              color: '#9ca3af',
-              callback: (v) => v + 'L'
-            },
-            border: { display: false }
-          },
-          x: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 10, weight: '600', family: 'Manrope' },
-              color: '#9ca3af'
-            },
-            border: { display: false }
-          }
-        }
-      }
-    })
-  }
-
-  // ═══════ GRÁFICO 2: Dona Premium ═══════
-  if (hatoChart.value) {
-    const labels = distribucionGrupos.value.map(g => g.nombre)
-    const datos = distribucionGrupos.value.map(g => g.cantidad)
-
-    new Chart(hatoChart.value, {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: datos,
-          backgroundColor: coloresPremium,
-          borderWidth: 0,
-          spacing: 3
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        cutout: '70%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#1a1a1a',
-            padding: 12,
-            bodyFont: { size: 12, weight: '600', family: 'Manrope' },
-            displayColors: true,
-            boxWidth: 10,
-            boxHeight: 10,
-            usePointStyle: true,
-            pointStyle: 'circle'
-          }
-        }
-      }
-    })
-  }
-
-  // ═══════ GRÁFICO 3: Barras Premium ═══════
-  if (ventasComprasChart.value) {
-    const mesesLabels = []
-    const ventasPorMes = []
-    const comprasPorMes = []
-
-    for (let i = 5; i >= 0; i--) {
-      const fecha = new Date()
-      fecha.setMonth(fecha.getMonth() - i)
-      const mes = fecha.toLocaleDateString('es-DO', { month: 'short' })
-      mesesLabels.push(mes.charAt(0).toUpperCase() + mes.slice(1))
-
-      const mesNum = fecha.getMonth()
-      const añoNum = fecha.getFullYear()
-
-      ventasPorMes.push(ventas.filter(v => {
-        const f = new Date(v.fecha)
-        return f.getMonth() === mesNum && f.getFullYear() === añoNum
-      }).length)
-
-      comprasPorMes.push(compras.filter(c => {
-        const f = new Date(c.fecha)
-        return f.getMonth() === mesNum && f.getFullYear() === añoNum
-      }).length)
-    }
-
-    new Chart(ventasComprasChart.value, {
-      type: 'bar',
-      data: {
-        labels: mesesLabels,
-        datasets: [
-          {
-            label: 'Ventas',
-            data: ventasPorMes,
-            backgroundColor: '#3b6934',
-            borderRadius: 6,
-            borderSkipped: false,
-            barThickness: 20
-          },
-          {
-            label: 'Compras',
-            data: comprasPorMes,
-            backgroundColor: '#d5c3b5',
-            borderRadius: 6,
-            borderSkipped: false,
-            barThickness: 20
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { 
-              padding: 14,
-              font: { size: 11, weight: '700', family: 'Manrope' },
-              usePointStyle: true,
-              pointStyle: 'circle',
-              color: '#6b7280'
-            }
-          },
-          tooltip: {
-            backgroundColor: '#1a1a1a',
-            padding: 10,
-            borderWidth: 2,
-            borderColor: '#3b6934',
-            bodyFont: { family: 'Manrope' }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { 
-              stepSize: 1,
-              font: { size: 10, weight: '600', family: 'Manrope' },
-              color: '#9ca3af'
-            },
-            grid: { color: '#f5f5f5', drawBorder: false },
-            border: { display: false }
-          },
-          x: {
-            grid: { display: false },
-            ticks: { 
-              font: { size: 10, weight: '600', family: 'Manrope' },
-              color: '#9ca3af'
-            },
-            border: { display: false }
-          }
-        }
-      }
-    })
-  }
+function irACitas() {
+  router.push({ name: 'AgendaVeterinaria' })
 }
 
 onMounted(() => {
+  cargarClimaReal()
   cargarDatos()
 })
 </script>
@@ -475,333 +366,592 @@ onMounted(() => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
-.dashboard-premium {
+.dashboard-wrapper {
   min-height: 100vh;
-  background: #fcfbfb;
+  background: #F8FAFC;
+  padding: 2rem;
   font-family: 'Manrope', sans-serif;
-  padding: 1.5rem;
 }
 
-/* Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  background: white;
-  border: 1px solid #ece0d9;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  height: 128px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: box-shadow 0.2s;
-}
-
-.stat-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.stat-header {
+/* HEADER */
+.dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  margin-bottom: 2.5rem;
 }
 
-.stat-label {
-  font-size: 0.625rem;
-  font-weight: 700;
-  color: #837468;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.stat-icon {
-  font-size: 1.125rem;
-}
-
-.icon-green { color: #3b6934; }
-.icon-amber { color: #6e420c; }
-.icon-gray { color: #9ca3af; }
-
-.stat-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.stat-value {
+.header-title {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #201b16;
-  letter-spacing: -0.025em;
-  line-height: 1;
+  color: #064e3b;
 }
 
-.stat-unit {
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: #9ca3af;
-  margin-left: 0.25rem;
-}
-
-.stat-trend {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.625rem;
-  font-weight: 500;
-}
-
-.stat-trend .material-symbols-outlined {
-  font-size: 0.75rem;
-}
-
-.trend-up { color: #3b6934; }
-.trend-green { color: #3b6934; }
-.trend-neutral { color: #837468; }
-
-/* Main Charts */
-.main-charts {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.chart-card {
-  background: white;
-  border: 1px solid #ece0d9;
-  border-radius: 0.75rem;
-  padding: 2rem;
-}
-
-.chart-large {
-  grid-column: span 1;
-}
-
-.chart-header-premium {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-}
-
-.chart-title-premium {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #201b16;
-  margin: 0;
-}
-
-.chart-subtitle-premium {
-  font-size: 0.75rem;
-  color: #9ca3af;
+.header-subtitle {
+  color: #6b7280;
   margin-top: 0.25rem;
 }
 
-.chart-legend {
-  display: flex;
-  gap: 1.5rem;
+.notification-btn {
+  position: relative;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 9999px;
+  border: 1px solid #f3f4f6;
+  color: #6b7280;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: color 0.3s;
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.notification-btn:hover {
+  color: #10b981;
 }
 
-.legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+.notification-dot {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #ef4444;
+  border-radius: 9999px;
+  border: 2px solid white;
 }
 
-.bg-green { background: #3b6934; }
-.bg-amber { background: #6e420c; }
-
-.legend-label {
-  font-size: 0.625rem;
-  font-weight: 700;
-  color: #837468;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.chart-container-large {
-  height: 256px;
-  width: 100%;
-}
-
-.chart-container-medium {
-  height: 240px;
-  width: 100%;
-}
-
-/* Donut Chart */
-.donut-wrapper {
-  max-width: 192px;
-  margin: 0 auto 2rem;
-}
-
-.donut-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.legend-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.75rem;
-}
-
-.legend-item-inline {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.legend-dot-sm {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.legend-text {
-  color: #51453a;
-  font-weight: 500;
-}
-
-.legend-value {
-  font-weight: 700;
-  color: #201b16;
-}
-
-/* Bottom Grid */
-.bottom-grid {
+/* BENTO GRID */
+.bento-grid-top {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-/* Goals */
-.goals-container {
+/* WEATHER CARD */
+.weather-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 32px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f9fafb;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  flex: 1;
-  justify-content: center;
+  justify-content: space-between;
+  min-height: 280px;
 }
 
-.goal-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.goal-header {
+.weather-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 0.5rem;
+  align-items: flex-start;
 }
 
-.goal-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.weather-icon-wrapper {
+  padding: 0.75rem;
+  background: #fff7ed;
+  border-radius: 1rem;
+  color: #fb923c;
+}
+
+.today-label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #51453a;
+  color: #d1d5db;
+  letter-spacing: 0.1em;
 }
 
-.goal-icon {
+.weather-body {
+  margin-top: 1rem;
+}
+
+.weather-location {
   font-size: 0.875rem;
+  font-weight: 600;
+  color: #9ca3af;
 }
 
-.goal-percent {
-  font-size: 1.125rem;
+.weather-temp-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.weather-temp {
+  font-size: 2.25rem;
   font-weight: 800;
+  color: #1f2937;
 }
 
-.goal-percent.green { color: #3b6934; }
-.goal-percent.amber { color: #6e420c; }
+.weather-desc {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #9ca3af;
+}
 
-.progress-bar {
+.weather-footer {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f9fafb;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.weather-dot {
+  width: 4px;
   height: 4px;
-  background: #f7ece4;
-  border-radius: 10px;
+  background: #d1d5db;
+  border-radius: 9999px;
+  align-self: center;
+}
+
+/* TASK CARD */
+.task-section {
+  background: #064e3b;
+  padding: 2rem;
+  border-radius: 32px;
+  box-shadow: 0 20px 40px rgba(6, 78, 59, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+  min-height: 280px;
+  position: relative;
   overflow: hidden;
 }
 
-.progress-fill {
-  height: 100%;
-  transition: width 0.4s ease;
+.task-bg-shape {
+  position: absolute;
+  right: -2.5rem;
+  top: -2.5rem;
+  width: 10rem;
+  height: 10rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 9999px;
+  filter: blur(60px);
 }
 
-/* Summary Grid */
-.summary-grid-premium {
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
+}
+
+.task-icon-wrapper {
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+}
+
+.task-arrow {
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  color: white;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.task-arrow:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.task-body {
+  position: relative;
+  z-index: 1;
+}
+
+.task-count {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.task-next {
+  color: rgba(236, 253, 245, 0.7);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* HERD CARD */
+.herd-section {
+  background: white;
+  border-radius: 32px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f9fafb;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 280px;
+}
+
+.herd-banner {
+  height: 6rem;
+  display: flex;
+  position: relative;
+}
+
+.banner-stripe {
+  flex: 1;
+  height: 100%;
+}
+
+.banner-stripe.brown {
+  background: #6E420C;
+}
+
+.banner-stripe.dark-green {
+  background: #064e3b;
+}
+
+.banner-stripe.primary-green {
+  background: #10b981;
+}
+
+.banner-stripe.gray {
+  background: #e5e7eb;
+}
+
+.herd-badge-wrapper {
+  position: absolute;
+  bottom: -0.75rem;
+  left: 1rem;
+}
+
+.herd-badge {
+  background: #064e3b;
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 2px solid white;
+  display: inline-block;
+}
+
+.herd-body {
+  padding: 2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.herd-title {
+  color: #1f2937;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.herd-progress-section {
+  margin-top: 1rem;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+}
+
+.progress-value {
+  color: #064e3b;
+}
+
+.progress-bar-wrapper {
+  width: 100%;
+  background: #f3f4f6;
+  height: 0.625rem;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  background: #064e3b;
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.5s;
+}
+
+.herd-footer {
+  font-size: 0.6875rem;
+  color: #9ca3af;
+  margin-top: 1rem;
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* MIDDLE ROW */
+.middle-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.births-section,
+.inventory-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 32px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f9fafb;
+}
+
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #064e3b;
+}
+
+.alert-badge {
+  font-size: 0.75rem;
+  background: #fff7ed;
+  color: #c2410c;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-weight: 700;
+}
+
+.births-list {
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
 }
 
-.summary-item-premium {
+.birth-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: #fdf1ea;
-  border-radius: 0.5rem;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 1rem;
 }
 
-.summary-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.summary-label {
-  font-size: 0.625rem;
-  color: #837468;
-  font-weight: 500;
-  margin: 0;
-}
-
-.summary-value {
-  font-size: 1.25rem;
+.birth-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #6E420C;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
   font-weight: 700;
-  color: #201b16;
-  margin: 0.25rem 0 0 0;
-  line-height: 1;
+  font-size: 0.75rem;
 }
 
-.mb-6 { margin-bottom: 1.5rem; }
+.birth-info {
+  flex: 1;
+}
 
+.birth-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.birth-date {
+  font-size: 0.625rem;
+  color: #6b7280;
+}
+
+.birth-days span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6E420C;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.inventory-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inventory-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.inventory-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.inventory-stock {
+  font-size: 0.6875rem;
+  color: #9ca3af;
+}
+
+.inventory-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.status-low {
+  color: #ea580c;
+}
+
+.status-ok {
+  color: #10b981;
+}
+
+.inventory-bar-wrapper {
+  width: 100%;
+  background: #f3f4f6;
+  height: 0.5rem;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.inventory-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.5s;
+}
+
+.bar-low {
+  background: #f97316;
+}
+
+.bar-ok {
+  background: #10b981;
+}
+
+.loading-mini,
+.empty-mini {
+  padding: 2rem;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.spinner-mini {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid #f3f4f6;
+  border-top-color: #10b981;
+  border-radius: 9999px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* QUICK ACTIONS */
+.quick-actions {
+  margin-top: 2rem;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  position: relative;
+}
+
+.quick-btn {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 32px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f9fafb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.quick-btn:hover {
+  background: #ecfdf5;
+}
+
+.quick-icon-circle {
+  width: 3rem;
+  height: 3rem;
+  background: #f9fafb;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #064e3b;
+  transition: all 0.3s;
+}
+
+.quick-btn:hover .quick-icon-circle {
+  background: #10b981;
+  color: white;
+}
+
+.quick-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.fab-container {
+  position: absolute;
+  right: -1rem;
+  bottom: -1rem;
+}
+
+.fab-btn {
+  width: 4rem;
+  height: 4rem;
+  background: #6E420C;
+  color: white;
+  border-radius: 9999px;
+  border: 4px solid white;
+  box-shadow: 0 20px 40px rgba(110, 66, 12, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s;
+}
+
+.fab-btn:hover {
+  transform: scale(1.1);
+}
+
+/* RESPONSIVE */
 @media (max-width: 1024px) {
-  .main-charts {
+  .bento-grid-top {
     grid-template-columns: 1fr;
   }
   
-  .bottom-grid {
+  .middle-row {
     grid-template-columns: 1fr;
   }
-}
-
-@media (max-width: 768px) {
-  .dashboard-premium {
-    padding: 1rem;
+  
+  .quick-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

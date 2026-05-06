@@ -2,16 +2,18 @@
   <div class="modal-overlay">
     <div class="modal-content">
       
+      <!-- Encabezado -->
       <div class="modal-header">
         <div>
-          <h3 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nuevo' }} Animal</h3>
-          <p class="modal-subtitle">Complete los datos del animal</p>
+          <h3 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nuevo' }} Tratamiento</h3>
+          <p class="modal-subtitle">Complete los datos del tratamiento realizado</p>
         </div>
-        <button type="button" @click="router.push({ name: 'BovinosList' })" class="btn-close">
+        <button type="button" @click="router.push({ name: 'Tratamientos' })" class="btn-close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
+      <!-- Alertas -->
       <div v-if="store.error" style="padding: 1rem 2rem;">
         <div style="display: flex; align-items: center; gap: 8px; color: #dc2626; background: #fef2f2; padding: 12px; border-radius: 8px;">
           <span class="material-symbols-outlined">error</span>
@@ -19,119 +21,82 @@
         </div>
       </div>
 
-      <form id="form-animal" @submit.prevent="guardar" class="modal-body">
+      <!-- Formulario -->
+      <form @submit.prevent="guardar" class="modal-body">
         
         <div class="form-grid">
+          <!-- Nombre -->
           <div class="form-group">
             <label class="form-label required">
-              <span class="material-symbols-outlined">dataset</span>
-              Grupo
+              <span class="material-symbols-outlined">healing</span>
+              Nombre del Tratamiento
             </label>
-            <select v-model="form.Id_grupo" required class="form-select">
-              <option value="">Seleccione grupo...</option>
-              <option v-for="g in grupos" :key="g.id_grupo" :value="g.id_grupo">
-                {{ g.nombre }}
-              </option>
-            </select>
+            <input v-model="form.nombre" type="text" required class="form-input" placeholder="Ej: Antibiótico inyectable" />
           </div>
 
-          <div class="form-group">
-            <label class="form-label">
-              <span class="material-symbols-outlined">qr_code_2</span>
-              N° Crotal
-            </label>
-            <input v-model="form.numero_crotal" type="number" class="form-input" placeholder="Ej: 123" />
-          </div>
-        </div>
-
-        <div class="form-grid">
+          <!-- Tipo -->
           <div class="form-group">
             <label class="form-label required">
               <span class="material-symbols-outlined">category</span>
-              Raza
+              Tipo de Tratamiento
             </label>
-            <select v-model="form.Id_raza" required class="form-select">
-              <option value="">Seleccione raza...</option>
-              <option v-for="r in razas" :key="r.id_raza" :value="r.id_raza">
-                {{ r.nombre }}
+            <input v-model="form.tipo_tratamiento" type="text" required class="form-input" placeholder="Ej: Antibiótico" />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <!-- Enfermedad -->
+          <div class="form-group">
+            <label class="form-label required">
+              <span class="material-symbols-outlined">medical_services</span>
+              Enfermedad
+            </label>
+            <select v-model="form.id_enfermedad" required class="form-select">
+              <option value="">Seleccione una enfermedad...</option>
+              <option v-for="e in enfermedades" :key="e.id_enfermedad" :value="e.id_enfermedad">
+                {{ e.nombre }}
               </option>
             </select>
           </div>
 
+          <!-- Empleado -->
           <div class="form-group">
             <label class="form-label required">
-              <span class="material-symbols-outlined">pets</span>
-              Nombre
+              <span class="material-symbols-outlined">badge</span>
+              Empleado Responsable
             </label>
-            <input v-model="form.nombre" type="text" required class="form-input" placeholder="Nombre del animal" />
+            <select v-model="form.id_empleado" required class="form-select">
+              <option value="">Seleccione un empleado...</option>
+              <option v-for="e in empleados" :key="e.id_empleado" :value="e.id_empleado">
+                {{ e.nombre }}
+              </option>
+            </select>
           </div>
         </div>
 
         <div class="form-grid">
+          <!-- Fecha Inicio -->
           <div class="form-group">
-            <label class="form-label">
+            <label class="form-label required">
+              <span class="material-symbols-outlined">calendar_today</span>
+              Fecha de Inicio
+            </label>
+            <input v-model="form.fecha_inicio" type="date" required class="form-input" />
+          </div>
+
+          <!-- Fecha Fin -->
+          <div class="form-group">
+            <label class="form-label required">
               <span class="material-symbols-outlined">event</span>
-              Fecha Nacimiento
+              Fecha de Fin
             </label>
-            <input v-model="form.fecha_nacimiento" type="date" class="form-input" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">
-              <span class="material-symbols-outlined">female</span>
-              Nombre Madre
-            </label>
-            <input v-model="form.nombre_madre" type="text" class="form-input" placeholder="Nombre de la madre" />
+            <input v-model="form.fecha_fin" type="date" required class="form-input" />
           </div>
         </div>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label required">
-              <span class="material-symbols-outlined">transgender</span>
-              Sexo
-            </label>
-            <select v-model="form.sexo" required class="form-select">
-              <option value="">Seleccione...</option>
-              <option value="Macho">Macho</option>
-              <option value="Hembra">Hembra</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">
-              <span class="material-symbols-outlined">cake</span>
-              Edad (años)
-            </label>
-            <input v-model="form.edad" type="number" min="0" class="form-input" placeholder="Ej: 3" />
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label required">
-              <span class="material-symbols-outlined">info</span>
-              Estado
-            </label>
-            <select v-model="form.estado" required class="form-select">
-              <option value="">Seleccione...</option>
-              <option value="Activo">Activo</option>
-              <option value="Vendido">Vendido</option>
-              <option value="Muerto">Muerto</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">
-              <span class="material-symbols-outlined">weight</span>
-              Peso (kg)
-            </label>
-            <input v-model="form.peso" type="text" class="form-input" placeholder="Ej: 450" />
-          </div>
-        </div>
-
+        <!-- Botones -->
         <div class="modal-footer">
-          <button type="button" @click="router.push({ name: 'Bovinos' })" class="btn btn--secondary">Cancelar</button>
+          <button type="button" @click="router.push({ name: 'Tratamientos' })" class="btn btn--secondary">Cancelar</button>
           <button type="submit" :disabled="store.cargando" class="btn btn--primary">
             <span class="material-symbols-outlined">save</span>
             {{ store.cargando ? 'Guardando...' : (modoEdicion ? 'Actualizar Registro' : 'Guardar Registro') }}
@@ -146,64 +111,55 @@
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useBovinoStore } from '../store/bovino.store.js'
-import grupoService from '@/modules/grupo/services/grupo.service.js'
-import razaService from '@/modules/raza/services/raza.service.js'
+import { useTratamientoStore } from '../store/tratamiento.store.js'
+import enfermedadService from '@/modules/enfermedad/services/enfermedad.service.js'
+import empleadoService from '@/modules/empleado/services/empleado.service.js'
 
 const router = useRouter()
-const route  = useRoute()
-const store  = useBovinoStore()
+const route = useRoute()
+const store = useTratamientoStore()
 
 const modoEdicion = computed(() => !!route.params.id)
 
-const grupos = ref([])
-const razas = ref([])
+const enfermedades = ref([])
+const empleados = ref([])
 
 const form = reactive({
-  Id_grupo:         '',
-  numero_crotal:    '',
-  Id_raza:          '',
-  nombre:           '',
-  fecha_nacimiento: '',
-  nombre_madre:     '',
-  sexo:             '',
-  edad:             '',
-  estado:           '',
-  peso:             ''
+  nombre: '',
+  tipo_tratamiento: '',
+  id_enfermedad: '',
+  id_empleado: '',
+  fecha_inicio: new Date().toISOString().split('T')[0],
+  fecha_fin: new Date().toISOString().split('T')[0]
 })
 
 onMounted(async () => {
   await cargarDatosAuxiliares()
   
   if (modoEdicion.value) {
-    if (store.bovinos.length === 0) {
-      await store.cargarBovinos()
+    if (store.tratamientos.length === 0) {
+      await store.cargarTratamientos()
     }
-    const bovino = store.bovinos.find(b => b.id_bovino == route.params.id)
-    if (bovino) {
-      form.Id_grupo         = bovino.Id_grupo
-      form.numero_crotal    = bovino.numero_crotal
-      form.Id_raza          = bovino.Id_raza
-      form.nombre           = bovino.nombre
-      form.fecha_nacimiento = bovino.fecha_nacimiento
-      form.nombre_madre     = bovino.nombre_madre
-      form.sexo             = bovino.sexo
-      form.edad             = bovino.edad
-      form.estado           = bovino.estado
-      form.peso             = bovino.peso
+    const trat = store.tratamientos.find(t => t.id_tratamiento == route.params.id)
+    if (trat) {
+      form.nombre = trat.nombre
+      form.tipo_tratamiento = trat.tipo_tratamiento
+      form.id_enfermedad = trat.id_enfermedad
+      form.id_empleado = trat.id_empleado
+      form.fecha_inicio = trat.fecha_inicio ? trat.fecha_inicio.split('T')[0] : new Date().toISOString().split('T')[0]
+      form.fecha_fin = trat.fecha_fin ? trat.fecha_fin.split('T')[0] : new Date().toISOString().split('T')[0]
     }
   }
-  store.limpiarMensajes()
 })
 
 async function cargarDatosAuxiliares() {
   try {
-    const [gruposRes, razasRes] = await Promise.all([
-      grupoService.listar(),
-      razaService.listar()
+    const [enfermedadesRes, empleadosRes] = await Promise.all([
+      enfermedadService.listar(),
+      empleadoService.listar()
     ])
-    grupos.value = gruposRes.data
-    razas.value = razasRes.data
+    enfermedades.value = enfermedadesRes.data
+    empleados.value = empleadosRes.data
   } catch (error) {
     console.error('Error al cargar datos auxiliares:', error)
   }
@@ -212,12 +168,12 @@ async function cargarDatosAuxiliares() {
 async function guardar() {
   let ok
   if (modoEdicion.value) {
-    ok = await store.actualizarBovino(route.params.id, { ...form })
+    ok = await store.actualizarTratamiento(route.params.id, { ...form })
   } else {
-    ok = await store.crearBovino({ ...form })
+    ok = await store.crearTratamiento({ ...form })
   }
   if (ok) {
-    router.push({ name: 'Bovinos' })
+    router.push({ name: 'Tratamientos' })
   }
 }
 </script>

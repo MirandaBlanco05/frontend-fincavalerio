@@ -89,7 +89,7 @@
                 {{ p.EMBARAZO ? p.EMBARAZO.Id_embarazo : p.Id_embarazo }}
               </span>
             </td>
-            <td class="px-6 py-3">{{ p.Fecha_parto }}</td>
+            <td class="px-6 py-3">{{ p.fecha_parto }}</td>
             <td class="px-6 py-3">{{ p.Numero_crias || '0' }}</td>
             <td class="px-6 py-3">{{ p.observaciones || 'Ninguna' }}</td>
           </tr>

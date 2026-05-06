@@ -28,11 +28,20 @@ const PartoForm    = () => import('@/modules/Parto/PartoForm.vue')
 const NewPartoForm = () => import('@/modules/Parto/NewPartoForm.vue')
 
 // Salud y Bienestar
-const VeterinarioIndex     = () => import('@/modules/veterinario/views/VeterinarioIndex.vue')
+const VeterinarioIndex     = () => import('@/modules/veterinario/views/VeterinariosList.vue')
 const AgendaVeterinariaIndex = () => import('@/modules/agendaveterinaria/views/AgendaVeterinariaIndex.vue')
-const HistorialEnfermedadesIndex = () => import('@/modules/historialemedades/views/HistorialEnfermedadesIndex.vue')
-const VacunasIndex = () => import('@/modules/vacunas/views/VacunasIndex.vue')
-const TratamientosIndex = () => import('@/modules/tratamientos/views/TratamientosIndex.vue')
+
+// Historial de Enfermedades
+const HistorialList = () => import('@/modules/historialenfermedades/views/HistorialList.vue')
+const HistorialForm = () => import('@/modules/historialenfermedades/views/HistorialForm.vue')
+
+// Vacunas
+const VacunasList = () => import('@/modules/vacuna/views/VacunasList.vue')
+const VacunaForm  = () => import('@/modules/vacuna/views/VacunaForm.vue')
+
+// Tratamientos
+const TratamientosList = () => import('@/modules/tratamientos/views/TratamientosList.vue')
+const TratamientoForm  = () => import('@/modules/tratamientos/views/TratamientoForm.vue')
 
 // Inventario
 const ProductoIndex = () => import('@/modules/producto/views/ProductoIndex.vue')
@@ -55,13 +64,28 @@ const routes = [
   // Salud y Bienestar
   { path: '/veterinarios',          name: 'Veterinarios',          component: VeterinarioIndex },
   { path: '/agenda-veterinaria',    name: 'AgendaVeterinaria',     component: AgendaVeterinariaIndex },
-  { path: '/historial-enfermedades',name: 'HistorialEnfermedades', component: HistorialEnfermedadesIndex },
-  { path: '/vacunas',               name: 'Vacunas',               component: VacunasIndex },
-  { path: '/tratamientos',          name: 'Tratamientos',          component: TratamientosIndex },
+  
+  // Historial de Enfermedades
+  { path: '/historial-enfermedades',         name: 'HistorialEnfermedades', component: HistorialList },
+  { path: '/historial-enfermedades/nuevo',   name: 'HistorialNuevo',        component: HistorialForm },
+  { path: '/historial-enfermedades/editar/:id', name: 'HistorialEditar',    component: HistorialForm },
+  
+  // Vacunas
+  { path: '/vacunas',               name: 'Vacunas',       component: VacunasList },
+  { path: '/vacunas/nuevo',         name: 'VacunaNueva',   component: VacunaForm },
+  { path: '/vacunas/editar/:id',    name: 'VacunaEditar',  component: VacunaForm },
+  
+  // Tratamientos
+  { path: '/tratamientos',          name: 'Tratamientos',       component: TratamientosList },
+  { path: '/tratamientos/nuevo',    name: 'TratamientoNuevo',   component: TratamientoForm },
+  { path: '/tratamientos/editar/:id', name: 'TratamientoEditar', component: TratamientoForm },
   
   // Reproducción
-  { path: '/celo',          name: 'Celo',         component: CeloIndex },
-  
+{
+  path: '/ciclo-celo',
+  name: 'CicloCelo',
+  component: () => import('@/modules/celo/views/CeloIndex.vue')
+},
   // Facturación
   { path: '/venta',       name: 'Venta',       component: VentaIndex },
   { path: '/compra',      name: 'Compra',      component: CompraIndex },

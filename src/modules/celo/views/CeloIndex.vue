@@ -8,7 +8,7 @@
         <span class="truncate">Nuevo</span>
       </button>
 
-      <button @click="abrirModal(filaSeleccionada)" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+      <button @click="editarCiclo()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">edit</span>
         <span class="truncate">Editar</span>
       </button>
@@ -201,17 +201,20 @@ function seleccionarFila(ciclo) {
   }
 }
 
-function abrirModal(ciclo = null) {
-  if (ciclo) {
-    form.id_bovino = ciclo.id_bovino
-    form.fecha_inicio = ciclo.fecha_inicio
-    form.fecha_fin = ciclo.fecha_fin || ''
-    form.observaciones = ciclo.observaciones || ''
-    calcularDuracionAuto()
-  } else {
-    resetForm()
-    filaSeleccionada.value = null
-  }
+function abrirModal() {
+  resetForm()
+  filaSeleccionada.value = null
+  modalAbierto.value = true
+}
+
+function editarCiclo() {
+  if (!filaSeleccionada.value) return
+  const ciclo = filaSeleccionada.value
+  form.id_bovino = ciclo.id_bovino
+  form.fecha_inicio = ciclo.fecha_inicio ? ciclo.fecha_inicio.split('T')[0] : ''
+  form.fecha_fin = ciclo.fecha_fin ? ciclo.fecha_fin.split('T')[0] : ''
+  form.observaciones = ciclo.observaciones || ''
+  calcularDuracionAuto()
   modalAbierto.value = true
 }
 

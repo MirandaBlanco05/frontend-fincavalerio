@@ -3,50 +3,28 @@
 
     <!-- Action Bar -->
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <!-- Nuevo Empleado -->
-      <button
-        @click="abrirModal()"
-        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none"
-      >
+      <button @click="abrirModal()" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
         <span class="material-symbols-outlined text-base">add</span>
         <span class="truncate">Nuevo Empleado</span>
       </button>
 
-      <!-- Editar (activo solo si hay fila seleccionada) -->
-      <button
-        @click="editarEmpleado()"
-        :disabled="!filaSeleccionada"
-        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
-      >
+      <button @click="editarEmpleado()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">edit</span>
         <span class="truncate">Editar</span>
       </button>
 
-      <!-- Eliminar (activo solo si hay fila seleccionada) -->
-      <button
-        @click="confirmarEliminar()"
-        :disabled="!filaSeleccionada"
-        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
-      >
+      <button @click="confirmarEliminar()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">delete</span>
         <span class="truncate">Eliminar</span>
       </button>
     </div>
 
-    <!-- Alerta de error -->
-    <div
-      v-if="store.error"
-      class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-    >
+    <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
       <span class="material-symbols-outlined text-base">warning</span>
       {{ store.error }}
     </div>
 
-    <!-- Alerta de éxito -->
-    <div
-      v-if="store.mensaje"
-      class="mb-4 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
-    >
+    <div v-if="store.mensaje" class="mb-4 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
       <span class="material-symbols-outlined text-base">check_circle</span>
       {{ store.mensaje }}
     </div>
@@ -54,7 +32,6 @@
     <!-- Tabla -->
     <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
       <table class="w-full text-left text-sm text-text-primary">
-        <!-- Encabezado -->
         <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
             <th class="px-6 py-4">ID</th>
@@ -62,42 +39,35 @@
             <th class="px-6 py-4">Nacionalidad</th>
             <th class="px-6 py-4">Cédula</th>
             <th class="px-6 py-4">Teléfono</th>
+            <th class="px-6 py-4">Contrato</th>
+            <th class="px-6 py-4">Puesto</th>
             <th class="px-6 py-4">Salario</th>
           </tr>
         </thead>
 
-        <!-- Cuerpo -->
         <tbody>
-          <!-- Cargando -->
           <tr v-if="store.cargando">
-            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="8" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
               <p class="mt-2">Cargando empleados...</p>
             </td>
           </tr>
 
-          <!-- Sin datos -->
           <tr v-else-if="store.empleados.length === 0">
-            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="8" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined text-4xl">group_off</span>
               <p class="mt-2">No hay empleados registrados.</p>
             </td>
           </tr>
 
-          <!-- Filas -->
-          <tr
-            v-else
-            v-for="emp in store.empleados"
-            :key="emp.Id_empleado"
-            @click="seleccionarFila(emp)"
-            class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10"
-            :class="{ 'bg-primary/20': filaSeleccionada?.Id_empleado === emp.Id_empleado }"
-          >
+          <tr v-else v-for="emp in store.empleados" :key="emp.Id_empleado" @click="seleccionarFila(emp)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.Id_empleado === emp.Id_empleado }">
             <td class="px-6 py-3">{{ emp.Id_empleado }}</td>
             <td class="px-6 py-3 font-medium">{{ emp.nombre }}</td>
             <td class="px-6 py-3">{{ emp.nacionalidad }}</td>
             <td class="px-6 py-3 font-mono">{{ emp.cedula ?? '—' }}</td>
             <td class="px-6 py-3 font-mono">{{ emp.telefono }}</td>
+            <td class="px-6 py-3">{{ emp.contrato ?? '—' }}</td>
+            <td class="px-6 py-3">{{ emp.puesto ?? '—' }}</td>
             <td class="px-6 py-3 text-right font-bold">{{ formatearSalario(emp.salario) }}</td>
           </tr>
         </tbody>
@@ -109,7 +79,6 @@
       <div v-if="mostrarModal" class="modal-overlay">
         <div class="modal-content">
           
-          <!-- Encabezado -->
           <div class="modal-header">
             <div>
               <h3 class="modal-title">{{ esEdicion ? 'Editar' : 'Nuevo' }} Empleado</h3>
@@ -120,26 +89,17 @@
             </button>
           </div>
 
-          <!-- Formulario -->
           <form @submit.prevent="guardarEmpleado" class="modal-body">
             
-            <!-- Nombre completo -->
             <div class="form-group span-full">
               <label class="form-label required">
                 <span class="material-symbols-outlined">person</span>
                 Nombre completo
               </label>
-              <input 
-                v-model="form.nombre" 
-                type="text" 
-                placeholder="Ej: Juan Antonio Pérez"
-                class="form-input"
-                required
-              />
+              <input v-model="form.nombre" type="text" placeholder="Ej: Juan Antonio Pérez" class="form-input" required />
             </div>
 
             <div class="form-grid">
-              <!-- Nacionalidad -->
               <div class="form-group">
                 <label class="form-label required">
                   <span class="material-symbols-outlined">flag</span>
@@ -152,54 +112,51 @@
                 </select>
               </div>
 
-              <!-- Cédula -->
               <div class="form-group">
                 <label class="form-label">
                   <span class="material-symbols-outlined">badge</span>
                   Cédula
                 </label>
-                <input 
-                  v-model="form.cedula" 
-                  type="text" 
-                  placeholder="Ej: 001-0000000-0"
-                  class="form-input"
-                />
+                <input v-model="form.cedula" type="text" placeholder="Ej: 001-0000000-0" class="form-input" />
               </div>
             </div>
 
             <div class="form-grid">
-              <!-- Teléfono -->
               <div class="form-group">
                 <label class="form-label required">
                   <span class="material-symbols-outlined">phone</span>
                   Teléfono
                 </label>
-                <input 
-                  v-model="form.telefono" 
-                  type="tel" 
-                  placeholder="Ej: 809-000-0000"
-                  class="form-input"
-                  required
-                />
+                <input v-model="form.telefono" type="tel" placeholder="Ej: 809-000-0000" class="form-input" required />
               </div>
 
-              <!-- Salario -->
               <div class="form-group">
                 <label class="form-label">
                   <span class="material-symbols-outlined">payments</span>
                   Salario (RD$)
                 </label>
-                <input 
-                  v-model="form.salario" 
-                  type="number" 
-                  step="0.01"
-                  placeholder="Ej: 15000"
-                  class="form-input"
-                />
+                <input v-model="form.salario" type="number" step="0.01" placeholder="Ej: 15000" class="form-input" />
               </div>
             </div>
 
-            <!-- Botones -->
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="material-symbols-outlined">description</span>
+                  Contrato
+                </label>
+                <input v-model="form.contrato" type="text" placeholder="Ej: Indefinido" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="material-symbols-outlined">work</span>
+                  Puesto
+                </label>
+                <input v-model="form.puesto" type="text" placeholder="Ej: Ordeñador" class="form-input" />
+              </div>
+            </div>
+
             <div class="modal-footer">
               <button type="button" @click="cerrarModal" class="btn btn--secondary">Cancelar</button>
               <button type="submit" :disabled="store.cargando" class="btn btn--primary">
@@ -255,7 +212,9 @@ const form = reactive({
   nacionalidad: '',
   cedula: '',
   telefono: '',
-  salario: ''
+  salario: '',
+  contrato: '',
+  puesto: ''
 })
 
 function seleccionarFila(empleado) {
@@ -284,6 +243,8 @@ function limpiarForm() {
   form.cedula = ''
   form.telefono = ''
   form.salario = ''
+  form.contrato = ''
+  form.puesto = ''
   esEdicion.value = false
 }
 
@@ -296,6 +257,8 @@ function editarEmpleado() {
   form.cedula = emp.cedula || ''
   form.telefono = emp.telefono
   form.salario = emp.salario || ''
+  form.contrato = emp.contrato || ''
+  form.puesto = emp.puesto || ''
   esEdicion.value = true
   mostrarModal.value = true
 }
@@ -306,7 +269,9 @@ async function guardarEmpleado() {
     nacionalidad: form.nacionalidad,
     cedula: form.cedula || null,
     telefono: form.telefono,
-    salario: form.salario ? parseFloat(form.salario) : null
+    salario: form.salario ? parseFloat(form.salario) : null,
+    contrato: form.contrato || null,
+    puesto: form.puesto || null
   }
 
   let exito = false
@@ -354,7 +319,6 @@ onMounted(() => {
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
 
-/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -435,7 +399,6 @@ onMounted(() => {
   gap: 1.5rem;
 }
 
-/* Form */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -466,7 +429,7 @@ onMounted(() => {
   margin-left: 4px;
 }
 
-.form-input, .form-select, .form-textarea {
+.form-input, .form-select {
   padding: 0.75rem;
   border: 1.5px solid #e5e7eb;
   border-radius: 10px;
@@ -477,7 +440,7 @@ onMounted(() => {
   background: white;
 }
 
-.form-input:focus, .form-select:focus, .form-textarea:focus {
+.form-input:focus {
   outline: none;
   border-color: #4c9a4c;
   background: #f0f9f0;
@@ -485,12 +448,12 @@ onMounted(() => {
 
 .form-select {
   cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
-  background-position: right 0.75rem center;
-  background-repeat: no-repeat;
-  background-size: 1.25rem;
-  padding-right: 2.5rem;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #9ca3af;
+  background: #f3f4f6;
 }
 
 .form-grid {

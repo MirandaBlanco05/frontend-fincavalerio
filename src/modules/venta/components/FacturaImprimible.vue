@@ -3,19 +3,12 @@
     <!-- Header -->
     <div class="header">
       <div class="logo-section">
-        <svg width="120" height="80" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
-          <!-- Cabeza de vaca -->
-          <path d="M 60,40 Q 50,35 45,45 L 40,60 Q 38,65 42,68 L 55,75 Q 60,77 65,75 L 100,75 Q 105,77 110,75 L 123,68 Q 127,65 125,60 L 120,45 Q 115,35 105,40" 
-                fill="none" stroke="#5a3a1a" stroke-width="3"/>
-          <!-- Cuernos -->
-          <path d="M 45,45 Q 35,30 25,35" fill="none" stroke="#5a3a1a" stroke-width="3" stroke-linecap="round"/>
-          <path d="M 120,45 Q 130,30 140,35" fill="none" stroke="#5a3a1a" stroke-width="3" stroke-linecap="round"/>
-          <!-- Hoja verde -->
-          <ellipse cx="145" cy="25" rx="8" ry="12" fill="#4c9a4c" transform="rotate(25 145 25)"/>
-          <!-- Texto -->
-          <text x="50" y="105" font-family="'DM Sans', sans-serif" font-size="28" font-weight="700" fill="#5a3a1a">VALERIO</text>
-          <text x="50" y="125" font-family="'DM Sans', sans-serif" font-size="11" fill="#666">DESDE 2021</text>
-        </svg>
+        <img 
+          src="/logo.png" 
+          alt="Finca Valerio" 
+          class="logo-img"
+          @error="(e) => e.target.style.display = 'none'"
+        />
       </div>
       <div class="title-section">
         <h1>FACTURA<br>VENTA</h1>
@@ -27,6 +20,7 @@
       <p><strong>Factura nº:</strong> {{ factura.numero_factura }}</p>
       <p><strong>Fecha:</strong> {{ formatearFecha(factura.fecha) }}</p>
       <p><strong>Cliente:</strong> {{ factura.cliente_nombre }}</p>
+      <p v-if="factura.cliente_rnc"><strong>RNC:</strong> {{ factura.cliente_rnc }}</p>
     </div>
 
     <!-- Tabla Productos -->
@@ -95,6 +89,7 @@ const props = defineProps({
       numero_factura: '',
       fecha: '',
       cliente_nombre: '',
+      cliente_rnc: '',
       productos: [],
       subtotal: 0,
       impuestos: 0,
@@ -184,6 +179,11 @@ function getStyles() {
       margin-bottom: 40px;
       padding-bottom: 20px;
       border-bottom: 2px solid #f0f0f0;
+    }
+    .logo-img {
+      max-width: 150px;
+      max-height: 80px;
+      object-fit: contain;
     }
     .title-section h1 {
       font-size: 2.5rem;
@@ -285,6 +285,12 @@ defineExpose({ imprimir })
   margin-bottom: 40px;
   padding-bottom: 20px;
   border-bottom: 2px solid #f0f0f0;
+}
+
+.logo-img {
+  max-width: 150px;
+  max-height: 80px;
+  object-fit: contain;
 }
 
 .title-section h1 {

@@ -38,7 +38,7 @@
     <label class="text-xs font-bold">Fecha del Parto</label>
     <input
       type="date"
-      v-model="parto.Fecha_parto"
+      v-model="parto.fecha_parto"
       required
       class="input-refined"
     />
@@ -101,7 +101,7 @@ const embarazos = ref([])
 
 const parto = reactive({
   Id_embarazo: "",
-  Fecha_parto: "",
+  fecha_parto: "",
   Numero_crias: 1,
   observaciones: ""
 })
@@ -118,7 +118,7 @@ async function guardarParto() {
   try {
     const payload = {
       Id_embarazo: parto.Id_embarazo,
-      Fecha_parto: parto.Fecha_parto,
+      fecha_parto: parto.fecha_parto,
       Numero_crias: parto.Numero_crias || null,
       observaciones: parto.observaciones || null
     }
