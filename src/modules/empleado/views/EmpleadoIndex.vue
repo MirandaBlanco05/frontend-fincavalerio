@@ -3,19 +3,24 @@
 
     <!-- Action Bar -->
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <button @click="abrirModal()" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
+      <button @click="irAFormulario" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
         <span class="material-symbols-outlined text-base">add</span>
         <span class="truncate">Nuevo Empleado</span>
       </button>
 
-      <button @click="editarEmpleado()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+      <button @click="irAEditar" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">edit</span>
         <span class="truncate">Editar</span>
       </button>
 
-      <button @click="confirmarEliminar()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+      <button @click="confirmarEliminar" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">delete</span>
         <span class="truncate">Eliminar</span>
+      </button>
+
+      <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
+        <span class="material-symbols-outlined text-base">filter_list</span>
+        <span class="truncate">Filtrar</span>
       </button>
     </div>
 
@@ -53,140 +58,66 @@
             </td>
           </tr>
 
-          <tr v-else-if="store.empleados.length === 0">
+          <tr v-else-if="empleadosFiltrados.length === 0">
             <td colspan="8" class="px-6 py-12 text-center text-gray-400">
-              <span class="material-symbols-outlined text-4xl">group_off</span>
-              <p class="mt-2">No hay empleados registrados.</p>
+              <span class="material-symbols-outlined text-4xl">badge</span>
+              <p class="mt-2">{{ store.empleados.length === 0 ? 'No hay empleados registrados.' : 'No hay resultados con los filtros aplicados.' }}</p>
             </td>
           </tr>
 
-          <tr v-else v-for="emp in store.empleados" :key="emp.Id_empleado" @click="seleccionarFila(emp)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.Id_empleado === emp.Id_empleado }">
-            <td class="px-6 py-3">{{ emp.Id_empleado }}</td>
-            <td class="px-6 py-3 font-medium">{{ emp.nombre }}</td>
-            <td class="px-6 py-3">{{ emp.nacionalidad }}</td>
-            <td class="px-6 py-3 font-mono">{{ emp.cedula ?? '—' }}</td>
-            <td class="px-6 py-3 font-mono">{{ emp.telefono }}</td>
-            <td class="px-6 py-3">{{ emp.contrato ?? '—' }}</td>
-            <td class="px-6 py-3">{{ emp.puesto ?? '—' }}</td>
-            <td class="px-6 py-3 text-right font-bold">{{ formatearSalario(emp.salario) }}</td>
+          <tr v-else v-for="e in empleadosFiltrados" :key="e.id_empleado" @click="seleccionarFila(e)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_empleado === e.id_empleado }">
+            <td class="px-6 py-3 font-bold">#{{ e.id_empleado }}</td>
+            <td class="px-6 py-3 font-medium">{{ e.nombre }}</td>
+            <td class="px-6 py-3">{{ e.nacionalidad || '—' }}</td>
+            <td class="px-6 py-3">{{ e.cedula || '—' }}</td>
+            <td class="px-6 py-3">{{ e.telefono || '—' }}</td>
+            <td class="px-6 py-3">{{ e.tipo_contrato || '—' }}</td>
+            <td class="px-6 py-3">{{ e.puesto || '—' }}</td>
+            <td class="px-6 py-3">RD$ {{ formatearMonto(e.salario) }}</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Modal Formulario -->
+    <!-- Modal de Filtros -->
     <Teleport to="body">
-      <div v-if="mostrarModal" class="modal-overlay">
-        <div class="modal-content">
-          
-          <div class="modal-header">
-            <div>
-              <h3 class="modal-title">{{ esEdicion ? 'Editar' : 'Nuevo' }} Empleado</h3>
-              <p class="modal-subtitle">Complete los datos del empleado</p>
-            </div>
-            <button type="button" @click="cerrarModal" class="btn-close">
-              <span class="material-symbols-outlined">close</span>
+      <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="modalFiltros = false">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
+          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
+            <div class="h-1 w-9 rounded-full bg-gray-300"></div>
+          </div>
+
+          <div class="flex items-center justify-between p-4">
+            <h3 class="text-lg font-bold text-text-primary">Filtrar Empleados</h3>
+            <button @click="modalFiltros = false" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
+              <span class="material-symbols-outlined text-base">close</span>
             </button>
           </div>
 
-          <form @submit.prevent="guardarEmpleado" class="modal-body">
-            
-            <div class="form-group span-full">
-              <label class="form-label required">
-                <span class="material-symbols-outlined">person</span>
-                Nombre completo
-              </label>
-              <input v-model="form.nombre" type="text" placeholder="Ej: Juan Antonio Pérez" class="form-input" required />
+          <div class="flex flex-col gap-4 p-4">
+            <div>
+              <label class="mb-1 block text-sm font-medium">Nacionalidad</label>
+              <select v-model="filtros.nacionalidad" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todas</option>
+                <option v-for="nac in nacionalidadesUnicas" :key="nac" :value="nac">{{ nac }}</option>
+              </select>
             </div>
 
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label required">
-                  <span class="material-symbols-outlined">flag</span>
-                  Nacionalidad
-                </label>
-                <select v-model="form.nacionalidad" class="form-select" required>
-                  <option value="">Seleccione...</option>
-                  <option value="Dominicana">Dominicana</option>
-                  <option value="Haitiana">Haitiana</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-symbols-outlined">badge</span>
-                  Cédula
-                </label>
-                <input v-model="form.cedula" type="text" placeholder="Ej: 001-0000000-0" class="form-input" />
-              </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium">Puesto</label>
+              <select v-model="filtros.puesto" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todos los puestos</option>
+                <option v-for="puesto in puestosUnicos" :key="puesto" :value="puesto">{{ puesto }}</option>
+              </select>
             </div>
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label required">
-                  <span class="material-symbols-outlined">phone</span>
-                  Teléfono
-                </label>
-                <input v-model="form.telefono" type="tel" placeholder="Ej: 809-000-0000" class="form-input" required />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-symbols-outlined">payments</span>
-                  Salario (RD$)
-                </label>
-                <input v-model="form.salario" type="number" step="0.01" placeholder="Ej: 15000" class="form-input" />
-              </div>
-            </div>
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-symbols-outlined">description</span>
-                  Contrato
-                </label>
-                <input v-model="form.contrato" type="text" placeholder="Ej: Indefinido" class="form-input" />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-symbols-outlined">work</span>
-                  Puesto
-                </label>
-                <input v-model="form.puesto" type="text" placeholder="Ej: Ordeñador" class="form-input" />
-              </div>
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" @click="cerrarModal" class="btn btn--secondary">Cancelar</button>
-              <button type="submit" :disabled="store.cargando" class="btn btn--primary">
-                <span class="material-symbols-outlined">save</span>
-                {{ store.cargando ? 'Guardando...' : (esEdicion ? 'Actualizar' : 'Guardar') }}
-              </button>
-            </div>
-
-          </form>
-        </div>
-      </div>
-    </Teleport>
-
-    <!-- Modal Eliminar -->
-    <Teleport to="body">
-      <div v-if="modalEliminar" class="modal-overlay" @click.self="modalEliminar = false">
-        <div class="modal-content modal-content--small">
-          <div class="modal-header modal-header--danger">
-            <span class="material-symbols-outlined">warning</span>
-            <h3 class="modal-title">Eliminar Empleado</h3>
           </div>
-          <div class="modal-body">
-            <p class="text-center">¿Está seguro que desea eliminar a <strong>{{ filaSeleccionada?.nombre }}</strong>?</p>
-            <p class="text-center text-sm text-muted">Esta acción no se puede deshacer.</p>
-          </div>
-          <div class="modal-footer">
-            <button @click="modalEliminar = false" class="btn btn--secondary">Cancelar</button>
-            <button @click="eliminarEmpleado" class="btn btn--danger">
-              <span class="material-symbols-outlined">delete</span>
-              Eliminar
+
+          <div class="flex gap-3 p-4">
+            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30">
+              Limpiar
+            </button>
+            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90">
+              Aplicar Filtros
             </button>
           </div>
         </div>
@@ -197,28 +128,24 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useEmpleadoStore } from '@/modules/empleado/store/empleado.store.js'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useEmpleadoStore } from '../store/empleado.store.js'
 
+const router = useRouter()
 const store = useEmpleadoStore()
-const filaSeleccionada = ref(null)
-const mostrarModal = ref(false)
-const modalEliminar = ref(false)
-const esEdicion = ref(false)
 
-const form = reactive({
-  id: null,
-  nombre: '',
-  nacionalidad: '',
-  cedula: '',
-  telefono: '',
-  salario: '',
-  contrato: '',
-  puesto: ''
+const filaSeleccionada = ref(null)
+const modalFiltros = ref(false)
+const filtros = ref({ nacionalidad: '', puesto: '' })
+const filtrosAplicados = ref({ nacionalidad: '', puesto: '' })
+
+onMounted(() => {
+  store.cargarEmpleados()
 })
 
 function seleccionarFila(empleado) {
-  if (filaSeleccionada.value?.Id_empleado === empleado.Id_empleado) {
+  if (filaSeleccionada.value?.id_empleado === empleado.id_empleado) {
     filaSeleccionada.value = null
   } else {
     filaSeleccionada.value = empleado
@@ -226,310 +153,56 @@ function seleccionarFila(empleado) {
   }
 }
 
-function abrirModal() {
-  limpiarForm()
-  mostrarModal.value = true
+function irAFormulario() {
+  router.push({ name: 'EmpleadoNuevo' })
 }
 
-function cerrarModal() {
-  mostrarModal.value = false
-  limpiarForm()
-}
-
-function limpiarForm() {
-  form.id = null
-  form.nombre = ''
-  form.nacionalidad = ''
-  form.cedula = ''
-  form.telefono = ''
-  form.salario = ''
-  form.contrato = ''
-  form.puesto = ''
-  esEdicion.value = false
-}
-
-function editarEmpleado() {
+function irAEditar() {
   if (!filaSeleccionada.value) return
-  const emp = filaSeleccionada.value
-  form.id = emp.Id_empleado
-  form.nombre = emp.nombre
-  form.nacionalidad = emp.nacionalidad
-  form.cedula = emp.cedula || ''
-  form.telefono = emp.telefono
-  form.salario = emp.salario || ''
-  form.contrato = emp.contrato || ''
-  form.puesto = emp.puesto || ''
-  esEdicion.value = true
-  mostrarModal.value = true
-}
-
-async function guardarEmpleado() {
-  const datos = {
-    nombre: form.nombre,
-    nacionalidad: form.nacionalidad,
-    cedula: form.cedula || null,
-    telefono: form.telefono,
-    salario: form.salario ? parseFloat(form.salario) : null,
-    contrato: form.contrato || null,
-    puesto: form.puesto || null
-  }
-
-  let exito = false
-  if (esEdicion.value) {
-    exito = await store.actualizarEmpleado(form.id, datos)
-  } else {
-    exito = await store.crearEmpleado(datos)
-  }
-
-  if (exito) {
-    cerrarModal()
-    filaSeleccionada.value = null
-  }
+  router.push({ name: 'EmpleadoEditar', params: { id: filaSeleccionada.value.id_empleado } })
 }
 
 function confirmarEliminar() {
   if (!filaSeleccionada.value) return
-  modalEliminar.value = true
-}
-
-async function eliminarEmpleado() {
-  if (!filaSeleccionada.value) return
-  const exito = await store.eliminarEmpleado(filaSeleccionada.value.Id_empleado)
-  if (exito) {
-    modalEliminar.value = false
+  const nombre = filaSeleccionada.value.nombre
+  if (confirm(`¿Eliminar a "${nombre}"? Esta acción no se puede deshacer.`)) {
+    store.eliminarEmpleado(filaSeleccionada.value.id_empleado)
     filaSeleccionada.value = null
   }
 }
 
-function formatearSalario(salario) {
-  if (!salario) return '—'
-  return `RD$ ${parseFloat(salario).toLocaleString('es-DO', { minimumFractionDigits: 2 })}`
+function aplicarFiltros() {
+  filtrosAplicados.value = { ...filtros.value }
+  modalFiltros.value = false
 }
 
-onMounted(() => {
-  store.cargarEmpleados()
+function limpiarFiltros() {
+  filtros.value = { nacionalidad: '', puesto: '' }
+  filtrosAplicados.value = { nacionalidad: '', puesto: '' }
+  modalFiltros.value = false
+}
+
+const nacionalidadesUnicas = computed(() => {
+  return [...new Set(store.empleados.map(e => e.nacionalidad).filter(Boolean))].sort()
 })
+
+const puestosUnicos = computed(() => {
+  return [...new Set(store.empleados.map(e => e.puesto).filter(Boolean))].sort()
+})
+
+const empleadosFiltrados = computed(() => {
+  return store.empleados.filter(e => {
+    const { nacionalidad, puesto } = filtrosAplicados.value
+
+    if (nacionalidad && e.nacionalidad !== nacionalidad) return false
+    if (puesto && e.puesto !== puesto) return false
+
+    return true
+  })
+})
+
+function formatearMonto(monto) {
+  if (!monto) return '0.00'
+  return Number(monto).toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
 </script>
-
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  backdrop-filter: blur(4px);
-  font-family: 'DM Sans', sans-serif;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-content--small {
-  max-width: 450px;
-}
-
-.modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 2rem 2rem 1.5rem;
-  border-bottom: 1.5px solid #f0f0ed;
-}
-
-.modal-header--danger {
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.modal-header--danger .material-symbols-outlined {
-  font-size: 3rem;
-  color: #dc2626;
-}
-
-.modal-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #1a1a1a;
-  margin-bottom: 0.25rem;
-}
-
-.modal-subtitle {
-  font-size: 0.85rem;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.btn-close {
-  padding: 8px;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  color: #9ca3af;
-  transition: all 0.2s;
-}
-
-.btn-close:hover {
-  background: #f5f5f5;
-  color: #1a1a1a;
-}
-
-.modal-body {
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.span-full {
-  grid-column: 1 / -1;
-}
-
-.form-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #374151;
-}
-
-.form-label .material-symbols-outlined {
-  font-size: 1rem;
-  color: #4c9a4c;
-}
-
-.form-label.required::after {
-  content: '*';
-  color: #dc2626;
-  margin-left: 4px;
-}
-
-.form-input, .form-select {
-  padding: 0.75rem;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 10px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-  width: 100%;
-  background: white;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #4c9a4c;
-  background: #f0f9f0;
-}
-
-.form-select {
-  cursor: pointer;
-}
-
-.form-select:focus {
-  outline: none;
-  border-color: #9ca3af;
-  background: #f3f4f6;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 12px;
-  padding-top: 1rem;
-  border-top: 1.5px solid #f0f0ed;
-}
-
-.btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 0.85rem;
-  border: none;
-  border-radius: 12px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn--primary {
-  background: #4c9a4c;
-  color: white;
-}
-
-.btn--primary:hover:not(:disabled) {
-  background: #3d7a3d;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
-}
-
-.btn--primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn--secondary {
-  background: #f5f5f5;
-  color: #374151;
-}
-
-.btn--secondary:hover {
-  background: #e5e7eb;
-}
-
-.btn--danger {
-  background: #dc2626;
-  color: white;
-}
-
-.btn--danger:hover {
-  background: #b91c1c;
-}
-
-.font-mono { font-family: 'Courier New', monospace; }
-.text-center { text-align: center; }
-.text-sm { font-size: 0.85rem; }
-.text-muted { color: #9ca3af; }
-
-@media (max-width: 640px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  .modal-body {
-    padding: 1.5rem;
-  }
-}
-</style>

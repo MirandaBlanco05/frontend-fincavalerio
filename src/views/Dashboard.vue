@@ -154,7 +154,7 @@
       <h3 class="section-title mb-6">Accesos rápidos</h3>
       <div class="quick-grid">
         
-        <button class="quick-btn" @click="router.push({ name: 'bovino' })">
+        <button class="quick-btn" @click="router.push({ name: 'BovinosList' })">
           <div class="quick-icon-circle">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
@@ -510,7 +510,7 @@ onMounted(() => {
 
 /* TASK CARD */
 .task-section {
-  background: #064e3b;
+  background: #3d7a3d;
   padding: 2rem;
   border-radius: 32px;
   box-shadow: 0 20px 40px rgba(6, 78, 59, 0.3);
@@ -852,7 +852,7 @@ onMounted(() => {
   width: 2rem;
   height: 2rem;
   border: 3px solid #f3f4f6;
-  border-top-color: #10b981;
+  border-top-color: #177556;
   border-radius: 9999px;
   animation: spin 1s linear infinite;
   margin: 0 auto 0.5rem;
@@ -905,7 +905,7 @@ onMounted(() => {
 }
 
 .quick-btn:hover .quick-icon-circle {
-  background: #10b981;
+  background: #065b3f;
   color: white;
 }
 
