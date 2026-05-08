@@ -1,6 +1,6 @@
 // modules/inseminacion/store/inseminacion.store.js
 import { defineStore } from 'pinia'
-import inseminacionService from '../services/Inseminacion.service.js'
+import inseminacionService from '../services/inseminacion.service.js'
 
 export const useInseminacionStore = defineStore('inseminacion', {
   state: () => ({

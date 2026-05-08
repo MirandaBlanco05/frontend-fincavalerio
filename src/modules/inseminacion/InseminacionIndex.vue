@@ -149,7 +149,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useInseminacionStore } from './store/Inseminacion.store.js'
+import { useInseminacionStore } from './store/inseminacion.store.js'
 import { useVeterinarioStore } from '../veterinario/store/veterinario.store.js'
 
 const router = useRouter()
