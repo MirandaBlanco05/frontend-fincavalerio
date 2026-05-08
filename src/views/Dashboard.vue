@@ -230,7 +230,7 @@ const notificaciones = computed(() => {
   const items = []
   
   proximasCitas.value.forEach(cita => {
-    const fecha = new Date(cita.fecha_visita)
+    const fecha = new Date(cita.fecha)
     items.push({
       id: `cita-${cita.id_visita}`,
       tipo: 'cita',
@@ -253,7 +253,7 @@ const proximaCitaTitulo = computed(() => {
 
 const proximaCitaHora = computed(() => {
   if (!proximaCitaData.value) return ''
-  const fecha = new Date(proximaCitaData.value.fecha_visita)
+  const fecha = new Date(proximaCitaData.value.fecha)
   return `a las ${fecha.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}`
 })
 
