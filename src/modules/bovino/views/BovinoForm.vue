@@ -29,8 +29,8 @@
             </label>
             <select v-model="form.id_grupo" required class="form-select">
               <option value="">Seleccione grupo...</option>
-              <option v-for="g in grupos" :key="g.id_grupo" :value="g.id_grupo">
-                {{ g.nombre }}
+              <option v-for="g in grupos" :key="g.id_grupo || g.Id_grupo" :value="g.id_grupo || g.Id_grupo">
+                {{ g.nombre || g.Nombre || g.Tipo_grupo || `Grupo ${g.id_grupo || g.Id_grupo}` }}
               </option>
             </select>
           </div>
@@ -52,8 +52,8 @@
             </label>
             <select v-model="form.id_raza" required class="form-select">
               <option value="">Seleccione raza...</option>
-              <option v-for="r in razas" :key="r.id_raza" :value="r.id_raza">
-                {{ r.nombre || r.Tipo_raza }}
+              <option v-for="r in razas" :key="r.id_raza || r.Id_raza" :value="r.id_raza || r.Id_raza">
+                {{ r.nombre || r.Tipo_raza || r.Nombre || `Raza ${r.id_raza || r.Id_raza}` }}
               </option>
             </select>
           </div>
