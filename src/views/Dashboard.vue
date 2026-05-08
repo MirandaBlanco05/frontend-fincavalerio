@@ -329,12 +329,12 @@ async function cargarClimaReal() {
 
 async function cargarDatos() {
   try {
-    const bovinosRes = await api.get('/api/bovino/listar')
+    const bovinosRes = await api.get('/bovino/listar')
     estadisticas.value.totalBovinos = bovinosRes.data.length
     estadisticas.value.bovinosActivos = bovinosRes.data.filter(b => b.estado === 'Activo').length
 
     try {
-      const visitasRes = await api.get('/api/visita/listar')
+      const visitasRes = await api.get('/visita/listar')
       const hoy = new Date()
       const en7Dias = new Date()
       en7Dias.setDate(en7Dias.getDate() + 7)
@@ -353,21 +353,21 @@ async function cargarDatos() {
     }
 
     cargandoInventario.value = true
-    const insumosRes = await api.get('/api/insumo/listar')
+    const insumosRes = await api.get('/insumo/listar')
     inventarioCritico.value = insumosRes.data
-      .filter(i => i.cantidad_actual <= i.cantidad_minima)
+      .filter(i => i.cantidad_stock <= 5) // Usamos 5 como umbral por defecto ya que no hay cantidad_minima en DB
       .map(i => ({
         id: i.id_insumo,
-        nombre: i.nombre_insumo,
-        cantidad: i.cantidad_actual,
-        minimo: i.cantidad_minima,
-        unidad: i.unidad_medida
+        nombre: i.nombre,
+        cantidad: i.cantidad_stock,
+        minimo: 5,
+        unidad: i.unidad_medida || 'unid'
       }))
     cargandoInventario.value = false
 
     cargandoPartos.value = true
     try {
-      const partosRes = await api.get('/api/parto/listar')
+      const partosRes = await api.get('/parto/listar')
       const hoy = new Date()
       const en30Dias = new Date()
       en30Dias.setDate(en30Dias.getDate() + 30)
