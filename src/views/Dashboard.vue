@@ -302,12 +302,14 @@ async function cargarDatos() {
     try {
       const visitasRes = await api.get('/visita/listar')
       const hoy = new Date()
+      hoy.setHours(0, 0, 0, 0)
       const en7Dias = new Date()
       en7Dias.setDate(en7Dias.getDate() + 7)
+      en7Dias.setHours(23, 59, 59, 999)
       
       const citasFuturas = visitasRes.data.filter(v => {
-        if (!v.fecha_visita) return false
-        const fechaVisita = new Date(v.fecha_visita)
+        if (!v.fecha) return false
+        const fechaVisita = new Date(v.fecha)
         return fechaVisita >= hoy && fechaVisita <= en7Dias
       })
       
