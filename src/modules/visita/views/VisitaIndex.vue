@@ -1,399 +1,405 @@
 <template>
-  <div class="flex flex-col gap-6">
+  <div class="relative min-h-screen w-full">
 
-    <!-- Header de página -->
-    <div>
-      <h2 class="text-2xl font-bold text-[#0d1b0d]">Agenda de Veterinario</h2>
-      <p class="text-sm text-[#757575]">Gestiona las citas y chequeos.</p>
+    <!-- Action Bar -->
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+      <button @click="router.push({ name: 'VisitaNueva' })" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
+        <span class="material-symbols-outlined text-base">add</span>
+        <span class="truncate">Nueva Visita</span>
+      </button>
+
+      <button @click="editarVisita()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+        <span class="material-symbols-outlined text-base">edit</span>
+        <span class="truncate">Editar</span>
+      </button>
+
+      <button @click="confirmarEliminar()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+        <span class="material-symbols-outlined text-base">delete</span>
+        <span class="truncate">Eliminar</span>
+      </button>
+
+      <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
+        <span class="material-symbols-outlined text-base">filter_list</span>
+        <span class="truncate">Filtrar</span>
+        <span v-if="filtrosActivos > 0" class="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-xs text-white">{{ filtrosActivos }}</span>
+      </button>
     </div>
 
-    <!-- Alertas -->
-    <div v-if="store.error"
-      class="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <!-- Mensajes -->
+    <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
       <span class="material-symbols-outlined text-base">warning</span>
       {{ store.error }}
     </div>
 
-    <!-- Grid: Calendario | Citas -->
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-
-      <!-- ── Calendario ─────────────────────────────── -->
-      <div class="lg:col-span-2">
-        <div class="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
-
-          <!-- Navegación mes -->
-          <div class="flex items-center justify-between mb-2">
-            <button @click="mesAnterior"
-              class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
-              <span class="material-symbols-outlined">chevron_left</span>
-            </button>
-            <p class="text-lg font-bold text-center flex-1 text-[#0d1b0d]">
-              {{ nombreMesActual }} {{ anioActual }}
-            </p>
-            <button @click="mesSiguiente"
-              class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
-              <span class="material-symbols-outlined">chevron_right</span>
-            </button>
-          </div>
-
-          <!-- Días de semana -->
-          <div class="grid grid-cols-7 text-center text-sm font-semibold text-[#757575] mt-2">
-            <div>D</div><div>L</div><div>M</div><div>M</div>
-            <div>J</div><div>V</div><div>S</div>
-          </div>
-
-          <!-- Días del mes -->
-          <div class="grid grid-cols-7 gap-y-1 mt-1">
-            <div v-for="i in primerDiaMes" :key="'v'+i"></div>
-            <button
-              v-for="dia in diasEnMes"
-              :key="dia"
-              @click="seleccionarDia(dia)"
-              class="relative flex flex-col items-center justify-center h-11 w-full rounded-full text-sm font-medium transition-colors"
-              :class="esDiaSeleccionado(dia)
-                ? 'bg-[#4c9a4c] text-white font-bold'
-                : tieneVisitas(dia)
-                  ? 'text-[#4c9a4c] font-bold hover:bg-[#e7f3e7]'
-                  : 'text-[#0d1b0d] hover:bg-[#e7f3e7]'"
-            >
-              {{ dia }}
-              <span
-                v-if="tieneVisitas(dia) && !esDiaSeleccionado(dia)"
-                class="absolute bottom-1 h-1 w-1 rounded-full bg-[#4c9a4c]"
-              ></span>
-            </button>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- ── Panel de citas ─────────────────────────── -->
-      <div class="lg:col-span-1 flex flex-col gap-4">
-
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-bold text-[#0d1b0d]">
-            {{ fechaSeleccionadaLabel }}
-          </h3>
-          <button @click="abrirModal"
-            class="flex items-center gap-2 rounded-lg bg-[#4c9a4c] px-4 py-2 text-sm font-bold text-white shadow transition-colors hover:bg-[#4c9a4c]/90">
-            <span class="material-symbols-outlined text-base">add</span>
-            Añadir Cita
-          </button>
-        </div>
-
-        <!-- Skeleton cargando -->
-        <div v-if="store.cargando" class="flex items-center justify-center py-12 text-[#757575]">
-          <span class="material-symbols-outlined animate-spin mr-2">progress_activity</span>
-          Cargando...
-        </div>
-
-        <template v-else>
-          <!-- Tarjetas de citas -->
-          <div
-            v-for="(cita, i) in citasDelDia"
-            :key="i"
-            @click="abrirDetalle(cita)"
-            class="cursor-pointer rounded-xl border-l-4 border-[#4c9a4c] bg-[#efebe9] p-4 flex items-start gap-4 hover:opacity-90 transition-opacity"
-          >
-            <div class="flex flex-col items-center min-w-[52px] justify-center">
-              <span class="material-symbols-outlined text-[#4c9a4c] text-3xl">event_available</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-bold text-[#0d1b0d] truncate">{{ cita.veterinario || '—' }}</p>
-              <p class="text-sm text-[#757575] truncate">{{ (cita.motivos || []).join(', ') || cita.observaciones || '—' }}</p>
-              <div class="mt-2 flex items-center gap-1.5 text-sm text-[#5d4037]">
-                <span class="material-symbols-outlined text-base">pets</span>
-                <span class="truncate">{{ cita.animal || '—' }}<span v-if="cita.crotal"> · #{{ cita.crotal }}</span></span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty state -->
-          <div v-if="citasDelDia.length === 0"
-            class="rounded-xl border-2 border-dashed border-gray-300 bg-white p-6 flex flex-col items-center text-center">
-            <span class="material-symbols-outlined text-5xl text-[#bdbdbd] mb-2">event_busy</span>
-            <p class="font-semibold text-[#0d1b0d]">No hay citas para este día.</p>
-            <p class="text-sm text-[#757575]">¡Añade una nueva cita para organizar el día!</p>
-          </div>
-        </template>
-
-      </div>
+    <div v-if="store.mensaje" class="mb-4 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+      <span class="material-symbols-outlined text-base">check_circle</span>
+      {{ store.mensaje }}
     </div>
 
-    <!-- ════════════════════════════════ -->
-    <!-- Modal: Nueva Cita               -->
-    <!-- ════════════════════════════════ -->
-    <Teleport to="body">
-      <div v-if="modalAbierto"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-        @click.self="cerrarModal">
-        <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+    <!-- Tabla -->
+    <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
+      <table class="w-full text-left text-sm text-text-primary">
+        <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
+          <tr>
+            <th class="px-6 py-4">ID</th>
+            <th class="px-6 py-4">Fecha</th>
+            <th class="px-6 py-4">Motivo</th>
+            <th class="px-6 py-4">Bovino</th>
+            <th class="px-6 py-4">Veterinario</th>
+            <th class="px-6 py-4">Observaciones</th>
+          </tr>
+        </thead>
 
-          <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-xl font-bold text-[#0d1b0d]">Nueva Cita</h3>
-            <button @click="cerrarModal" class="text-2xl leading-none text-gray-400 hover:text-gray-600">&times;</button>
+        <tbody>
+          <tr v-if="store.cargando">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
+              <p class="mt-2">Cargando visitas...</p>
+            </td>
+          </tr>
+
+          <tr v-else-if="visitasFiltradas.length === 0">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined text-4xl">medical_services</span>
+              <p class="mt-2">{{ store.visitas.length === 0 ? 'No hay visitas registradas.' : 'No hay resultados con los filtros aplicados.' }}</p>
+            </td>
+          </tr>
+
+          <tr v-else v-for="visita in visitasFiltradas" :key="visita.id_visita" @click="seleccionarFila(visita)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_visita === visita.id_visita }">
+            <td class="px-6 py-3 font-bold">#{{ visita.id_visita }}</td>
+            <td class="px-6 py-3">{{ formatearFecha(visita.fecha_visita) }}</td>
+            <td class="px-6 py-3">{{ visita.motivo }}</td>
+            <td class="px-6 py-3">{{ visita.bovino?.nombre || '—' }}</td>
+            <td class="px-6 py-3">{{ visita.veterinario || '—' }}</td>
+            <td class="px-6 py-3">{{ visita.observaciones || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal de Filtros -->
+    <Teleport to="body">
+      <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="cerrarFiltros">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
+          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
+            <div class="h-1 w-9 rounded-full bg-gray-300"></div>
           </div>
 
-          <form @submit.prevent="guardarCita" class="flex flex-col gap-3">
-
-            <!-- Veterinario -->
-            <div>
-              <label class="mb-1 block text-sm font-medium">Veterinario <span class="text-red-500">*</span></label>
-              <select v-model="form.Id_veterinario" required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#4c9a4c] focus:outline-none focus:ring-1 focus:ring-[#4c9a4c]">
-                <option value="">Seleccionar veterinario...</option>
-                <option v-for="v in store.veterinarios" :key="v.Id_veterinario" :value="v.Id_veterinario">
-                  {{ v.nombre }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Animal -->
-            <div>
-              <label class="mb-1 block text-sm font-medium">Animal <span class="text-red-500">*</span></label>
-              <select v-model="form.Id_bovino" required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#4c9a4c] focus:outline-none focus:ring-1 focus:ring-[#4c9a4c]">
-                <option value="">Seleccionar animal...</option>
-                <option v-for="b in store.bovinos" :key="b.id_bovino" :value="b.id_bovino">
-                  {{ b.nombre }}{{ b.numero_crotal ? ' · #' + b.numero_crotal : '' }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Motivos -->
-            <div>
-              <label class="mb-1 block text-sm font-medium">Motivo(s) <span class="text-red-500">*</span></label>
-              <div class="flex flex-wrap gap-2">
-                <template v-if="store.motivos.length > 0">
-                  <label
-                    v-for="m in store.motivos"
-                    :key="m.Id_motivo"
-                    class="flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors select-none"
-                    :class="form.motivos.includes(m.Id_motivo)
-                      ? 'border-[#4c9a4c] bg-[#e7f3e7] text-[#4c9a4c] font-bold'
-                      : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-[#4c9a4c]'"
-                  >
-                    <input type="checkbox" :value="m.Id_motivo" v-model="form.motivos" class="hidden" />
-                    {{ m.motivo }}
-                  </label>
-                </template>
-                <!-- Fallback si el endpoint de motivos no existe aún -->
-                <template v-else>
-                  <label
-                    v-for="mot in motivosFallback"
-                    :key="mot"
-                    class="flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors select-none"
-                    :class="form.motivosFallback.includes(mot)
-                      ? 'border-[#4c9a4c] bg-[#e7f3e7] text-[#4c9a4c] font-bold'
-                      : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-[#4c9a4c]'"
-                  >
-                    <input type="checkbox" :value="mot" v-model="form.motivosFallback" class="hidden" />
-                    {{ mot }}
-                  </label>
-                </template>
-              </div>
-            </div>
-
-            <!-- Fecha -->
-            <div>
-              <label class="mb-1 block text-sm font-medium">Fecha <span class="text-red-500">*</span></label>
-              <input v-model="form.fecha" type="date" required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#4c9a4c] focus:outline-none focus:ring-1 focus:ring-[#4c9a4c]" />
-            </div>
-
-            <!-- Hora -->
-            <div>
-              <label class="mb-1 block text-sm font-medium">Hora</label>
-              <input v-model="form.hora" type="time"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#4c9a4c] focus:outline-none focus:ring-1 focus:ring-[#4c9a4c]" />
-            </div>
-
-
-            <!-- Observaciones -->
-            <div>
-              <label class="mb-1 block text-sm font-medium">Observaciones</label>
-              <textarea v-model="form.observaciones" rows="2" placeholder="Notas adicionales..."
-                class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#4c9a4c] focus:outline-none focus:ring-1 focus:ring-[#4c9a4c]">
-              </textarea>
-            </div>
-
-            <button type="submit" :disabled="store.cargando"
-              class="w-full rounded-lg bg-[#4c9a4c] py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#4c9a4c]/90 disabled:cursor-not-allowed disabled:opacity-60">
-              {{ store.cargando ? 'Guardando...' : 'Guardar Cita' }}
+          <div class="flex items-center justify-between p-4 border-b border-gray-200">
+            <h3 class="text-lg font-bold text-text-primary">Filtrar Visitas</h3>
+            <button @click="cerrarFiltros" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
+              <span class="material-symbols-outlined text-base">close</span>
             </button>
-          </form>
-        </div>
-      </div>
-    </Teleport>
-
-    <!-- ════════════════════════════════ -->
-    <!-- Modal: Detalle de Cita          -->
-    <!-- ════════════════════════════════ -->
-    <Teleport to="body">
-      <div v-if="citaDetalle"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-        @click.self="citaDetalle = null">
-        <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-
-          <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-xl font-bold text-[#0d1b0d]">Detalle de la cita</h3>
-            <button @click="citaDetalle = null" class="text-2xl leading-none text-gray-400 hover:text-gray-600">&times;</button>
           </div>
 
-          <div class="flex items-center gap-4 rounded-xl border-l-4 border-[#4c9a4c] bg-[#efebe9] p-4 mb-4">
-            <div class="flex flex-col items-center">
-              <span class="material-symbols-outlined text-[#4c9a4c] text-3xl">event_available</span>
-            </div>
+          <div class="flex flex-col gap-4 p-4">
+            
+            <!-- Filtro por Bovino -->
             <div>
-              <p class="font-bold text-[#0d1b0d]">{{ (citaDetalle.motivos || []).join(', ') || '—' }}</p>
-              <p class="text-sm text-[#757575]">{{ citaDetalle.fecha }} <span v-if="citaDetalle.hora"> a las {{ citaDetalle.hora }}</span></p>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Bovino</label>
+              <select v-model="filtros.bovino" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todos los animales</option>
+                <option v-for="bovino in bovinos" :key="bovino.id_bovino" :value="bovino.id_bovino">
+                  {{ bovino.nombre }}
+                </option>
+              </select>
             </div>
+
+            <!-- Filtro por Motivo -->
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Motivo</label>
+              <select v-model="filtros.motivo" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todos los motivos</option>
+                <option v-for="motivo in motivosVisita" :key="motivo" :value="motivo">{{ motivo }}</option>
+              </select>
+            </div>
+
+            <!-- Filtro por Veterinario -->
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Veterinario</label>
+              <input v-model="filtros.veterinario" type="text" placeholder="Nombre del veterinario" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+            </div>
+
+            <!-- Filtro por Fecha Desde -->
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Fecha Desde</label>
+              <input v-model="filtros.fechaDesde" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+            </div>
+
+            <!-- Filtro por Fecha Hasta -->
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Fecha Hasta</label>
+              <input v-model="filtros.fechaHasta" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+            </div>
+
           </div>
 
-          <div class="flex flex-col gap-3 text-sm">
-            <div class="flex items-center gap-3">
-              <span class="material-symbols-outlined text-[#4c9a4c]">medical_services</span>
-              <p><strong>Veterinario:</strong> {{ citaDetalle.veterinario || '—' }}</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="material-symbols-outlined text-[#4c9a4c]">pets</span>
-              <p><strong>Animal:</strong> {{ citaDetalle.animal || '—' }}</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="material-symbols-outlined text-[#4c9a4c]">tag</span>
-              <p><strong>Crotal:</strong> {{ citaDetalle.crotal || '—' }}</p>
-            </div>
-            <div v-if="citaDetalle.observaciones" class="flex items-start gap-3">
-              <span class="material-symbols-outlined text-[#4c9a4c]">note</span>
-              <p><strong>Observaciones:</strong> {{ citaDetalle.observaciones }}</p>
-            </div>
+          <div class="flex gap-3 p-4 border-t border-gray-200">
+            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200">
+              Limpiar
+            </button>
+            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90">
+              Aplicar Filtros
+            </button>
           </div>
-
         </div>
       </div>
     </Teleport>
 
-    <!-- Toast -->
+    <!-- Modal Eliminar -->
     <Teleport to="body">
-      <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 translate-y-4" enter-to-class="opacity-100 translate-y-0"
-                  leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-4">
-        <div v-if="mostrarToast"
-          class="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl bg-[#4c9a4c] px-5 py-3 text-white shadow-lg">
-          <span class="material-symbols-outlined">check_circle</span>
-          <p class="font-semibold">Cita guardada correctamente</p>
+      <div v-if="modalEliminar" class="modal-overlay" @click.self="modalEliminar = false">
+        <div class="modal-content modal-content--small">
+          <div class="modal-header modal-header--danger">
+            <span class="material-symbols-outlined">warning</span>
+            <h3 class="modal-title">Eliminar Visita</h3>
+          </div>
+          <div class="modal-body">
+            <p class="text-center">¿Está seguro que desea eliminar esta visita veterinaria?</p>
+            <p class="text-center text-sm text-muted">Esta acción no se puede deshacer.</p>
+          </div>
+          <div class="modal-footer">
+            <button @click="modalEliminar = false" class="btn btn--secondary">Cancelar</button>
+            <button @click="eliminarVisita" class="btn btn--danger">
+              <span class="material-symbols-outlined">delete</span>
+              Eliminar
+            </button>
+          </div>
         </div>
-      </Transition>
+      </div>
     </Teleport>
 
   </div>
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from 'vue'
-import { useVisitaStore } from '../store/visita.store.js'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useVisitaStore } from '@/modules/visita/store/visita.store.js'
+import { bovinoService } from '@/modules/bovino/services/bovino.service.js'
 
+const router = useRouter()
 const store = useVisitaStore()
 
-onMounted(async () => {
-  await store.cargarVisitas()
-  await store.cargarCatalogos()
+const filaSeleccionada = ref(null)
+const modalFiltros = ref(false)
+const modalEliminar = ref(false)
+const bovinos = ref([])
+
+const filtros = ref({
+  bovino: '',
+  motivo: '',
+  veterinario: '',
+  fechaDesde: '',
+  fechaHasta: ''
 })
 
-// ── Calendario ─────────────────────────────────────────
-const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
-
-const hoy = new Date()
-const mesActual       = ref(hoy.getMonth())
-const anioActual      = ref(hoy.getFullYear())
-const diaSeleccionado = ref(hoy.getDate())
-
-const nombreMesActual = computed(() => MESES[mesActual.value])
-const primerDiaMes    = computed(() => new Date(anioActual.value, mesActual.value, 1).getDay())
-const diasEnMes       = computed(() => new Date(anioActual.value, mesActual.value + 1, 0).getDate())
-
-function mesAnterior() {
-  if (mesActual.value === 0) { mesActual.value = 11; anioActual.value-- }
-  else mesActual.value--
-}
-function mesSiguiente() {
-  if (mesActual.value === 11) { mesActual.value = 0; anioActual.value++ }
-  else mesActual.value++
-}
-function seleccionarDia(dia) {
-  diaSeleccionado.value = dia
-  store.limpiarMensajes()
-}
-function esDiaSeleccionado(dia) {
-  return dia === diaSeleccionado.value
-}
-
-// ── Fecha ISO del día seleccionado ─────────────────────
-const fechaSeleccionadaISO = computed(() => {
-  const m = String(mesActual.value + 1).padStart(2, '0')
-  const d = String(diaSeleccionado.value).padStart(2, '0')
-  return `${anioActual.value}-${m}-${d}`
-})
-const fechaSeleccionadaLabel = computed(() =>
-  `${String(diaSeleccionado.value).padStart(2,'0')} de ${MESES[mesActual.value]}`
-)
-
-const citasDelDia = computed(() =>
-  store.visitas.filter(v => v.fecha === fechaSeleccionadaISO.value)
-)
-
-function tieneVisitas(dia) {
-  const m = String(mesActual.value + 1).padStart(2, '0')
-  const d = String(dia).padStart(2, '0')
-  return store.visitas.some(v => v.fecha === `${anioActual.value}-${m}-${d}`)
-}
-
-
-// ── Modal nueva cita ───────────────────────────────────
-const modalAbierto     = ref(false)
-const motivosFallback  = ['Embarazo', 'Inseminación', 'Enfermedad', 'Chequeo regular']
-
-const form = reactive({
-  Id_veterinario: '',
-  Id_bovino:      '',
-  motivos:        [],
-  motivosFallback:[],
-  fecha:          '',
-  hora:           '',
-  observaciones:  ''
+const filtrosAplicados = ref({
+  bovino: '',
+  motivo: '',
+  veterinario: '',
+  fechaDesde: '',
+  fechaHasta: ''
 })
 
-function abrirModal() {
-  Object.assign(form, {
-    Id_veterinario: '', Id_bovino: '',
-    motivos: [], motivosFallback: [],
-    fecha: fechaSeleccionadaISO.value, hora: '', observaciones: ''
+const motivosVisita = computed(() => {
+  const motivos = [...new Set(store.visitas.map(v => v.motivo).filter(Boolean))]
+  return motivos.sort()
+})
+
+const filtrosActivos = computed(() => {
+  let count = 0
+  if (filtrosAplicados.value.bovino) count++
+  if (filtrosAplicados.value.motivo) count++
+  if (filtrosAplicados.value.veterinario) count++
+  if (filtrosAplicados.value.fechaDesde) count++
+  if (filtrosAplicados.value.fechaHasta) count++
+  return count
+})
+
+const visitasFiltradas = computed(() => {
+  return store.visitas.filter(visita => {
+    const { bovino, motivo, veterinario, fechaDesde, fechaHasta } = filtrosAplicados.value
+
+    if (bovino && visita.id_bovino !== parseInt(bovino)) return false
+    if (motivo && visita.motivo !== motivo) return false
+    if (veterinario && !visita.veterinario?.toLowerCase().includes(veterinario.toLowerCase())) return false
+
+    if (fechaDesde && visita.fecha_visita) {
+      const fechaVisita = new Date(visita.fecha_visita)
+      const fechaMin = new Date(fechaDesde)
+      if (fechaVisita < fechaMin) return false
+    }
+
+    if (fechaHasta && visita.fecha_visita) {
+      const fechaVisita = new Date(visita.fecha_visita)
+      const fechaMax = new Date(fechaHasta)
+      if (fechaVisita > fechaMax) return false
+    }
+
+    return true
   })
-  store.limpiarMensajes()
-  modalAbierto.value = true
-}
-function cerrarModal() { modalAbierto.value = false }
+})
 
-async function guardarCita() {
-  const ok = await store.crearVisita({
-    Id_veterinario: form.Id_veterinario,
-    Id_bovino:      form.Id_bovino,
-    fecha:          form.fecha,
-    hora:           form.hora,
-    observaciones:  form.observaciones,
-    motivos:        form.motivos.length > 0 ? form.motivos : undefined
-  })
-  if (ok) { cerrarModal(); activarToast() }
+function seleccionarFila(visita) {
+  if (filaSeleccionada.value?.id_visita === visita.id_visita) {
+    filaSeleccionada.value = null
+  } else {
+    filaSeleccionada.value = visita
+    store.limpiarMensajes?.()
+  }
 }
 
-// ── Detalle ────────────────────────────────────────────
-const citaDetalle = ref(null)
-function abrirDetalle(cita) { citaDetalle.value = cita }
-
-// ── Toast ──────────────────────────────────────────────
-const mostrarToast = ref(false)
-function activarToast() {
-  mostrarToast.value = true
-  setTimeout(() => { mostrarToast.value = false }, 3000)
+function editarVisita() {
+  if (!filaSeleccionada.value) return
+  router.push({ name: 'VisitaEditar', params: { id: filaSeleccionada.value.id_visita } })
 }
+
+function confirmarEliminar() {
+  if (!filaSeleccionada.value) return
+  modalEliminar.value = true
+}
+
+async function eliminarVisita() {
+  if (!filaSeleccionada.value) return
+  const exito = await store.eliminarVisita(filaSeleccionada.value.id_visita)
+  if (exito) {
+    modalEliminar.value = false
+    filaSeleccionada.value = null
+  }
+}
+
+function aplicarFiltros() {
+  filtrosAplicados.value = { ...filtros.value }
+  modalFiltros.value = false
+}
+
+function limpiarFiltros() {
+  filtros.value = { bovino: '', motivo: '', veterinario: '', fechaDesde: '', fechaHasta: '' }
+  filtrosAplicados.value = { bovino: '', motivo: '', veterinario: '', fechaDesde: '', fechaHasta: '' }
+  modalFiltros.value = false
+}
+
+function cerrarFiltros() {
+  modalFiltros.value = false
+}
+
+function formatearFecha(fecha) {
+  if (!fecha) return '—'
+  return new Date(fecha).toLocaleDateString('es-DO')
+}
+
+async function cargarBovinos() {
+  try {
+    const response = await bovinoService.listar()
+    bovinos.value = response.data
+  } catch (error) {
+    console.error('Error al cargar bovinos:', error)
+  }
+}
+
+onMounted(() => {
+  store.cargarVisitas()
+  cargarBovinos()
+})
 </script>
+
+<style scoped>
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.modal-content--small {
+  max-width: 450px;
+}
+
+.modal-header {
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1.5px solid #f0f0ed;
+}
+
+.modal-header--danger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.modal-header--danger .material-symbols-outlined {
+  font-size: 3rem;
+  color: #dc2626;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 1rem 2rem 2rem;
+}
+
+.btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn--secondary {
+  background: #f5f5f5;
+  color: #374151;
+}
+
+.btn--secondary:hover {
+  background: #e5e7eb;
+}
+
+.btn--danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn--danger:hover {
+  background: #b91c1c;
+}
+
+.text-center { text-align: center; }
+.text-sm { font-size: 0.85rem; }
+.text-muted { color: #9ca3af; }
+</style>

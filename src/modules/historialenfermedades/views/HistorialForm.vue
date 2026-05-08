@@ -8,7 +8,7 @@
           <h3 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nuevo' }} Registro de Enfermedad</h3>
           <p class="modal-subtitle">Complete los datos del historial</p>
         </div>
-        <button type="button" @click="router.push({ name: 'HistorialList' })" class="btn-close">
+        <button type="button" @click="router.push({ name: 'HistorialEnfermedades' })" class="btn-close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
@@ -92,8 +92,8 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useHistorialStore } from '../store/historial.store.js'
-import bovinoService from '@/modules/bovino/services/bovino.service.js'
-import enfermedadService from '@/modules/enfermedad/services/enfermedad.service.js'
+import { bovinoService } from '@/modules/bovino/services/bovino.service.js'
+import   enfermedadService  from '@/modules/enfermedad/services/enfermedad.service.js'
 
 const router = useRouter()
 const route = useRoute()

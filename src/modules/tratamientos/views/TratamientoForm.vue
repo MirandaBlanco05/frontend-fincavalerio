@@ -113,7 +113,7 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useTratamientoStore } from '../store/tratamiento.store.js'
 import enfermedadService from '@/modules/enfermedad/services/enfermedad.service.js'
-import empleadoService from '@/modules/empleado/services/empleado.service.js'
+import {empleadoService} from '@/modules/empleado/services/empleado.service.js'
 
 const router = useRouter()
 const route = useRoute()

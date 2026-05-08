@@ -4,7 +4,7 @@
     <div class="header">
       <div class="logo-section">
         <img 
-          src="/logo.png" 
+          src="@/assets/logo.png" 
           alt="Finca Valerio" 
           class="logo-img"
           @error="(e) => e.target.style.display = 'none'"

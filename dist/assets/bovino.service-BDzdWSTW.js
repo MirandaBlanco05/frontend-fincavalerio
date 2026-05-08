@@ -1,0 +1,1 @@
+import{a}from"./axios-BcB5iGDJ.js";const t="/bovino",n={listar(){return a.get(`${t}/listar`)},crear(r){return a.post(`${t}/crear`,r)},actualizar(r,e){return a.put(`${t}/actualizar/${r}`,e)},eliminar(r){return a.delete(`${t}/eliminar/${r}`)}};export{n as b};

@@ -7,13 +7,35 @@
         <h2 class="header-title">¡Hola, {{ nombreUsuario }}!</h2>
         <p class="header-subtitle">Bienvenido de nuevo a Finca Valerio. Aquí tienes el resumen de hoy.</p>
       </div>
-      <div class="flex items-center gap-4">
-        <button class="notification-btn">
+      <div class="relative flex items-center gap-4">
+        <button class="notification-btn" @click="mostrarNotificaciones = !mostrarNotificaciones">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
           </svg>
-          <span class="notification-dot"></span>
+          <span v-if="notificaciones.length > 0" class="notification-dot"></span>
         </button>
+
+        <!-- Dropdown Notificaciones -->
+        <div v-if="mostrarNotificaciones" class="absolute right-0 top-12 z-50 w-80 rounded-xl bg-white shadow-xl ring-1 ring-black/5 overflow-hidden">
+          <div class="flex items-center justify-between border-b border-gray-100 p-4 bg-gray-50/80">
+            <h3 class="font-bold text-gray-900">Notificaciones</h3>
+            <span v-if="notificaciones.length > 0" class="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{{ notificaciones.length }} nuevas</span>
+          </div>
+          <div class="max-h-96 overflow-y-auto p-2">
+            <div v-if="notificaciones.length === 0" class="p-4 text-center text-sm text-gray-500">
+              No tienes notificaciones pendientes
+            </div>
+            <div v-else v-for="noti in notificaciones" :key="noti.id" class="flex items-start gap-3 rounded-lg p-3 hover:bg-gray-50 transition-colors cursor-pointer">
+              <div :class="['flex h-10 w-10 shrink-0 items-center justify-center rounded-full', noti.bg, noti.color]">
+                <span class="material-symbols-outlined text-xl">{{ noti.icono }}</span>
+              </div>
+              <div>
+                <p class="text-sm font-bold text-gray-900">{{ noti.titulo }}</p>
+                <p class="text-xs text-gray-600 mt-0.5">{{ noti.descripcion }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -154,7 +176,7 @@
       <h3 class="section-title mb-6">Accesos rápidos</h3>
       <div class="quick-grid">
         
-        <button class="quick-btn" @click="router.push({ name: 'bovino' })">
+        <button class="quick-btn" @click="router.push({ name: 'BovinosList' })">
           <div class="quick-icon-circle">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
@@ -190,14 +212,7 @@
           <span class="quick-label">Ver Mapa</span>
         </button>
 
-        <!-- FAB -->
-        <div class="fab-container">
-          <button class="fab-btn">
-            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
-            </svg>
-          </button>
-        </div>
+
 
       </div>
     </section>
@@ -227,10 +242,44 @@ const estadisticas = ref({
 })
 
 const proximosPartos = ref([])
+const proximasCitas = ref([])
+const mostrarNotificaciones = ref(false)
+
 const cargandoPartos = ref(true)
 const cargandoInventario = ref(true)
 const inventarioCritico = ref([])
 const proximaCitaData = ref(null)
+
+const notificaciones = computed(() => {
+  const items = []
+  
+  proximasCitas.value.forEach(cita => {
+    const fecha = new Date(cita.fecha_visita)
+    items.push({
+      id: `cita-${cita.id_visita}`,
+      tipo: 'cita',
+      titulo: 'Cita Veterinaria Próxima',
+      descripcion: `Chequeo programado para el ${fecha.toLocaleDateString('es-DO')} a las ${fecha.toLocaleTimeString('es-DO', {hour: '2-digit', minute:'2-digit'})}`,
+      icono: 'medical_services',
+      color: 'text-blue-600',
+      bg: 'bg-blue-50'
+    })
+  })
+
+  proximosPartos.value.forEach(parto => {
+    items.push({
+      id: `parto-${parto.id}`,
+      tipo: 'parto',
+      titulo: 'Parto Estimado',
+      descripcion: `${parto.nombre} (${parto.codigo}) en aprox. ${parto.dias} días`,
+      icono: 'pets',
+      color: 'text-orange-600',
+      bg: 'bg-orange-50'
+    })
+  })
+
+  return items
+})
 
 const proximaCitaTitulo = computed(() => {
   return proximaCitaData.value ? 'Chequeo veterinario' : 'Sin citas'
@@ -298,6 +347,7 @@ async function cargarDatos() {
       
       estadisticas.value.citasPendientes = citasFuturas.length
       proximaCitaData.value = citasFuturas[0] || null
+      proximasCitas.value = citasFuturas
     } catch {
       estadisticas.value.citasPendientes = 3
     }
@@ -510,7 +560,7 @@ onMounted(() => {
 
 /* TASK CARD */
 .task-section {
-  background: #064e3b;
+  background: #3d7a3d;
   padding: 2rem;
   border-radius: 32px;
   box-shadow: 0 20px 40px rgba(6, 78, 59, 0.3);
@@ -852,7 +902,7 @@ onMounted(() => {
   width: 2rem;
   height: 2rem;
   border: 3px solid #f3f4f6;
-  border-top-color: #10b981;
+  border-top-color: #177556;
   border-radius: 9999px;
   animation: spin 1s linear infinite;
   margin: 0 auto 0.5rem;
@@ -905,7 +955,7 @@ onMounted(() => {
 }
 
 .quick-btn:hover .quick-icon-circle {
-  background: #10b981;
+  background: #065b3f;
   color: white;
 }
 

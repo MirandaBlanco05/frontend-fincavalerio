@@ -1,0 +1,1 @@
+import{a}from"./axios-BcB5iGDJ.js";const l={listar:()=>a.get("/empleado/listar"),obtener:e=>a.get(`/empleado/buscar/${e}`),crear:e=>a.post("/empleado/crear",e),actualizar:(e,r)=>a.put(`/empleado/update/${e}`,r),eliminar:e=>a.delete(`/empleado/eliminar/${e}`)};export{l as e};

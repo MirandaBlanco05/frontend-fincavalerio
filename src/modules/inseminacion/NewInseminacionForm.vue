@@ -120,10 +120,11 @@
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import axios from 'axios'
+import { useInseminacionStore } from './store/Inseminacion.store.js'
 
 const router = useRouter()
 const route  = useRoute()
+const store  = useInseminacionStore()
 
 const modoEdicion = computed(() => !!route.params.id)
 const cargando    = ref(false)
@@ -139,15 +140,18 @@ const form = reactive({
 
 onMounted(async () => {
   if (modoEdicion.value) {
-    try {
-      const { data } = await axios.get(`http://localhost:3000/api/inseminacion/${route.params.id}`)
-      form.id_veterinaro = data.Id_veterinaro
-      form.id_ciclo      = data.Id_ciclo
-      form.fecha         = data.fecha
-      form.tipo          = data.Tipo_inseminacion
-      form.resultado     = data.resultado
-    } catch (e) {
-      errorLocal.value = 'No se pudo cargar la inseminación.'
+    if (store.inseminaciones.length === 0) {
+      await store.cargarInseminaciones()
+    }
+    const ins = store.inseminaciones.find(i => i.id_inseminacion == route.params.id)
+    if (ins) {
+      form.id_veterinaro = ins.Id_veterinaro || ins.id_veterinario || ''
+      form.id_ciclo      = ins.Id_ciclo || ins.id_ciclo || ''
+      form.fecha         = ins.fecha ? ins.fecha.split('T')[0] : ''
+      form.tipo          = ins.Tipo_inseminacion || ins.tipo_inseminacion || ''
+      form.resultado     = ins.resultado || 'Pendiente'
+    } else {
+      errorLocal.value = 'No se pudo encontrar la inseminación.'
     }
   }
 })
@@ -165,18 +169,21 @@ async function guardar() {
       resultado:        form.resultado
     }
 
+    let ok = false
     if (modoEdicion.value) {
-      await axios.put(`http://localhost:3000/api/inseminacion/actualizar/${route.params.id}`, payload)
+      ok = await store.actualizarInseminacion(route.params.id, payload)
     } else {
-      await axios.post('http://localhost:3000/api/inseminacion/crear', payload)
+      ok = await store.crearInseminacion(payload)
     }
 
-    router.push('/inseminaciones')
+    if (ok) {
+      router.push('/inseminaciones')
+    } else {
+      errorLocal.value = store.error || 'Error al guardar la inseminación'
+    }
 
   } catch (error) {
-    errorLocal.value = error.response?.data?.error
-      || error.response?.data?.mensaje
-      || 'Error desconocido en el servidor'
+    errorLocal.value = 'Error desconocido al guardar'
   } finally {
     cargando.value = false
   }

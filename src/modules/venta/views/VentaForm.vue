@@ -4,7 +4,7 @@
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Nueva Factura</h1>
+        <h1 class="text-2xl font-bold text-gray-900">{{ modoEdicion ? 'Editar Factura' : 'Nueva Factura' }}</h1>
         <p class="text-sm text-gray-600">Complete los datos de la factura y agregue productos</p>
       </div>
       <button @click="router.push({ name: 'Venta' })" class="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200">
@@ -269,14 +269,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useVentaStore } from '@/modules/venta/store/venta.store.js'
 import FacturaImprimible from '@/modules/venta/components/FacturaImprimible.vue'
 
 const router = useRouter()
+const route = useRoute()
 const store = useVentaStore()
 
+const modoEdicion = computed(() => !!route.params.id)
 const facturaImprimibleRef = ref(null)
 const facturaGuardada = ref(false)
 
@@ -338,6 +340,42 @@ function cargarDatosCliente() {
     factura.cliente_telefono = cliente.telefono
   }
 }
+
+onMounted(async () => {
+  if (modoEdicion.value) {
+    const id = route.params.id
+    if (store.ventas.length === 0) await store.cargarVentas()
+    const ventaExistente = store.ventas.find(v => v.id_venta == id)
+    
+    if (ventaExistente) {
+      factura.numero_factura = ventaExistente.numero_factura || `FAC-${ventaExistente.id_venta.toString().padStart(3, '0')}`
+      factura.fecha = ventaExistente.fecha ? new Date(ventaExistente.fecha).toISOString().split('T')[0] : ''
+      factura.ncf = ventaExistente.ncf || ''
+      factura.concepto = ventaExistente.concepto || 'Leche'
+      factura.metodo_pago = ventaExistente.metodo_pago || 'Transferencia'
+      factura.id_cliente = ventaExistente.id_cliente || ''
+      
+      if (ventaExistente.cliente) {
+        factura.cliente_nombre = ventaExistente.cliente.nombre
+        factura.cliente_direccion = ventaExistente.cliente.direccion
+        factura.cliente_telefono = ventaExistente.cliente.telefono
+      }
+      
+      if (ventaExistente.productos_venta) {
+        productos.value = ventaExistente.productos_venta.map(pv => ({
+          id_producto: pv.id_producto,
+          tipo: pv.producto?.tipo || 'N/A',
+          descripcion: pv.producto?.descripcion || 'N/A',
+          cantidad: pv.cantidad,
+          precio: pv.precio_unitario,
+          total: pv.cantidad * pv.precio_unitario
+        }))
+      }
+      
+      facturaGuardada.value = true // Ya existe
+    }
+  }
+})
 
 function agregarProducto() {
   if (!productoSeleccionado.value) return
@@ -424,11 +462,16 @@ async function guardarFactura() {
     productos: productos.value
   }
 
-  const resultado = await store.crearVenta(datos)
+  let resultado
+  if (modoEdicion.value) {
+    resultado = await store.actualizarVenta(route.params.id, datos)
+  } else {
+    resultado = await store.crearVenta(datos)
+  }
   
   if (resultado.success) {
     facturaGuardada.value = true
-    alert('Factura guardada correctamente')
+    alert(modoEdicion.value ? 'Factura actualizada correctamente' : 'Factura guardada correctamente')
   } else {
     alert('Error: ' + resultado.error)
   }

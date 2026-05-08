@@ -3,19 +3,25 @@
 
     <!-- Action Bar -->
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <button @click="abrirModal()" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
+      <button @click="irAFormulario" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
         <span class="material-symbols-outlined text-base">add</span>
-        <span class="truncate">Nuevo</span>
+        <span class="truncate">Nuevo Parto</span>
       </button>
 
-      <button @click="abrirModal(filaSeleccionada)" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+      <button @click="irAEditar" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">edit</span>
         <span class="truncate">Editar</span>
       </button>
 
-      <button @click="confirmarEliminar()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+      <button @click="confirmarEliminar" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">delete</span>
         <span class="truncate">Eliminar</span>
+      </button>
+
+      <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
+        <span class="material-symbols-outlined text-base">filter_list</span>
+        <span class="truncate">Filtrar</span>
+        <span v-if="filtrosActivos > 0" class="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-xs text-white">{{ filtrosActivos }}</span>
       </button>
     </div>
 
@@ -24,20 +30,15 @@
       {{ store.error }}
     </div>
 
-    <div v-if="store.mensaje" class="mb-4 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-      <span class="material-symbols-outlined text-base">check_circle</span>
-      {{ store.mensaje }}
-    </div>
-
     <!-- Tabla -->
     <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
       <table class="w-full text-left text-sm text-text-primary">
         <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
             <th class="px-6 py-4">ID</th>
-            <th class="px-6 py-4">Embarazo</th>
             <th class="px-6 py-4">Fecha Parto</th>
-            <th class="px-6 py-4">Número Crías</th>
+            <th class="px-6 py-4">N° Crías</th>
+            <th class="px-6 py-4">Embarazo</th>
             <th class="px-6 py-4">Observaciones</th>
           </tr>
         </thead>
@@ -50,106 +51,66 @@
             </td>
           </tr>
 
-          <tr v-else-if="store.partos.length === 0">
+          <tr v-else-if="partosFiltrados.length === 0">
             <td colspan="5" class="px-6 py-12 text-center text-gray-400">
-              <span class="material-symbols-outlined text-4xl">child_friendly</span>
+              <span class="material-symbols-outlined text-4xl">search_off</span>
               <p class="mt-2">No hay partos registrados.</p>
             </td>
           </tr>
 
-          <tr v-else v-for="parto in store.partos" :key="parto.id_parto" @click="seleccionarFila(parto)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_parto === parto.id_parto }">
+          <tr v-else v-for="parto in partosFiltrados" :key="parto.id_parto" @click="seleccionarFila(parto)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_parto === parto.id_parto }">
             <td class="px-6 py-3 font-bold">#{{ parto.id_parto }}</td>
-            <td class="px-6 py-3">#{{ parto.id_embarazo }}</td>
-            <td class="px-6 py-3">{{ parto.fecha_parto }}</td>
-            <td class="px-6 py-3">{{ parto.numero_crias || '—' }}</td>
+            <td class="px-6 py-3 font-medium">{{ formatearFecha(parto.fecha_parto) }}</td>
+            <td class="px-6 py-3">
+              <span class="inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">
+                {{ parto.numero_crias || 0 }} {{ parto.numero_crias === 1 ? 'cría' : 'crías' }}
+              </span>
+            </td>
+            <td class="px-6 py-3">Emb. {{ parto.id_embarazo }}</td>
             <td class="px-6 py-3">{{ parto.observaciones || '—' }}</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Modal Form -->
+    <!-- Modal de Filtros -->
     <Teleport to="body">
-      <div v-if="modalAbierto" class="modal-overlay" @click.self="cerrarModal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <div>
-              <h3 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nuevo' }} Parto</h3>
-              <p class="modal-subtitle">Complete los datos del parto</p>
-            </div>
-            <button type="button" @click="cerrarModal" class="btn-close">
-              <span class="material-symbols-outlined">close</span>
+      <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="cerrarFiltros">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
+          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
+            <div class="h-1 w-9 rounded-full bg-gray-300"></div>
+          </div>
+
+          <div class="flex items-center justify-between p-4 border-b border-gray-200">
+            <h3 class="text-lg font-bold text-text-primary">Filtrar Partos</h3>
+            <button @click="cerrarFiltros" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
+              <span class="material-symbols-outlined text-base">close</span>
             </button>
           </div>
 
-          <form @submit.prevent="guardar" class="modal-body">
-            <div class="form-group">
-              <label class="form-label required">
-                <span class="material-symbols-outlined">pregnancy</span>
-                Embarazo
-              </label>
-              <select v-model="form.id_embarazo" required class="form-select">
-                <option value="">Seleccione...</option>
-                <option v-for="emb in embarazos" :key="emb.id_embarazo" :value="emb.id_embarazo">
-                  #{{ emb.id_embarazo }} - Previsto: {{ emb.fecha_prevista_parto }}
-                </option>
-              </select>
+          <div class="flex flex-col gap-4 p-4">
+            <div>
+              <label class="mb-1 block text-sm font-medium">Fecha Desde</label>
+              <input v-model="filtros.fechaDesde" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+            </div>
+            
+            <div>
+              <label class="mb-1 block text-sm font-medium">Fecha Hasta</label>
+              <input v-model="filtros.fechaHasta" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
 
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label required">
-                  <span class="material-symbols-outlined">event</span>
-                  Fecha Parto
-                </label>
-                <input v-model="form.fecha_parto" type="date" required class="form-input" />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-symbols-outlined">numbers</span>
-                  Número de Crías
-                </label>
-                <input v-model.number="form.numero_crias" type="number" min="1" class="form-input" />
-              </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium">Número de Crías</label>
+              <input v-model="filtros.numeroCrias" type="number" min="0" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Ej: 1" />
             </div>
-
-            <div class="form-group">
-              <label class="form-label">
-                <span class="material-symbols-outlined">description</span>
-                Observaciones
-              </label>
-              <textarea v-model="form.observaciones" class="form-input" rows="3"></textarea>
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" @click="cerrarModal" class="btn btn--secondary">Cancelar</button>
-              <button type="submit" :disabled="guardando" class="btn btn--primary">
-                <span class="material-symbols-outlined">save</span>
-                {{ guardando ? 'Guardando...' : (modoEdicion ? 'Actualizar' : 'Guardar') }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </Teleport>
-
-    <!-- Modal Eliminar -->
-    <Teleport to="body">
-      <div v-if="modalEliminar" class="modal-overlay" @click.self="modalEliminar = false">
-        <div class="modal-content modal-content--small">
-          <div class="modal-header modal-header--danger">
-            <span class="material-symbols-outlined">warning</span>
-            <h3 class="modal-title">Eliminar Parto</h3>
           </div>
-          <div class="modal-body">
-            <p class="text-center">¿Está seguro que desea eliminar este parto?</p>
-          </div>
-          <div class="modal-footer">
-            <button @click="modalEliminar = false" class="btn btn--secondary">Cancelar</button>
-            <button @click="eliminar" class="btn btn--danger">
-              <span class="material-symbols-outlined">delete</span>
-              Eliminar
+
+          <div class="flex gap-3 p-4 border-t border-gray-200">
+            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200">
+              Limpiar
+            </button>
+            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90">
+              Aplicar Filtros
             </button>
           </div>
         </div>
@@ -160,308 +121,84 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { usePartoStore } from '@/modules/parto/store/parto.store.js'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { usePartoStore } from './store/Parto.store.js'
 
+const router = useRouter()
 const store = usePartoStore()
+
 const filaSeleccionada = ref(null)
-const modalAbierto = ref(false)
-const modalEliminar = ref(false)
-const guardando = ref(false)
+const modalFiltros = ref(false)
+const filtros = ref({ fechaDesde: '', fechaHasta: '', numeroCrias: '' })
+const filtrosAplicados = ref({ fechaDesde: '', fechaHasta: '', numeroCrias: '' })
 
-// Mock data - TODO: Cargar desde store de embarazo
-const embarazos = ref([])
-
-const form = reactive({
-  id_embarazo: '',
-  fecha_parto: '',
-  numero_crias: null,
-  observaciones: ''
+const filtrosActivos = computed(() => {
+  let c = 0
+  if (filtrosAplicados.value.fechaDesde) c++
+  if (filtrosAplicados.value.fechaHasta) c++
+  if (filtrosAplicados.value.numeroCrias) c++
+  return c
 })
 
-const modoEdicion = computed(() => !!filaSeleccionada.value)
+onMounted(async () => {
+  await store.cargarPartos()
+})
 
 function seleccionarFila(parto) {
   if (filaSeleccionada.value?.id_parto === parto.id_parto) {
     filaSeleccionada.value = null
   } else {
     filaSeleccionada.value = parto
-    store.limpiarMensajes?.()
   }
 }
 
-function abrirModal(parto = null) {
-  if (parto) {
-    form.id_embarazo = parto.id_embarazo
-    form.fecha_parto = parto.fecha_parto
-    form.numero_crias = parto.numero_crias
-    form.observaciones = parto.observaciones || ''
-  } else {
-    resetForm()
-    filaSeleccionada.value = null
-  }
-  modalAbierto.value = true
+function irAFormulario() {
+  router.push({ name: 'PartoNuevo' })
 }
 
-function cerrarModal() {
-  modalAbierto.value = false
-  resetForm()
-}
-
-function resetForm() {
-  form.id_embarazo = ''
-  form.fecha_parto = ''
-  form.numero_crias = null
-  form.observaciones = ''
-}
-
-async function guardar() {
-  guardando.value = true
-  let resultado
-
-  if (modoEdicion.value) {
-    resultado = await store.actualizarParto(filaSeleccionada.value.id_parto, form)
-  } else {
-    resultado = await store.crearParto(form)
-  }
-
-  guardando.value = false
-
-  if (resultado.success) {
-    cerrarModal()
-    filaSeleccionada.value = null
-  }
-}
-
-function confirmarEliminar() {
+function irAEditar() {
   if (!filaSeleccionada.value) return
-  modalEliminar.value = true
+  router.push({ name: 'PartoEditar', params: { id: filaSeleccionada.value.id_parto } })
 }
 
-async function eliminar() {
+async function confirmarEliminar() {
   if (!filaSeleccionada.value) return
-  const resultado = await store.eliminarParto(filaSeleccionada.value.id_parto)
-  if (resultado.success) {
-    modalEliminar.value = false
-    filaSeleccionada.value = null
+  if (confirm(`¿Eliminar parto #${filaSeleccionada.value.id_parto}? Esta acción no se puede deshacer.`)) {
+    const resultado = await store.eliminarParto(filaSeleccionada.value.id_parto)
+    if (resultado) filaSeleccionada.value = null
   }
 }
 
-onMounted(() => {
-  store.cargarPartos()
-  // TODO: Cargar embarazos
+function aplicarFiltros() {
+  filtrosAplicados.value = { ...filtros.value }
+  modalFiltros.value = false
+}
+
+function limpiarFiltros() {
+  filtros.value = { fechaDesde: '', fechaHasta: '', numeroCrias: '' }
+  filtrosAplicados.value = { fechaDesde: '', fechaHasta: '', numeroCrias: '' }
+  modalFiltros.value = false
+}
+
+function cerrarFiltros() {
+  modalFiltros.value = false
+}
+
+const partosFiltrados = computed(() => {
+  return store.partos.filter(parto => {
+    const { fechaDesde, fechaHasta, numeroCrias } = filtrosAplicados.value
+    
+    const okFechaDesde = !fechaDesde || (parto.fecha_parto && new Date(parto.fecha_parto) >= new Date(fechaDesde))
+    const okFechaHasta = !fechaHasta || (parto.fecha_parto && new Date(parto.fecha_parto) <= new Date(fechaHasta))
+    const okCrias = !numeroCrias || parto.numero_crias == numeroCrias
+
+    return okFechaDesde && okFechaHasta && okCrias
+  })
 })
+
+function formatearFecha(fecha) {
+  if (!fecha) return '—'
+  return new Date(fecha).toLocaleDateString('es-DO')
+}
 </script>
-
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  backdrop-filter: blur(4px);
-  font-family: 'DM Sans', sans-serif;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-content--small {
-  max-width: 450px;
-}
-
-.modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 2rem 2rem 1.5rem;
-  border-bottom: 1.5px solid #f0f0ed;
-}
-
-.modal-header--danger {
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.modal-header--danger .material-symbols-outlined {
-  font-size: 3rem;
-  color: #dc2626;
-}
-
-.modal-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #1a1a1a;
-  margin-bottom: 0.25rem;
-}
-
-.modal-subtitle {
-  font-size: 0.85rem;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.btn-close {
-  padding: 8px;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  color: #9ca3af;
-  transition: all 0.2s;
-}
-
-.btn-close:hover {
-  background: #f5f5f5;
-  color: #1a1a1a;
-}
-
-.modal-body {
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #374151;
-}
-
-.form-label .material-symbols-outlined {
-  font-size: 1rem;
-  color: #4c9a4c;
-}
-
-.form-label.required::after {
-  content: '*';
-  color: #dc2626;
-  margin-left: 4px;
-}
-
-.form-input, .form-select {
-  padding: 0.75rem;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 10px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-  width: 100%;
-  background: white;
-}
-
-.form-input:focus, .form-select:focus {
-  outline: none;
-  border-color: #4c9a4c;
-  background: #f0f9f0;
-}
-
-.form-select {
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
-  background-position: right 0.75rem center;
-  background-repeat: no-repeat;
-  background-size: 1.25rem;
-  padding-right: 2.5rem;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 12px;
-  padding-top: 1rem;
-  border-top: 1.5px solid #f0f0ed;
-}
-
-.btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 0.85rem;
-  border: none;
-  border-radius: 12px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn--primary {
-  background: #4c9a4c;
-  color: white;
-}
-
-.btn--primary:hover:not(:disabled) {
-  background: #3d7a3d;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
-}
-
-.btn--primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn--secondary {
-  background: #f5f5f5;
-  color: #374151;
-}
-
-.btn--secondary:hover {
-  background: #e5e7eb;
-}
-
-.btn--danger {
-  background: #dc2626;
-  color: white;
-}
-
-.btn--danger:hover {
-  background: #b91c1c;
-}
-
-.text-center { text-align: center; }
-
-@media (max-width: 640px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

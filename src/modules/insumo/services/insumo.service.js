@@ -1,9 +1,9 @@
-const API_URL = 'http://localhost:3000/api/producto'
+const API_URL = 'http://localhost:3000/api/insumo'
 
-const productoService = {
+const insumoService = {
   async listar() {
     const res = await fetch(`${API_URL}/listar`)
-    if (!res.ok) throw new Error('Error al listar productos')
+    if (!res.ok) throw new Error('Error al listar insumos')
     return await res.json()
   },
 
@@ -13,7 +13,7 @@ const productoService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(datos)
     })
-    if (!res.ok) throw new Error('Error al crear producto')
+    if (!res.ok) throw new Error('Error al crear insumo')
     return await res.json()
   },
 
@@ -23,7 +23,7 @@ const productoService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(datos)
     })
-    if (!res.ok) throw new Error('Error al actualizar producto')
+    if (!res.ok) throw new Error('Error al actualizar insumo')
     return await res.json()
   },
 
@@ -31,9 +31,9 @@ const productoService = {
     const res = await fetch(`${API_URL}/eliminar/${id}`, {
       method: 'DELETE'
     })
-    if (!res.ok) throw new Error('Error al eliminar producto')
+    if (!res.ok) throw new Error('Error al eliminar insumo')
     return await res.json()
   }
 }
 
-export default productoService
+export default insumoService
