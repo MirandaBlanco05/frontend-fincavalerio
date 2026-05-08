@@ -121,31 +121,7 @@
     <!-- Middle Row: Births & Inventory -->
     <div class="middle-row">
       
-      <!-- Upcoming Births -->
-      <div class="births-section">
-        <div class="section-header-row">
-          <h3 class="section-title">Próximos Partos</h3>
-          <span class="alert-badge">ALERTA</span>
-        </div>
-        <div v-if="cargandoPartos" class="loading-mini">
-          <div class="spinner-mini"></div>
-        </div>
-        <div v-else-if="proximosPartos.length === 0" class="empty-mini">
-          <p>No hay partos programados</p>
-        </div>
-        <div v-else class="births-list">
-          <div v-for="parto in proximosPartos" :key="parto.id" class="birth-item">
-            <div class="birth-avatar">{{ parto.codigo }}</div>
-            <div class="birth-info">
-              <p class="birth-name">{{ parto.nombre }}</p>
-              <p class="birth-date">Estimado: {{ parto.fecha }}</p>
-            </div>
-            <div class="birth-days">
-              <span>{{ parto.dias }} días</span>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <!-- Inventory Alerts -->
       <div class="inventory-section">
@@ -241,11 +217,11 @@ const estadisticas = ref({
   citasPendientes: 0
 })
 
-const proximosPartos = ref([])
+
 const proximasCitas = ref([])
 const mostrarNotificaciones = ref(false)
 
-const cargandoPartos = ref(true)
+
 const cargandoInventario = ref(true)
 const inventarioCritico = ref([])
 const proximaCitaData = ref(null)
@@ -266,17 +242,7 @@ const notificaciones = computed(() => {
     })
   })
 
-  proximosPartos.value.forEach(parto => {
-    items.push({
-      id: `parto-${parto.id}`,
-      tipo: 'parto',
-      titulo: 'Parto Estimado',
-      descripcion: `${parto.nombre} (${parto.codigo}) en aprox. ${parto.dias} días`,
-      icono: 'pets',
-      color: 'text-orange-600',
-      bg: 'bg-orange-50'
-    })
-  })
+
 
   return items
 })
@@ -365,39 +331,7 @@ async function cargarDatos() {
       }))
     cargandoInventario.value = false
 
-    cargandoPartos.value = true
-    try {
-      const embarazosRes = await api.get('/embarazo/listar')
-      const hoy = new Date()
-      const finDeAnio = new Date('2026-12-31T23:59:59')
-      
-      proximosPartos.value = embarazosRes.data
-        .filter(e => {
-          if (!e.fecha_prevista_parto) return false
-          const fechaPrevista = new Date(e.fecha_prevista_parto)
-          // Mostramos los que vienen en el futuro cercano (2026)
-          return fechaPrevista >= hoy && fechaPrevista <= finDeAnio
-        })
-        .sort((a, b) => new Date(a.fecha_prevista_parto) - new Date(b.fecha_prevista_parto))
-        .map((e, idx) => {
-          const dias = Math.ceil((new Date(e.fecha_prevista_parto) - hoy) / (1000 * 60 * 60 * 24))
-          // Extraemos el nombre del bovino desde la relación anidada
-          const nombreVaca = e.INSEMINACION?.ciclo?.bovino?.nombre || 'Vaca'
-          
-          return {
-            id: e.id_embarazo,
-            codigo: `E${String(e.id_embarazo).padStart(2, '0')}`,
-            nombre: nombreVaca,
-            fecha: new Date(e.fecha_prevista_parto).toLocaleDateString('es-DO', { day: 'numeric', month: 'short' }),
-            dias: dias
-          }
-        })
-        .slice(0, 5) // Mostramos hasta 5 próximos partos
-    } catch (err) {
-      console.error('Error cargando próximos partos:', err)
-      proximosPartos.value = []
-    }
-    cargandoPartos.value = false
+
 
   } catch (error) {
     console.error('Error:', error)
@@ -747,7 +681,7 @@ onMounted(() => {
 /* MIDDLE ROW */
 .middle-row {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
