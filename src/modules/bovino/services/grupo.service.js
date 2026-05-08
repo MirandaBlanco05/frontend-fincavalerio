@@ -2,7 +2,7 @@ import api from '@/core/api/axios.js'
 
 export default {
   listar() {
-    return api.get('/api/grupo/listar')
+    return api.get('/grupo/listar')
   },
   
   crear(datos) {
