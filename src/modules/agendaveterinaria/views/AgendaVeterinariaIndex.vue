@@ -139,10 +139,10 @@
             <!-- Veterinario -->
             <div>
               <label class="mb-1 block text-sm font-medium">Veterinario <span class="text-red-500">*</span></label>
-              <select v-model="form.Id_veterinario" required
+              <select v-model="form.id_veterinario" required
                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#4c9a4c] focus:outline-none focus:ring-1 focus:ring-[#4c9a4c]">
                 <option value="">Seleccionar veterinario...</option>
-                <option v-for="v in store.veterinarios" :key="v.Id_veterinario" :value="v.Id_veterinario">
+                <option v-for="v in store.veterinarios" :key="v.id_veterinario" :value="v.id_veterinario">
                   {{ v.nombre }}
                 </option>
               </select>
@@ -363,7 +363,7 @@ const modalAbierto     = ref(false)
 const motivosFallback  = ['Embarazo', 'Inseminación', 'Enfermedad', 'Chequeo regular']
 
 const form = reactive({
-  Id_veterinario: '',
+  id_veterinario: '',
   Id_bovino:      '',
   motivos:        [],
   motivosFallback:[],
@@ -385,7 +385,7 @@ function cerrarModal() { modalAbierto.value = false }
 
 async function guardarCita() {
   const ok = await store.crearVisita({
-    id_veterinario: form.Id_veterinario,
+    id_veterinario: form.id_veterinario,
     id_bovino:      form.Id_bovino,
     fecha:          form.fecha,
     hora:           form.hora,
