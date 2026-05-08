@@ -367,29 +367,34 @@ async function cargarDatos() {
 
     cargandoPartos.value = true
     try {
-      const partosRes = await api.get('/parto/listar')
+      const embarazosRes = await api.get('/embarazo/listar')
       const hoy = new Date()
       const finDeAnio = new Date('2026-12-31T23:59:59')
       
-      proximosPartos.value = partosRes.data
-        .filter(p => {
-          if (!p.fecha_parto) return false
-          const fechaParto = new Date(p.fecha_parto)
-          return fechaParto >= hoy && fechaParto <= finDeAnio
+      proximosPartos.value = embarazosRes.data
+        .filter(e => {
+          if (!e.fecha_prevista_parto) return false
+          const fechaPrevista = new Date(e.fecha_prevista_parto)
+          // Mostramos los que vienen en el futuro cercano (2026)
+          return fechaPrevista >= hoy && fechaPrevista <= finDeAnio
         })
-        .sort((a, b) => new Date(a.fecha_parto) - new Date(b.fecha_parto))
-        .map((p, idx) => {
-          const dias = Math.ceil((new Date(p.fecha_parto) - hoy) / (1000 * 60 * 60 * 24))
+        .sort((a, b) => new Date(a.fecha_prevista_parto) - new Date(b.fecha_prevista_parto))
+        .map((e, idx) => {
+          const dias = Math.ceil((new Date(e.fecha_prevista_parto) - hoy) / (1000 * 60 * 60 * 24))
+          // Extraemos el nombre del bovino desde la relación anidada
+          const nombreVaca = e.INSEMINACION?.ciclo?.bovino?.nombre || 'Vaca'
+          
           return {
-            id: p.id_parto,
-            codigo: `V${String(idx + 1).padStart(2, '0')}`,
-            nombre: p.bovino?.nombre || 'Vaca',
-            fecha: new Date(p.fecha_parto).toLocaleDateString('es-DO', { day: 'numeric', month: 'short' }),
+            id: e.id_embarazo,
+            codigo: `E${String(e.id_embarazo).padStart(2, '0')}`,
+            nombre: nombreVaca,
+            fecha: new Date(e.fecha_prevista_parto).toLocaleDateString('es-DO', { day: 'numeric', month: 'short' }),
             dias: dias
           }
         })
-        .slice(0, 2)
-    } catch {
+        .slice(0, 5) // Mostramos hasta 5 próximos partos
+    } catch (err) {
+      console.error('Error cargando próximos partos:', err)
       proximosPartos.value = []
     }
     cargandoPartos.value = false
