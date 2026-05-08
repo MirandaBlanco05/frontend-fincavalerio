@@ -34,9 +34,9 @@ const AgendaVeterinariaIndex = () => import('@/modules/agendaveterinaria/views/A
 const HistorialIndex = () => import('@/modules/historialenfermedades/views/HistorialIndex.vue')
 const HistorialForm = () => import('@/modules/historialenfermedades/views/HistorialForm.vue')
 
-// Vacunas
-const VacunasIndex = () => import('@/modules/vacuna/views/VacunaIndex.vue')
-const VacunaForm  = () => import('@/modules/vacuna/views/VacunaForm.vue')
+// Vacunas (comentadas temporalmente porque la carpeta no existe)
+// const VacunasIndex = () => import('@/modules/vacuna/views/VacunaIndex.vue')
+// const VacunaForm  = () => import('@/modules/vacuna/views/VacunaForm.vue')
 
 // Tratamientos
 const TratamientosIndex = () => import('@/modules/tratamientos/views/TratamientoIndex.vue')
@@ -74,9 +74,9 @@ const routes = [
   { path: '/historial-enfermedades/editar/:id', name: 'HistorialEditar',    component: HistorialForm },
   
   // Vacunas
-  { path: '/vacunas',               name: 'Vacunas',       component: VacunasIndex },
-  { path: '/vacunas/nuevo',         name: 'VacunaNueva',   component: VacunaForm },
-  { path: '/vacunas/editar/:id',    name: 'VacunaEditar',  component: VacunaForm },
+  // { path: '/vacunas',               name: 'Vacunas',       component: VacunasIndex },
+  // { path: '/vacunas/nuevo',         name: 'VacunaNueva',   component: VacunaForm },
+  // { path: '/vacunas/editar/:id',    name: 'VacunaEditar',  component: VacunaForm },
   
   // Tratamientos
   { path: '/tratamientos',          name: 'Tratamientos',       component: TratamientosIndex },
