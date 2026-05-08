@@ -140,7 +140,7 @@ const form = reactive({
 onMounted(async () => {
   try {
     const [resVet, resIns] = await Promise.all([
-      api.get("/visita/veterinarios"),
+      api.get("/veterinario/listar"),
       api.get("/inseminacion/listar")
     ])
     veterinarios.value = resVet.data
@@ -190,7 +190,7 @@ async function guardar() {
       ok = await store.crearEmbarazo(payload)
     }
 
-    if (ok !== false && (ok === true || ok?.success)) {
+    if (ok) {
       router.push({ name: 'Embarazos' })
     } else {
       errorLocal.value = store.error || 'Error al guardar el embarazo'
