@@ -369,15 +369,15 @@ async function cargarDatos() {
     try {
       const partosRes = await api.get('/parto/listar')
       const hoy = new Date()
-      const en30Dias = new Date()
-      en30Dias.setDate(en30Dias.getDate() + 30)
+      const finDeAnio = new Date('2026-12-31T23:59:59')
       
       proximosPartos.value = partosRes.data
         .filter(p => {
           if (!p.fecha_parto) return false
           const fechaParto = new Date(p.fecha_parto)
-          return fechaParto >= hoy && fechaParto <= en30Dias
+          return fechaParto >= hoy && fechaParto <= finDeAnio
         })
+        .sort((a, b) => new Date(a.fecha_parto) - new Date(b.fecha_parto))
         .map((p, idx) => {
           const dias = Math.ceil((new Date(p.fecha_parto) - hoy) / (1000 * 60 * 60 * 24))
           return {
