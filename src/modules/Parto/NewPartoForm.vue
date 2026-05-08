@@ -170,7 +170,7 @@ async function guardar() {
       ok = await store.crearParto(payload)
     }
 
-    if (ok !== false && (ok === true || ok?.success)) {
+    if (ok) {
       router.push({ name: 'Partos' })
     } else {
       errorLocal.value = store.error || 'Error al guardar el parto'
