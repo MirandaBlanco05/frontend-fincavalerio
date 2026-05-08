@@ -339,13 +339,22 @@ const fechaSeleccionadaLabel = computed(() =>
 )
 
 const citasDelDia = computed(() =>
-  store.visitas.filter(v => v.fecha === fechaSeleccionadaISO.value)
+  store.visitas.filter(v => {
+    if (!v.fecha) return false
+    const fechaCita = v.fecha.includes('T') ? v.fecha.split('T')[0] : v.fecha
+    return fechaCita === fechaSeleccionadaISO.value
+  })
 )
 
 function tieneVisitas(dia) {
   const m = String(mesActual.value + 1).padStart(2, '0')
   const d = String(dia).padStart(2, '0')
-  return store.visitas.some(v => v.fecha === `${anioActual.value}-${m}-${d}`)
+  const target = `${anioActual.value}-${m}-${d}`
+  return store.visitas.some(v => {
+    if (!v.fecha) return false
+    const fechaCita = v.fecha.includes('T') ? v.fecha.split('T')[0] : v.fecha
+    return fechaCita === target
+  })
 }
 
 
@@ -376,8 +385,8 @@ function cerrarModal() { modalAbierto.value = false }
 
 async function guardarCita() {
   const ok = await store.crearVisita({
-    Id_veterinario: form.Id_veterinario,
-    Id_bovino:      form.Id_bovino,
+    id_veterinario: form.Id_veterinario,
+    id_bovino:      form.Id_bovino,
     fecha:          form.fecha,
     hora:           form.hora,
     observaciones:  form.observaciones,

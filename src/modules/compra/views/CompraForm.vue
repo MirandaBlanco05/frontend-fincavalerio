@@ -64,6 +64,18 @@
               readonly
             />
           </div>
+          <div class="form-group">
+            <label class="form-label">
+              <span class="material-symbols-outlined">map</span>
+              Provincia
+            </label>
+            <input 
+              v-model="compra.proveedor_provincia" 
+              type="text" 
+              class="form-input bg-gray-50"
+              readonly
+            />
+          </div>
         </div>
 
         <!-- Columna 2: Agregar Producto/Insumo -->
@@ -140,25 +152,12 @@
               <span class="material-symbols-outlined">verified_user</span>
               NCF
             </label>
-            <input 
-              v-model="compra.ncf"
-              type="text"
-              placeholder="B01000..."
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">
-              <span class="material-symbols-outlined">attach_file</span>
-              URL Factura Adjunta
-            </label>
-            <input 
-              v-model="compra.url_factura" 
-              type="text"
-              placeholder="https://..."
-              class="form-input"
-            />
+            <select v-model="compra.ncf" class="form-select">
+              <option value="">Seleccione NCF...</option>
+              <option v-for="ncf in ncfsDisponibles" :key="ncf.id_secuencia" :value="ncf.id_secuencia">
+                {{ formatoNCF(ncf) }}
+              </option>
+            </select>
           </div>
         </div>
 
@@ -253,6 +252,8 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useComprasStore } from '@/modules/compra/store/compra.store.js'
+import api from '@/core/api/axios.js'
+import insumoService from '@/modules/insumo/services/insumo.service.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -271,7 +272,8 @@ const compra = reactive({
   id_proveedor: '',
   proveedor_nombre: '',
   proveedor_direccion: '',
-  proveedor_telefono: ''
+  proveedor_telefono: '',
+  proveedor_provincia: ''
 })
 
 const items = ref([])
@@ -280,13 +282,27 @@ const cantidadItem = ref(1)
 
 const proveedores = computed(() => store.proveedores)
 
-const itemsDisponibles = ref([
-  { id_item: 1, tipo: 'Insumo', descripcion: 'Alimento Concentrado 100lb', precio: 1200.00 },
-  { id_item: 2, tipo: 'Insumo', descripcion: 'Vacuna Antibiótica', precio: 450.00 },
-  { id_item: 3, tipo: 'Suministro', descripcion: 'Herramientas Limpieza', precio: 850.00 }
-])
+const itemsDisponibles = ref([]);
+const ncfsDisponibles = ref([]);
+const provinciasDisponibles = ref([]);
 
 onMounted(async () => {
+  try {
+    const [insRes, ncfRes, provRes] = await Promise.all([
+      insumoService.listar(),
+      api.get('/ncf/secuencia/listar'),
+      api.get('/provincia/listar')
+    ])
+    itemsDisponibles.value = (insRes || []).map(i => ({
+      id_item: i.id_insumo,
+      tipo: i.tipo_insumo,
+      descripcion: i.nombre,
+      precio: parseFloat(i.precio) || 0
+    }))
+    ncfsDisponibles.value = (ncfRes && ncfRes.data) || ncfRes || []
+    provinciasDisponibles.value = (provRes && provRes.data) || provRes || []
+  } catch(e) { console.error('Error cargando catalogos:', e) }
+
   if (store.proveedores.length === 0) {
     await store.cargarProveedores()
   }
@@ -308,6 +324,7 @@ onMounted(async () => {
         compra.proveedor_nombre = compraExistente.proveedor.nombre
         compra.proveedor_direccion = compraExistente.proveedor.direccion || ''
         compra.proveedor_telefono = compraExistente.proveedor.telefono || ''
+        compra.proveedor_provincia = compraExistente.proveedor.provincia?.nombre || compraExistente.proveedor.provincia || ''
       }
       
       if (compraExistente.productos_compra) {
@@ -332,10 +349,12 @@ function cargarDatosProveedor() {
     compra.proveedor_nombre = prov.nombre
     compra.proveedor_direccion = prov.direccion || ''
     compra.proveedor_telefono = prov.telefono || ''
+    compra.proveedor_provincia = prov.provincia?.nombre || prov.provincia || ''
   } else {
     compra.proveedor_nombre = ''
     compra.proveedor_direccion = ''
     compra.proveedor_telefono = ''
+    compra.proveedor_provincia = ''
   }
 }
 
@@ -392,6 +411,7 @@ function limpiarFormulario() {
     compra.proveedor_nombre = ''
     compra.proveedor_direccion = ''
     compra.proveedor_telefono = ''
+    compra.proveedor_provincia = ''
     items.value = []
     itemSeleccionado.value = ''
     cantidadItem.value = 1
@@ -410,7 +430,7 @@ async function guardarCompra() {
   const datos = {
     id_proveedor: parseInt(compra.id_proveedor),
     fecha: compra.fecha,
-    ncf: compra.ncf || null,
+    ncf: parseInt(compra.ncf) || null,
     url_factura: compra.url_factura || null,
     metodo_pago: compra.metodo_pago,
     productos: items.value
@@ -432,6 +452,14 @@ async function guardarCompra() {
   } else {
     alert('Error al guardar la compra: ' + store.error)
   }
+}
+
+function formatoNCF(ncf) {
+  if (!ncf || !ncf.comprobante) return ncf.secuencia;
+  const serie = ncf.comprobante.serie;
+  const tipo = String(ncf.comprobante.tipo || 1).padStart(2, '0');
+  const num = String(ncf.secuencia).padStart(8, '0');
+  return `${serie}${tipo}${num}`;
 }
 </script>
 

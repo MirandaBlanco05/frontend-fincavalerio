@@ -25,12 +25,10 @@
           <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <label class="flex flex-col">
               <p class="pb-1.5 text-sm font-semibold">ID Bovino</p>
-              <input
-                v-model="form.Id_bovino"
-                type="number"
-                required
-                class="form-input w-full rounded-xl border-border-light bg-light-beige"
-              />
+              <select v-model="form.Id_bovino" required class="form-input w-full rounded-xl border-border-light bg-light-beige">
+                <option value="" disabled>Seleccione un bovino...</option>
+                <option v-for="b in bovinos" :key="b.id_bovino" :value="b.id_bovino">{{ b.nombre || '#' + b.id_bovino }}</option>
+              </select>
             </label>
           </div>
 
@@ -95,7 +93,8 @@
 <script setup>
 import { reactive } from "vue"
 import { useRouter } from "vue-router"
-import axios from "axios"
+import api from "@/core/api/axios.js"
+import { onMounted, ref } from "vue"
 
 const router = useRouter()
 
@@ -107,20 +106,25 @@ const form = reactive({
   observaciones: ""
 })
 
+
+const bovinos = ref([])
+
+onMounted(async () => {
+  try {
+    const res = await api.get('/bovino/listar')
+    bovinos.value = res.data || []
+  } catch(e) { console.error('Error loading bovinos:', e) }
+})
+
 async function guardarCiclo() {
   try {
-    await axios.post(
-      "http://localhost:3000/api/ciclo/crear",
-      { ...form }
-    )
-
+    await api.post('/ciclo/crear', { ...form, Id_bovino: parseInt(form.Id_bovino) })
     alert("Ciclo registrado correctamente")
-
     router.push({ name: "Dashboard" })
-
   } catch (error) {
     console.error(error)
     alert("Error al guardar el ciclo")
   }
 }
+
 </script>

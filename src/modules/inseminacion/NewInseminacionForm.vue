@@ -29,15 +29,18 @@
           <div class="form-group">
             <label class="form-label required">
               <span class="material-symbols-outlined">medical_services</span>
-              ID Veterinario
+              Veterinario
             </label>
-            <input
-              v-model="form.id_veterinaro"
-              type="number"
+            <select
+              v-model="form.id_veterinario"
               required
-              class="form-input"
-              placeholder="Código veterinario"
-            />
+              class="form-select"
+            >
+              <option value="" disabled>Seleccione un veterinario...</option>
+              <option v-for="vet in vetStore.veterinarios" :key="vet.id_veterinario" :value="vet.id_veterinario">
+                {{ vet.nombre }}
+              </option>
+            </select>
           </div>
 
           <!-- ID Ciclo -->
@@ -121,17 +124,19 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useInseminacionStore } from './store/Inseminacion.store.js'
+import { useVeterinarioStore } from '../veterinario/store/veterinario.store.js'
 
-const router = useRouter()
-const route  = useRoute()
-const store  = useInseminacionStore()
+const router   = useRouter()
+const route    = useRoute()
+const store    = useInseminacionStore()
+const vetStore = useVeterinarioStore()
 
 const modoEdicion = computed(() => !!route.params.id)
 const cargando    = ref(false)
 const errorLocal  = ref('')
 
 const form = reactive({
-  id_veterinaro: '',
+  id_veterinario: '',
   id_ciclo:      '',
   fecha:         '',
   tipo:          '',
@@ -139,17 +144,19 @@ const form = reactive({
 })
 
 onMounted(async () => {
+  await vetStore.cargarVeterinarios()
+  
   if (modoEdicion.value) {
     if (store.inseminaciones.length === 0) {
       await store.cargarInseminaciones()
     }
     const ins = store.inseminaciones.find(i => i.id_inseminacion == route.params.id)
     if (ins) {
-      form.id_veterinaro = ins.Id_veterinaro || ins.id_veterinario || ''
-      form.id_ciclo      = ins.Id_ciclo || ins.id_ciclo || ''
-      form.fecha         = ins.fecha ? ins.fecha.split('T')[0] : ''
-      form.tipo          = ins.Tipo_inseminacion || ins.tipo_inseminacion || ''
-      form.resultado     = ins.resultado || 'Pendiente'
+      form.id_veterinario = ins.id_veterinario || ins.Id_veterinaro || (ins.veterinario?.id_veterinario) || ''
+      form.id_ciclo       = ins.id_ciclo || ins.Id_ciclo || (ins.ciclo?.id_ciclo) || ''
+      form.fecha          = ins.fecha ? ins.fecha.split('T')[0] : ''
+      form.tipo           = ins.tipo_inseminacion || ins.Tipo_inseminacion || ''
+      form.resultado      = ins.resultado || 'Pendiente'
     } else {
       errorLocal.value = 'No se pudo encontrar la inseminación.'
     }
@@ -162,11 +169,11 @@ async function guardar() {
 
   try {
     const payload = {
-      Id_veterinaro:    form.id_veterinaro,
-      Id_ciclo:         form.id_ciclo,
-      fecha:            form.fecha,
-      Tipo_inseminacion: form.tipo,
-      resultado:        form.resultado
+      id_veterinario:    form.id_veterinario,
+      id_ciclo:          form.id_ciclo,
+      fecha:             form.fecha,
+      tipo_inseminacion: form.tipo,
+      resultado:         form.resultado
     }
 
     let ok = false

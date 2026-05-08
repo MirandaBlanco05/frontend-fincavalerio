@@ -97,19 +97,13 @@
 
           <div class="flex flex-col gap-4 p-4">
             <div>
-              <label class="mb-1 block text-sm font-medium">Nacionalidad</label>
-              <select v-model="filtros.nacionalidad" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
-                <option value="">Todas</option>
-                <option v-for="nac in nacionalidadesUnicas" :key="nac" :value="nac">{{ nac }}</option>
-              </select>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Buscar por Nombre</label>
+              <input v-model="filtros.nombre" type="text" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Buscar nombre..." />
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium">Puesto</label>
-              <select v-model="filtros.puesto" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
-                <option value="">Todos los puestos</option>
-                <option v-for="puesto in puestosUnicos" :key="puesto" :value="puesto">{{ puesto }}</option>
-              </select>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Buscar por Cédula</label>
+              <input v-model="filtros.cedula" type="text" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Buscar cédula..." />
             </div>
           </div>
 
@@ -138,13 +132,13 @@ const store = useEmpleadoStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
-const filtros = ref({ nacionalidad: '', puesto: '' })
-const filtrosAplicados = ref({ nacionalidad: '', puesto: '' })
+const filtros = ref({ nombre: '', cedula: '' })
+const filtrosAplicados = ref({ nombre: '', cedula: '' })
 
 const filtrosActivos = computed(() => {
   let c = 0
-  if (filtrosAplicados.value.nacionalidad) c++
-  if (filtrosAplicados.value.puesto) c++
+  if (filtrosAplicados.value.nombre) c++
+  if (filtrosAplicados.value.cedula) c++
   return c
 })
 
@@ -185,8 +179,8 @@ function aplicarFiltros() {
 }
 
 function limpiarFiltros() {
-  filtros.value = { nacionalidad: '', puesto: '' }
-  filtrosAplicados.value = { nacionalidad: '', puesto: '' }
+  filtros.value = { nombre: '', cedula: '' }
+  filtrosAplicados.value = { nombre: '', cedula: '' }
   modalFiltros.value = false
 }
 
@@ -200,10 +194,10 @@ const puestosUnicos = computed(() => {
 
 const empleadosFiltrados = computed(() => {
   return store.empleados.filter(e => {
-    const { nacionalidad, puesto } = filtrosAplicados.value
+    const { nombre, cedula } = filtrosAplicados.value
 
-    if (nacionalidad && e.nacionalidad !== nacionalidad) return false
-    if (puesto && e.puesto !== puesto) return false
+    if (nombre && !e.nombre.toLowerCase().includes(nombre.toLowerCase())) return false
+    if (cedula && !e.cedula?.includes(cedula)) return false
 
     return true
   })

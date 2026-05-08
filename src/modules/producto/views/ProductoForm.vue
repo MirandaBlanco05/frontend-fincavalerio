@@ -45,13 +45,16 @@
               <span class="material-symbols-outlined">category</span>
               Tipo
             </label>
-            <input
+            <select
               v-model="form.tipo"
-              type="text"
               required
-              class="form-input"
-              placeholder="Ej: Leche, Queso..."
-            />
+              class="form-select"
+            >
+              <option value="" disabled>Seleccione un tipo...</option>
+              <option v-for="tipo in tiposUnicos" :key="tipo" :value="tipo">
+                {{ tipo }}
+              </option>
+            </select>
           </div>
 
           <!-- Stock -->
@@ -160,16 +163,21 @@ const form = reactive({
   precio_venta: 0
 })
 
+const tiposUnicos = computed(() => {
+  return [...new Set(store.productos.map(p => p.tipo_producto || p.tipo).filter(Boolean))].sort()
+})
+
 onMounted(async () => {
+  if (store.productos.length === 0) {
+    await store.cargarProductos()
+  }
+
   if (modoEdicion.value) {
-    if (store.productos.length === 0) {
-      await store.cargarProductos()
-    }
     const prod = store.productos.find(p => p.id_producto == route.params.id)
     if (prod) {
-      form.tipo = prod.tipo || ''
+      form.tipo = prod.tipo_producto || prod.tipo || ''
       form.descripcion = prod.descripcion || ''
-      form.stock = prod.stock || 0
+      form.stock = prod.cantidad_stock || prod.stock || 0
       form.peso = prod.peso || null
       form.precio_costo = prod.precio_costo || 0
       form.precio_venta = prod.precio_venta || 0
@@ -185,9 +193,9 @@ async function guardar() {
 
   try {
     const payload = {
-      tipo: form.tipo,
+      tipo_producto: form.tipo,
       descripcion: form.descripcion,
-      stock: form.stock,
+      cantidad_stock: form.stock,
       peso: form.peso,
       precio_costo: form.precio_costo,
       precio_venta: form.precio_venta

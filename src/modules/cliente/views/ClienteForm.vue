@@ -61,7 +61,12 @@
               <span class="material-symbols-outlined">location_on</span>
               Provincia
             </label>
-            <input v-model="form.provincia" type="text" class="form-input" />
+            <select v-model="form.id_provincia" class="form-select">
+              <option value="">Seleccione Provincia...</option>
+              <option v-for="prov in provincias" :key="prov.id_provincia" :value="prov.id_provincia">
+                {{ prov.nombre }}
+              </option>
+            </select>
           </div>
         </div>
 
@@ -96,6 +101,8 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useClienteStore } from '../store/cliente.store.js'
 
+import api from '@/core/api/axios.js'
+
 const router = useRouter()
 const route  = useRoute()
 const store  = useClienteStore()
@@ -104,16 +111,25 @@ const modoEdicion = computed(() => !!route.params.id)
 const cargando    = ref(false)
 const errorLocal  = ref('')
 
+const provincias = ref([])
+
 const form = reactive({
   nombre: '',
   rnc: '',
   telefono: '',
   correo: '',
-  provincia: '',
+  id_provincia: '',
   estado: 'activo'
 })
 
 onMounted(async () => {
+  try {
+    const { data } = await api.get('/provincia/listar')
+    provincias.value = data
+  } catch (error) {
+    console.error("Error al cargar provincias:", error)
+  }
+
   if (modoEdicion.value) {
     if (store.clientes.length === 0) {
       await store.cargarClientes()
@@ -124,7 +140,7 @@ onMounted(async () => {
       form.rnc = cli.rnc || ''
       form.telefono = cli.telefono || ''
       form.correo = cli.correo || ''
-      form.provincia = cli.provincia || ''
+      form.id_provincia = cli.id_provincia || ''
       form.estado = cli.estado || 'activo'
     } else {
       errorLocal.value = 'No se pudo encontrar el cliente.'

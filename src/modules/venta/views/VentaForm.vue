@@ -54,6 +54,19 @@
 
           <div class="form-group">
             <label class="form-label">
+              <span class="material-symbols-outlined">map</span>
+              Provincia
+            </label>
+            <input 
+              v-model="factura.cliente_provincia" 
+              type="text" 
+              class="form-input bg-gray-50"
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
               <span class="material-symbols-outlined">phone</span>
               Teléfono
             </label>
@@ -221,7 +234,8 @@
               class="form-select w-48"
             >
               <option value="Transferencia">Transferencia</option>
-              <option value="Efectivo">Efectivo</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Cheque">Cheque</option>
               <option value="Tarjeta">Tarjeta</option>
             </select>
           </div>
@@ -269,9 +283,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useVentaStore } from '@/modules/venta/store/venta.store.js'
+import api from '@/core/api/axios.js'
+import clienteService from '@/modules/cliente/services/cliente.service.js'
+import productoService from '@/modules/producto/services/producto.service.js'
 import FacturaImprimible from '@/modules/venta/components/FacturaImprimible.vue'
 
 const router = useRouter()
@@ -291,7 +308,8 @@ const factura = reactive({
   id_cliente: '',
   cliente_nombre: '',
   cliente_direccion: '',
-  cliente_telefono: ''
+  cliente_telefono: '',
+  cliente_provincia: ''
 })
 
 const productos = ref([])
@@ -316,32 +334,56 @@ const datosParaImprimir = computed(() => ({
   alias: 'Finca Valerio'
 }))
 
-const clientes = ref([
-  { id_cliente: 1, nombre: 'Agropecuaria El Valle', rnc: '123456789', direccion: 'Calle Principal #10', telefono: '809-555-1234' },
-  { id_cliente: 2, nombre: 'Inversiones Ganaderas RD', rnc: '987654321', direccion: 'Av. Central #45', telefono: '809-555-5678' }
-])
-
-const productosDisponibles = ref([
-  { id_producto: 1, tipo: 'Leche', descripcion: 'Leche Fresca 1L', precio: 85.00, stock: 100 },
-  { id_producto: 2, tipo: 'Queso', descripcion: 'Queso Fresco 1lb', precio: 150.00, stock: 50 },
-  { id_producto: 3, tipo: 'Yogurt', descripcion: 'Yogurt Natural 500ml', precio: 120.00, stock: 75 }
-])
-
-const ncfsDisponibles = ref([
-  { id_secuencia: 1, ncf_completo: 'B0100000001' },
-  { id_secuencia: 2, ncf_completo: 'B0100000002' }
-])
+const clientes = ref([])
+const productosDisponibles = ref([])
+const ncfsDisponibles = ref([])
 
 function cargarDatosCliente() {
-  const cliente = clientes.value.find(c => c.id_cliente === parseInt(factura.id_cliente))
+  const cliente = clientes.value.find(c => c.id_cliente === Number(factura.id_cliente))
   if (cliente) {
     factura.cliente_nombre = cliente.nombre
-    factura.cliente_direccion = cliente.direccion
-    factura.cliente_telefono = cliente.telefono
+    factura.cliente_direccion = cliente.direccion || ''
+    factura.cliente_telefono = cliente.telefono || ''
+    factura.cliente_provincia = cliente.provincia?.nombre || cliente.provincia || ''
   }
 }
 
+watch(() => factura.id_cliente, (newId) => {
+  if (!newId) {
+    factura.cliente_direccion = ''
+    factura.cliente_telefono = ''
+    factura.cliente_provincia = ''
+    return
+  }
+  const cliente = clientes.value.find(c => c.id_cliente === Number(newId))
+  if (cliente) {
+    factura.cliente_direccion = cliente.direccion || ''
+    factura.cliente_provincia = cliente.provincia?.nombre || cliente.provincia || ''
+    factura.cliente_telefono = cliente.telefono || ''
+  }
+})
+
 onMounted(async () => {
+  try {
+    const [cRes, pRes, nRes] = await Promise.all([
+      api.get('/cliente/listar'),
+      api.get('/producto/listar'),
+      api.get('/ncf/secuencia/listar')
+    ])
+    
+    clientes.value = cRes.data || []
+    
+    const prodList = pRes.data || []
+    productosDisponibles.value = prodList.map(p => ({
+      id_producto: p.id_producto,
+      descripcion: p.descripcion,
+      tipo: p.tipo_producto,
+      precio: parseFloat(p.precio_venta) || 0
+    }))
+    
+    ncfsDisponibles.value = nRes.data || []
+  } catch(e) { console.error('Error cargando catalogos:', e) }
+
   if (modoEdicion.value) {
     const id = route.params.id
     if (store.ventas.length === 0) await store.cargarVentas()
@@ -357,8 +399,9 @@ onMounted(async () => {
       
       if (ventaExistente.cliente) {
         factura.cliente_nombre = ventaExistente.cliente.nombre
-        factura.cliente_direccion = ventaExistente.cliente.direccion
-        factura.cliente_telefono = ventaExistente.cliente.telefono
+        factura.cliente_direccion = ventaExistente.cliente.direccion || ''
+        factura.cliente_telefono = ventaExistente.cliente.telefono || ''
+        factura.cliente_provincia = ventaExistente.cliente.provincia?.nombre || ventaExistente.cliente.provincia || ''
       }
       
       if (ventaExistente.productos_venta) {
@@ -372,7 +415,7 @@ onMounted(async () => {
         }))
       }
       
-      facturaGuardada.value = true // Ya existe
+      facturaGuardada.value = true
     }
   }
 })
@@ -430,6 +473,7 @@ function limpiarFormulario() {
     factura.cliente_nombre = ''
     factura.cliente_direccion = ''
     factura.cliente_telefono = ''
+    factura.cliente_provincia = ''
     productos.value = []
     productoSeleccionado.value = ''
     cantidadProducto.value = 1
@@ -454,10 +498,11 @@ async function guardarFactura() {
   }
 
   const datos = {
-    id_cliente: parseInt(factura.id_cliente),
+    id_cliente: Number(factura.id_cliente) || null,
     fecha: factura.fecha,
     concepto: factura.concepto,
-    ncf: parseInt(factura.ncf),
+    metodo_pago: factura.metodo_pago || 'Efectivo',
+    ncf: parseInt(factura.ncf) || null,
     estado: 'activo',
     productos: productos.value
   }
@@ -486,6 +531,14 @@ function imprimirFactura() {
   if (facturaImprimibleRef.value) {
     facturaImprimibleRef.value.imprimir()
   }
+}
+
+function formatoNCF(ncf) {
+  if (!ncf || !ncf.comprobante) return ncf.secuencia;
+  const serie = ncf.comprobante.serie;
+  const tipo = String(ncf.comprobante.tipo || 1).padStart(2, '0');
+  const num = String(ncf.secuencia).padStart(8, '0');
+  return `${serie}${tipo}${num}`;
 }
 </script>
 

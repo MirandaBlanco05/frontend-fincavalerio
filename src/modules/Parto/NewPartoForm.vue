@@ -31,10 +31,10 @@
               <span class="material-symbols-outlined">pregnancy</span>
               Embarazo Asociado
             </label>
-            <select v-model="form.Id_embarazo" required class="form-select">
+            <select v-model="form.id_embarazo" required class="form-select">
               <option value="">Seleccione Embarazo...</option>
-              <option v-for="emb in embarazos" :key="emb.id_embarazo || emb.Id_embarazo" :value="emb.id_embarazo || emb.Id_embarazo">
-                Embarazo ID: {{ emb.id_embarazo || emb.Id_embarazo }} | Fase: {{ emb.fase || 'N/A' }}
+              <option v-for="emb in embarazos" :key="emb.id_embarazo" :value="emb.id_embarazo">
+                Embarazo ID: {{ emb.id_embarazo }} | Fase: {{ emb.fase || 'N/A' }}
               </option>
             </select>
           </div>
@@ -60,7 +60,7 @@
             Número de Crías
           </label>
           <input
-            v-model="form.Numero_crias"
+            v-model="form.numero_crias"
             type="number"
             min="1"
             max="5"
@@ -117,16 +117,15 @@ const errorLocal = ref('')
 const embarazos = ref([])
 
 const form = reactive({
-  Id_embarazo: '',
+  id_embarazo: '',
   fecha_parto: '',
-  Numero_crias: 1,
+  numero_crias: 1,
   observaciones: ''
 })
 
 onMounted(async () => {
   try {
     const res = await embarazoService.listar()
-    // Algunos endpoints devuelven data en .data o el array directo
     embarazos.value = res.data || res || []
   } catch (error) {
     console.error("Error cargando embarazos", error)
@@ -139,9 +138,9 @@ onMounted(async () => {
       }
       const p = store.partos.find(x => x.id_parto == route.params.id)
       if (p) {
-        form.Id_embarazo = p.id_embarazo || p.Id_embarazo || ''
+        form.id_embarazo = p.id_embarazo || ''
         form.fecha_parto = p.fecha_parto ? p.fecha_parto.split('T')[0] : ''
-        form.Numero_crias = p.numero_crias || p.Numero_crias || 1
+        form.numero_crias = p.numero_crias || 1
         form.observaciones = p.observaciones || ''
       } else {
         errorLocal.value = 'No se encontró el parto.'
@@ -158,9 +157,9 @@ async function guardar() {
 
   try {
     const payload = {
-      Id_embarazo: form.Id_embarazo,
+      id_embarazo: form.id_embarazo,
       fecha_parto: form.fecha_parto,
-      Numero_crias: form.Numero_crias || 1,
+      numero_crias: form.numero_crias || 1,
       observaciones: form.observaciones || null
     }
 

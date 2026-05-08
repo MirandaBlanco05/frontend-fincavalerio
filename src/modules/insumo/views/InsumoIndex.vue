@@ -113,7 +113,10 @@
                   <span class="material-symbols-outlined">category</span>
                   Tipo Insumo
                 </label>
-                <input v-model="form.tipo_insumo" type="text" required class="form-input" />
+                <select v-model="form.tipo_insumo" required class="form-select">
+                  <option value="" disabled>Seleccione un tipo...</option>
+                  <option v-for="tipo in tiposUnicos" :key="tipo" :value="tipo">{{ tipo }}</option>
+                </select>
               </div>
             </div>
 
@@ -274,6 +277,10 @@ const insumosFiltrados = computed(() => {
 
     return true
   })
+})
+
+const tiposUnicos = computed(() => {
+  return [...new Set(store.insumos.map(i => i.tipo_insumo).filter(Boolean))].sort()
 })
 
 const form = reactive({

@@ -31,19 +31,19 @@
 
         <div class="form-grid">
           <div class="form-group">
-            <label class="form-label">
+            <label class="form-label required">
               <span class="material-symbols-outlined">badge</span>
               RNC
             </label>
-            <input v-model="form.rnc" type="text" class="form-input" />
+            <input v-model="form.rnc" type="text" required class="form-input" />
           </div>
 
           <div class="form-group">
-            <label class="form-label">
+            <label class="form-label required">
               <span class="material-symbols-outlined">phone</span>
               Teléfono
             </label>
-            <input v-model="form.telefono" type="tel" class="form-input" />
+            <input v-model="form.telefono" type="tel" required class="form-input" />
           </div>
         </div>
 
@@ -53,15 +53,20 @@
               <span class="material-symbols-outlined">category</span>
               Tipo de Proveedor
             </label>
-            <input v-model="form.tipo" type="text" required class="form-input" placeholder="Ej: Insumos Agrícolas" />
+            <input v-model="form.tipo_proveedor" type="text" required class="form-input" placeholder="Ej: Insumos Agrícolas" />
           </div>
 
           <div class="form-group">
-            <label class="form-label">
+            <label class="form-label required">
               <span class="material-symbols-outlined">location_on</span>
               Provincia
             </label>
-            <input v-model="form.provincia" type="text" class="form-input" />
+            <select v-model="form.id_provincia" required class="form-select">
+              <option value="">Seleccione...</option>
+              <option v-for="p in provincias" :key="p.id_provincia" :value="p.id_provincia">
+                {{ p.nombre }}
+              </option>
+            </select>
           </div>
         </div>
 
@@ -95,6 +100,7 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useProveedorStore } from '../store/proveedor.store.js'
+import api from '@/core/api/axios.js'
 
 const router = useRouter()
 const route  = useRoute()
@@ -103,17 +109,26 @@ const store  = useProveedorStore()
 const modoEdicion = computed(() => !!route.params.id)
 const cargando    = ref(false)
 const errorLocal  = ref('')
+const provincias  = ref([])
 
 const form = reactive({
   nombre: '',
   rnc: '',
   telefono: '',
-  tipo: '',
-  provincia: '',
+  tipo_proveedor: '',
+  id_provincia: '',
   estado: 'Activo'
 })
 
 onMounted(async () => {
+  // Cargar provincias
+  try {
+    const res = await api.get('/provincia/listar')
+    provincias.value = res.data || []
+  } catch (err) {
+    console.error('Error al cargar provincias:', err)
+  }
+
   if (modoEdicion.value) {
     if (store.proveedores.length === 0) {
       await store.cargarProveedores()
@@ -123,8 +138,8 @@ onMounted(async () => {
       form.nombre = prov.nombre || ''
       form.rnc = prov.rnc || ''
       form.telefono = prov.telefono || ''
-      form.tipo = prov.tipo || ''
-      form.provincia = prov.provincia || ''
+      form.tipo_proveedor = prov.tipo_proveedor || prov.tipo || ''
+      form.id_provincia = prov.id_provincia || ''
       form.estado = prov.estado || 'Activo'
     } else {
       errorLocal.value = 'No se pudo encontrar el proveedor.'

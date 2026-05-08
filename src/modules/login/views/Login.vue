@@ -68,7 +68,6 @@
             <div class="form-group">
               <div class="label-row">
                 <label class="form-label">CONTRASEÑA</label>
-                <button type="button" class="link-forgot">¿Olvidaste tu contraseña?</button>
               </div>
               <div class="input-wrapper">
                 <span class="material-symbols-outlined input-icon">lock</span>
@@ -181,7 +180,7 @@ async function iniciarSesion() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8edf2 100%);
+  background: #f5f7fa;
   font-family: 'DM Sans', sans-serif;
   padding: 2rem;
 }
@@ -190,12 +189,9 @@ async function iniciarSesion() {
   display: flex;
   width: 100%;
   max-width: 1100px;
-  background: white;
+  background: transparent;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 
-    0 20px 60px rgba(0,0,0,0.08),
-    0 4px 16px rgba(0,0,0,0.04);
 }
 
 /* ── Panel Verde ───────────────────────── */
@@ -287,7 +283,7 @@ async function iniciarSesion() {
   align-items: center;
   justify-content: center;
   padding: 3rem 2.5rem;
-  background: white;
+  background: #f5f7fa;
 }
 
 .form-wrapper {
@@ -358,19 +354,7 @@ form {
   align-items: center;
 }
 
-.link-forgot {
-  font-size: 0.8rem;
-  color: #6b7280;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: color 0.2s;
-}
 
-.link-forgot:hover {
-  color: #4c9a4c;
-}
 
 .input-wrapper {
   position: relative;

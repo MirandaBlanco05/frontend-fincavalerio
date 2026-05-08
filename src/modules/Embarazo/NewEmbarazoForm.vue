@@ -31,7 +31,7 @@
               <span class="material-symbols-outlined">science</span>
               Inseminación
             </label>
-            <select v-model="form.Id_inseminacion" required class="form-select">
+            <select v-model="form.id_inseminacion" required class="form-select">
               <option value="">Seleccione Inseminación</option>
               <option v-for="ins in inseminaciones" :key="ins.id_inseminacion || ins.Id_inseminacion" :value="ins.id_inseminacion || ins.Id_inseminacion">
                 ID: {{ ins.id_inseminacion || ins.Id_inseminacion }} - Vaca: {{ ins.ciclo?.bovino?.nombre || 'N/A' }}
@@ -45,7 +45,7 @@
               <span class="material-symbols-outlined">medical_services</span>
               Veterinario
             </label>
-            <select v-model="form.Id_veterinario" required class="form-select">
+            <select v-model="form.id_veterinario" required class="form-select">
               <option value="">Seleccione Veterinario</option>
               <option v-for="vet in veterinarios" :key="vet.id_veterinario || vet.Id_veterinario" :value="vet.id_veterinario || vet.Id_veterinario">
                 {{ vet.nombre }}
@@ -76,7 +76,7 @@
               Fecha Secado (Opcional)
             </label>
             <input
-              v-model="form.Fecha_secado"
+              v-model="form.fecha_secado"
               type="date"
               class="form-input"
             />
@@ -89,7 +89,7 @@
             Fecha Prevista de Parto
           </label>
           <input
-            v-model="form.Fecha_prevista_parto"
+            v-model="form.fecha_prevista_parto"
             type="date"
             required
             class="form-input"
@@ -130,11 +130,11 @@ const veterinarios = ref([])
 const inseminaciones = ref([])
 
 const form = reactive({
-  Id_inseminacion: '',
-  Id_veterinario: '',
+  id_inseminacion: '',
+  id_veterinario: '',
   fase: '',
-  Fecha_secado: '',
-  Fecha_prevista_parto: ''
+  fecha_secado: '',
+  fecha_prevista_parto: ''
 })
 
 onMounted(async () => {
@@ -156,11 +156,11 @@ onMounted(async () => {
       }
       const emb = store.embarazos.find(e => e.id_embarazo == route.params.id)
       if (emb) {
-        form.Id_inseminacion = emb.id_inseminacion || emb.Id_inseminacion || ''
-        form.Id_veterinario = emb.id_veterinario || emb.Id_veterinario || ''
+        form.id_inseminacion = emb.id_inseminacion || emb.Id_inseminacion || ''
+        form.id_veterinario = emb.id_veterinario || emb.Id_veterinario || ''
         form.fase = emb.fase || ''
-        form.Fecha_secado = emb.fecha_secado ? emb.fecha_secado.split('T')[0] : ''
-        form.Fecha_prevista_parto = emb.fecha_prevista_parto ? emb.fecha_prevista_parto.split('T')[0] : ''
+        form.fecha_secado = emb.fecha_secado ? emb.fecha_secado.split('T')[0] : ''
+        form.fecha_prevista_parto = emb.fecha_prevista_parto ? emb.fecha_prevista_parto.split('T')[0] : ''
       } else {
         errorLocal.value = 'No se encontró el embarazo.'
       }
@@ -176,11 +176,11 @@ async function guardar() {
 
   try {
     const payload = {
-      Id_inseminacion: form.Id_inseminacion,
-      Id_veterinario: form.Id_veterinario,
+      id_inseminacion: form.id_inseminacion,
+      id_veterinario: form.id_veterinario,
       fase: form.fase || null,
-      Fecha_secado: form.Fecha_secado || null,
-      Fecha_prevista_parto: form.Fecha_prevista_parto
+      fecha_secado: form.fecha_secado || null,
+      fecha_prevista_parto: form.fecha_prevista_parto
     }
 
     let ok = false

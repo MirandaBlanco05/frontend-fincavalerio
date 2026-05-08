@@ -106,7 +106,12 @@
                 <option value="activo">Activo</option>
                 <option value="inactivo">Inactivo</option>
               </select>
+            
+            <div>
+              <label class="mb-1 block text-sm font-medium">Buscar por Concepto</label>
+              <input v-model="filtros.concepto" type="text" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Buscar..." />
             </div>
+    </div>
 
             <div>
               <label class="mb-1 block text-sm font-medium">Fecha Desde</label>

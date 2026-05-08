@@ -26,14 +26,15 @@
     <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
       <table class="w-full text-left text-sm text-text-primary">
         <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
-          <tr><th class="px-6 py-4">ID</th><th class="px-6 py-4">Nombre</th><th class="px-6 py-4">Tipo</th><th class="px-6 py-4">Inicio</th><th class="px-6 py-4">Fin</th></tr>
+          <tr><th class="px-6 py-4">ID</th><th class="px-6 py-4">Nombre</th><th class="px-6 py-4">Enfermedad</th><th class="px-6 py-4">Tipo</th><th class="px-6 py-4">Inicio</th><th class="px-6 py-4">Fin</th></tr>
         </thead>
         <tbody>
-          <tr v-if="store.cargando"><td colspan="5" class="px-6 py-12 text-center text-gray-400"><span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span><p class="mt-2">Cargando...</p></td></tr>
-          <tr v-else-if="tratamientosFiltrados.length === 0"><td colspan="5" class="px-6 py-12 text-center text-gray-400"><span class="material-symbols-outlined text-4xl">medication</span><p class="mt-2">{{ store.tratamientos?.length === 0 ? 'No hay tratamientos.' : 'No hay resultados.' }}</p></td></tr>
+          <tr v-if="store.cargando"><td colspan="6" class="px-6 py-12 text-center text-gray-400"><span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span><p class="mt-2">Cargando...</p></td></tr>
+          <tr v-else-if="tratamientosFiltrados.length === 0"><td colspan="6" class="px-6 py-12 text-center text-gray-400"><span class="material-symbols-outlined text-4xl">medication</span><p class="mt-2">{{ store.tratamientos?.length === 0 ? 'No hay tratamientos.' : 'No hay resultados.' }}</p></td></tr>
           <tr v-else v-for="t in tratamientosFiltrados" :key="t.id_tratamiento" @click="seleccionarFila(t)" class="cursor-pointer border-b transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_tratamiento === t.id_tratamiento }">
             <td class="px-6 py-3 font-bold">#{{ t.id_tratamiento }}</td>
             <td class="px-6 py-3 font-medium">{{ t.nombre }}</td>
+            <td class="px-6 py-3">{{ t.enfermedad || '—' }}</td>
             <td class="px-6 py-3">{{ t.tipo_tratamiento || '—' }}</td>
             <td class="px-6 py-3">{{ t.fecha_inicio ? new Date(t.fecha_inicio).toLocaleDateString('es-DO') : '—' }}</td>
             <td class="px-6 py-3">{{ t.fecha_fin ? new Date(t.fecha_fin).toLocaleDateString('es-DO') : '—' }}</td>
@@ -52,10 +53,16 @@
           </div>
           <div class="flex flex-col gap-4 p-4">
             <div><label class="mb-1 block text-sm font-medium text-gray-700">Nombre</label>
-              <input v-model="filtros.nombre" type="text" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Buscar por nombre" />
+              <select v-model="filtros.nombre" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todos</option>
+                <option v-for="nom in nombresUnicos" :key="nom" :value="nom">{{ nom }}</option>
+              </select>
             </div>
             <div><label class="mb-1 block text-sm font-medium text-gray-700">Tipo</label>
-              <input v-model="filtros.tipo" type="text" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Buscar por tipo" />
+              <select v-model="filtros.tipo" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todos</option>
+                <option v-for="tipo in tiposUnicos" :key="tipo" :value="tipo">{{ tipo }}</option>
+              </select>
             </div>
             <div><label class="mb-1 block text-sm font-medium text-gray-700">Fecha Inicio Desde</label>
               <input v-model="filtros.fechaDesde" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
@@ -78,6 +85,16 @@ import { useTratamientoStore } from '../store/tratamiento.store.js'
 
 const router = useRouter(), store = useTratamientoStore()
 const filaSeleccionada = ref(null), mensajeExito = ref(''), modalFiltros = ref(false)
+
+const nombresUnicos = computed(() => {
+  if (!store.tratamientos) return []
+  return [...new Set(store.tratamientos.map(t => t.nombre).filter(Boolean))].sort()
+})
+const tiposUnicos = computed(() => {
+  if (!store.tratamientos) return []
+  return [...new Set(store.tratamientos.map(t => t.tipo_tratamiento).filter(Boolean))].sort()
+})
+
 const filtros = ref({ nombre: '', tipo: '', fechaDesde: '' })
 const filtrosAplicados = ref({ nombre: '', tipo: '', fechaDesde: '' })
 
@@ -93,8 +110,8 @@ const tratamientosFiltrados = computed(() => {
   if (!store.tratamientos) return []
   return store.tratamientos.filter(t => {
     const { nombre, tipo, fechaDesde } = filtrosAplicados.value
-    if (nombre && !t.nombre.toLowerCase().includes(nombre.toLowerCase())) return false
-    if (tipo && !t.tipo_tratamiento?.toLowerCase().includes(tipo.toLowerCase())) return false
+    if (nombre && t.nombre !== nombre) return false
+    if (tipo && t.tipo_tratamiento !== tipo) return false
     if (fechaDesde && t.fecha_inicio && new Date(t.fecha_inicio) < new Date(fechaDesde)) return false
     return true
   })

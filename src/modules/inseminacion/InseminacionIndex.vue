@@ -65,10 +65,15 @@
 
           <tr v-else v-for="ins in inseminacionesFiltradas" :key="ins.id_inseminacion" @click="seleccionarFila(ins)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_inseminacion === ins.id_inseminacion }">
             <td class="px-6 py-3 font-bold">#{{ ins.id_inseminacion }}</td>
-            <td class="px-6 py-3">Ciclo {{ ins.Id_ciclo || ins.id_ciclo }}</td>
+            <td class="px-6 py-3">Ciclo #{{ ins.ciclo?.id_ciclo || ins.id_ciclo || '—' }}</td>
             <td class="px-6 py-3 font-medium">{{ formatearFecha(ins.fecha) }}</td>
-            <td class="px-6 py-3">{{ ins.Tipo_inseminacion || ins.tipo_inseminacion || '—' }}</td>
-            <td class="px-6 py-3">Vet. {{ ins.Id_veterinaro || ins.id_veterinario || '—' }}</td>
+            <td class="px-6 py-3">{{ ins.tipo_inseminacion || ins.Tipo_inseminacion || '—' }}</td>
+            <td class="px-6 py-3">
+              <div class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px] text-gray-400">medical_services</span>
+                <span>{{ ins.veterinario?.nombre || getNombreVeterinario(ins.id_veterinario || ins.Id_veterinario) || '—' }}</span>
+              </div>
+            </td>
             <td class="px-6 py-3">
               <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="ins.resultado === 'Efectiva' ? 'bg-green-100 text-green-700' : (ins.resultado === 'Inefectiva' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700')">
                 {{ ins.resultado || 'Pendiente' }}
@@ -145,9 +150,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useInseminacionStore } from './store/Inseminacion.store.js'
+import { useVeterinarioStore } from '../veterinario/store/veterinario.store.js'
 
 const router = useRouter()
 const store = useInseminacionStore()
+const vetStore = useVeterinarioStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
@@ -166,8 +173,17 @@ const filtrosActivos = computed(() => {
 })
 
 onMounted(async () => {
-  await store.cargarInseminaciones()
+  await Promise.all([
+    store.cargarInseminaciones(),
+    vetStore.cargarVeterinarios()
+  ])
 })
+
+function getNombreVeterinario(id) {
+  if (!id) return ''
+  const vet = vetStore.veterinarios.find(v => v.id_veterinario == id)
+  return vet ? vet.nombre : ''
+}
 
 function seleccionarFila(ins) {
   if (filaSeleccionada.value?.id_inseminacion === ins.id_inseminacion) {

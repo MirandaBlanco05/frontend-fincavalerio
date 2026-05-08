@@ -44,20 +44,20 @@
             <th class="px-6 py-4">Proveedor</th>
             <th class="px-6 py-4">Fecha</th>
             <th class="px-6 py-4">NCF</th>
-            <th class="px-6 py-4">Factura</th>
+            
           </tr>
         </thead>
 
         <tbody>
           <tr v-if="store.cargando">
-            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="4" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
               <p class="mt-2">Cargando compras...</p>
             </td>
           </tr>
 
           <tr v-else-if="comprasFiltradas.length === 0">
-            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="4" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined text-4xl">inventory_2</span>
               <p class="mt-2">{{ store.compras.length === 0 ? 'No hay compras registradas.' : 'No hay resultados con los filtros aplicados.' }}</p>
             </td>
@@ -67,13 +67,8 @@
             <td class="px-6 py-3 font-bold">#{{ compra.id_compra }}</td>
             <td class="px-6 py-3">{{ compra.proveedor?.nombre || 'Sin proveedor' }}</td>
             <td class="px-6 py-3">{{ formatearFecha(compra.fecha) }}</td>
-            <td class="px-6 py-3 font-mono text-xs">{{ compra.ncf || '—' }}</td>
-            <td class="px-6 py-3">
-              <span v-if="compra.url_factura" class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700">
-                <span class="material-symbols-outlined text-xs">attach_file</span> Adjunta
-              </span>
-              <span v-else class="text-gray-400 text-xs">—</span>
-            </td>
+            <td class="px-6 py-3 font-mono text-xs">{{ getSecuenciaNCF(compra.ncf) }}</td>
+            
           </tr>
         </tbody>
       </table>
@@ -105,10 +100,7 @@
               <input v-model="filtros.fechaHasta" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
 
-            <div class="flex items-center gap-2">
-              <input type="checkbox" v-model="filtros.conFactura" id="conFactura" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
-              <label for="conFactura" class="text-sm font-medium cursor-pointer">Solo con factura adjunta</label>
-            </div>
+            
           </div>
 
           <div class="flex gap-3 p-4">
@@ -129,10 +121,12 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '@/core/api/axios.js'
 import { useComprasStore } from '@/modules/compra/store/compra.store.js'
 
 const store = useComprasStore()
 const router = useRouter()
+const ncfs = ref([])
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
@@ -150,6 +144,10 @@ const filtrosActivos = computed(() => {
 onMounted(async () => {
   await store.cargarCompras()
   await store.cargarProveedores()
+  try {
+    const res = await api.get('/ncf/secuencia/listar')
+    ncfs.value = res.data || []
+  } catch(e) { console.error('Error NCF:', e) }
 })
 
 function seleccionarFila(compra) {
@@ -202,7 +200,7 @@ const comprasFiltradas = computed(() => {
       if (fechaCompra > fechaMax) return false
     }
 
-    if (conFactura && !c.url_factura) return false
+    
 
     return true
   })
@@ -211,6 +209,19 @@ const comprasFiltradas = computed(() => {
 function formatearFecha(fecha) {
   if (!fecha) return '—'
   return new Date(fecha).toLocaleDateString('es-DO')
+}
+
+function getSecuenciaNCF(id) {
+  if (!id) return '—'
+  const ncf = ncfs.value.find(n => n.id_secuencia == id)
+  
+  if (!ncf) return id;
+  if (!ncf.comprobante) return ncf.secuencia;
+  const serie = ncf.comprobante.serie;
+  const tipo = String(ncf.comprobante.tipo || 1).padStart(2, '0');
+  const num = String(ncf.secuencia).padStart(8, '0');
+  return `${serie}${tipo}${num}`;
+
 }
 </script>
 

@@ -56,7 +56,12 @@
             <td class="px-6 py-3">{{ emb.fase || '—' }}</td>
             <td class="px-6 py-3">{{ formatearFecha(emb.fecha_secado) }}</td>
             <td class="px-6 py-3 font-medium">{{ formatearFecha(emb.fecha_prevista_parto) }}</td>
-            <td class="px-6 py-3">{{ emb.veterinario?.nombre || emb.id_veterinario || '—' }}</td>
+            <td class="px-6 py-3">
+              <div class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px] text-gray-400">medical_services</span>
+                <span>{{ emb.VETERINARIO?.nombre || emb.veterinario?.nombre || getNombreVeterinario(emb.id_veterinario || emb.Id_veterinario) || '—' }}</span>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -95,9 +100,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useEmbarazoStore } from './store/Embarazo.store.js'
+import { useVeterinarioStore } from '../veterinario/store/veterinario.store.js'
 
 const router = useRouter()
 const store = useEmbarazoStore()
+const vetStore = useVeterinarioStore()
 const filaSeleccionada = ref(null)
 const mensajeExito = ref('')
 const modalFiltros = ref(false)
@@ -170,9 +177,18 @@ function formatearFecha(fecha) {
   return new Date(fecha).toLocaleDateString('es-DO')
 }
 
-onMounted(() => {
-  store.cargarEmbarazos()
+onMounted(async () => {
+  await Promise.all([
+    store.cargarEmbarazos(),
+    vetStore.cargarVeterinarios()
+  ])
 })
+
+function getNombreVeterinario(id) {
+  if (!id) return ''
+  const vet = vetStore.veterinarios.find(v => v.id_veterinario == id)
+  return vet ? vet.nombre : ''
+}
 </script>
 
 <style scoped>
