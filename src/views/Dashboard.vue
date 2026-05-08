@@ -309,12 +309,9 @@ async function cargarDatos() {
       
       const citasFuturas = visitasRes.data.filter(v => {
         if (!v.fecha) return false
-        // Forzamos T00:00:00 para que se interprete en horario local y no UTC
-        const fechaVisita = new Date(v.fecha + 'T00:00:00')
+        const fechaVisita = new Date(v.fecha)
         return fechaVisita >= hoy && fechaVisita <= en7Dias
       })
-      
-      console.log('Citas filtradas (hoy a 7 días):', citasFuturas.length, citasFuturas)
       
       estadisticas.value.citasPendientes = citasFuturas.length
       proximaCitaData.value = citasFuturas[0] || null

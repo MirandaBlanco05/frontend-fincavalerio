@@ -8,7 +8,16 @@ export const visitaService = {
   crear(datos)         { return api.post(`${BASE}/crear`, datos) },
   eliminar(id)         { return api.delete(`${BASE}/eliminar/${id}`) },
   listarVeterinarios() { 
-    return api.get('/veterinario/listar')
+    return api.get('/empleado/listar').then(res => {
+      if (res.data && Array.isArray(res.data)) {
+        res.data = res.data.map(e => ({
+          ...e,
+          Id_veterinario: e.id_empleado,
+          id_veterinario: e.id_empleado
+        }))
+      }
+      return res
+    })
   },
   listarBovinos()      { return api.get('/bovino/listar') },
   listarMotivos()      { 

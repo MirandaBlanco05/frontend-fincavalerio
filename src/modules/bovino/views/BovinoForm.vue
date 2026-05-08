@@ -53,7 +53,7 @@
             <select v-model="form.id_raza" required class="form-select">
               <option value="">Seleccione raza...</option>
               <option v-for="r in razas" :key="r.id_raza" :value="r.id_raza">
-                {{ r.nombre }}
+                {{ r.nombre || r.Tipo_raza }}
               </option>
             </select>
           </div>

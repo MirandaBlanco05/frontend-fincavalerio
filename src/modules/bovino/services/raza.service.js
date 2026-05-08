@@ -6,14 +6,14 @@ export default {
   },
   
   crear(datos) {
-    return api.post('/api/raza/crear', datos)
+    return api.post('/raza/crear', datos)
   },
   
   actualizar(id, datos) {
-    return api.put(`/api/raza/update/${id}`, datos)
+    return api.put(`/raza/actualizar/${id}`, datos)
   },
   
   eliminar(id) {
-    return api.delete(`/api/raza/eliminar/${id}`)
+    return api.delete(`/raza/eliminar/${id}`)
   }
 }

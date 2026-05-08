@@ -6,14 +6,14 @@ export default {
   },
   
   crear(datos) {
-    return api.post('/api/grupo/crear', datos)
+    return api.post('/grupo/crear', datos)
   },
   
   actualizar(id, datos) {
-    return api.put(`/api/grupo/update/${id}`, datos)
+    return api.put(`/grupo/actualizar/${id}`, datos)
   },
   
   eliminar(id) {
-    return api.delete(`/api/grupo/eliminar/${id}`)
+    return api.delete(`/grupo/eliminar/${id}`)
   }
 }
