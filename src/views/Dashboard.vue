@@ -248,7 +248,9 @@ const notificaciones = computed(() => {
 })
 
 const proximaCitaTitulo = computed(() => {
-  return proximaCitaData.value ? 'Chequeo veterinario' : 'Sin citas'
+  if (!proximaCitaData.value) return 'Sin citas'
+  const m = proximaCitaData.value.motivos
+  return (m && m.length > 0) ? m.join(', ') : 'Chequeo veterinario'
 })
 
 const proximaCitaHora = computed(() => {
@@ -309,7 +311,11 @@ async function cargarDatos() {
       
       const citasFuturas = visitasRes.data.filter(v => {
         if (!v.fecha) return false
-        const fechaVisita = new Date(v.fecha)
+        // Normalizamos la fecha para evitar desfases de zona horaria
+        const fechaStr = v.fecha.split('T')[0]
+        const [y, m, d] = fechaStr.split('-').map(Number)
+        const fechaVisita = new Date(y, m - 1, d)
+        
         return fechaVisita >= hoy && fechaVisita <= en7Dias
       })
       
