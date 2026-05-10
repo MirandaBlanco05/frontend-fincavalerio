@@ -29,8 +29,8 @@
             </label>
             <select v-model="form.id_bovino" required class="form-select">
               <option value="">Seleccione bovino...</option>
-              <option v-for="b in bovinos" :key="b.id_bovino" :value="b.id_bovino">
-                {{ b.nombre }}
+              <option v-for="b in bovinos" :key="b.id_bovino || b.Id_bovino" :value="b.id_bovino || b.Id_bovino">
+                {{ b.nombre || b.Nombre || `Animal ${b.id_bovino || b.Id_bovino}` }}
               </option>
             </select>
           </div>
@@ -127,7 +127,7 @@ onMounted(async () => {
     if (ordenio) {
       form.id_bovino = ordenio.id_bovino
       form.id_empleado = ordenio.id_empleado
-      form.fecha = ordenio.fecha
+      form.fecha = ordenio.fecha ? ordenio.fecha.split('T')[0] : ''
       form.momento_dia = ordenio.momento_dia
       form.cantidad_total = ordenio.cantidad_total
     }

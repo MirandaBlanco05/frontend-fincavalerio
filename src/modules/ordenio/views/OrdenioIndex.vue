@@ -68,7 +68,7 @@
           <tr v-else v-for="ord in ordeniosFiltrados" :key="ord.id_ordenio" @click="seleccionarFila(ord)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_ordenio === ord.id_ordenio }">
             <td class="px-6 py-3 font-bold">#{{ ord.id_ordenio }}</td>
             <td class="px-6 py-3">{{ formatearFecha(ord.fecha) }}</td>
-            <td class="px-6 py-3">{{ ord.bovino?.nombre || ord.id_bovino || '—' }}</td>
+            <td class="px-6 py-3">{{ ord.BOVINO?.nombre || ord.bovino?.nombre || ord.id_bovino || '—' }}</td>
             <td class="px-6 py-3">{{ ord.cantidad_total || '—' }} L</td>
             <td class="px-6 py-3">{{ ord.momento_dia || '—' }}</td>
             <td class="px-6 py-3">{{ ord.empleado?.nombre || ord.id_empleado || '—' }}</td>
@@ -187,15 +187,11 @@ const ordeniosFiltrados = computed(() => {
     if (turno && ord.momento_dia !== turno) return false
 
     if (fechaDesde && ord.fecha) {
-      const fechaOrd = new Date(ord.fecha)
-      const fechaMin = new Date(fechaDesde)
-      if (fechaOrd < fechaMin) return false
+      if (ord.fecha < fechaDesde) return false
     }
 
     if (fechaHasta && ord.fecha) {
-      const fechaOrd = new Date(ord.fecha)
-      const fechaMax = new Date(fechaHasta)
-      if (fechaOrd > fechaMax) return false
+      if (ord.fecha > fechaHasta) return false
     }
 
     return true
@@ -267,6 +263,11 @@ function cerrarFiltros() {
 
 function formatearFecha(fecha) {
   if (!fecha) return '—'
+  // Si la fecha es YYYY-MM-DD, evitamos el desfase de zona horaria
+  const [year, month, day] = fecha.split('-')
+  if (year && month && day) {
+    return `${day}/${month}/${year}`
+  }
   return new Date(fecha).toLocaleDateString('es-DO')
 }
 
