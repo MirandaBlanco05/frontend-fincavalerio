@@ -25,6 +25,20 @@
       <form @submit.prevent="guardar" class="modal-body">
         
         <div class="form-grid">
+          <!-- Animal -->
+          <div class="form-group">
+            <label class="form-label required">
+              <span class="material-symbols-outlined">pets</span>
+              Animal (Bovino)
+            </label>
+            <select v-model="form.id_bovino" required class="form-select">
+              <option value="">Seleccione un animal...</option>
+              <option v-for="b in bovinos" :key="b.id_bovino" :value="b.id_bovino">
+                {{ b.nombre }} {{ b.numero_crotal ? '· #' + b.numero_crotal : '' }}
+              </option>
+            </select>
+          </div>
+
           <!-- Nombre -->
           <div class="form-group">
             <label class="form-label required">
@@ -33,18 +47,21 @@
             </label>
             <input v-model="form.nombre" type="text" required class="form-input" placeholder="Ej: Antibiótico inyectable" />
           </div>
+        </div>
 
+        <div class="form-grid">
           <!-- Tipo -->
           <div class="form-group">
             <label class="form-label required">
               <span class="material-symbols-outlined">category</span>
               Tipo de Tratamiento
             </label>
-            <input v-model="form.tipo_tratamiento" type="text" required class="form-input" placeholder="Ej: Antibiótico" />
+            <select v-model="form.tipo_tratamiento" required class="form-select">
+              <option value="">Seleccione tipo...</option>
+              <option v-for="tipo in tiposTratamiento" :key="tipo" :value="tipo">{{ tipo }}</option>
+            </select>
           </div>
-        </div>
 
-        <div class="form-grid">
           <!-- Enfermedad -->
           <div class="form-group">
             <label class="form-label required">
@@ -58,7 +75,9 @@
               </option>
             </select>
           </div>
+        </div>
 
+        <div class="form-grid">
           <!-- Empleado -->
           <div class="form-group">
             <label class="form-label required">
@@ -72,25 +91,17 @@
               </option>
             </select>
           </div>
-        </div>
 
-        <div class="form-grid">
-          <!-- Fecha Inicio -->
+          <!-- Fechas -->
           <div class="form-group">
             <label class="form-label required">
               <span class="material-symbols-outlined">calendar_today</span>
-              Fecha de Inicio
+              Rango de Fechas
             </label>
-            <input v-model="form.fecha_inicio" type="date" required class="form-input" />
-          </div>
-
-          <!-- Fecha Fin -->
-          <div class="form-group">
-            <label class="form-label required">
-              <span class="material-symbols-outlined">event</span>
-              Fecha de Fin
-            </label>
-            <input v-model="form.fecha_fin" type="date" required class="form-input" />
+            <div style="display: flex; gap: 8px;">
+              <input v-model="form.fecha_inicio" type="date" required class="form-input" />
+              <input v-model="form.fecha_fin" type="date" required class="form-input" />
+            </div>
           </div>
         </div>
 
@@ -113,7 +124,8 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useTratamientoStore } from '../store/tratamiento.store.js'
 import enfermedadService from '@/modules/enfermedad/services/enfermedad.service.js'
-import {empleadoService} from '@/modules/empleado/services/empleado.service.js'
+import { empleadoService } from '@/modules/empleado/services/empleado.service.js'
+import api from '@/core/api/axios.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -123,8 +135,11 @@ const modoEdicion = computed(() => !!route.params.id)
 
 const enfermedades = ref([])
 const empleados = ref([])
+const bovinos = ref([])
+const tiposTratamiento = ['Antibiótico', 'Vacuna', 'Suplemento', 'Desparasitante', 'Vitaminas', 'Otro']
 
 const form = reactive({
+  id_bovino: '',
   nombre: '',
   tipo_tratamiento: '',
   id_enfermedad: '',
@@ -142,24 +157,27 @@ onMounted(async () => {
     }
     const trat = store.tratamientos.find(t => t.id_tratamiento == route.params.id)
     if (trat) {
+      form.id_bovino = trat.id_bovino
       form.nombre = trat.nombre
       form.tipo_tratamiento = trat.tipo_tratamiento
       form.id_enfermedad = trat.id_enfermedad
       form.id_empleado = trat.id_empleado
-      form.fecha_inicio = trat.fecha_inicio ? trat.fecha_inicio.split('T')[0] : new Date().toISOString().split('T')[0]
-      form.fecha_fin = trat.fecha_fin ? trat.fecha_fin.split('T')[0] : new Date().toISOString().split('T')[0]
+      form.fecha_inicio = trat.fecha_inicio ? trat.fecha_inicio.split('T')[0] : ''
+      form.fecha_fin = trat.fecha_fin ? trat.fecha_fin.split('T')[0] : ''
     }
   }
 })
 
 async function cargarDatosAuxiliares() {
   try {
-    const [enfermedadesRes, empleadosRes] = await Promise.all([
+    const [enfermedadesRes, empleadosRes, bovinosRes] = await Promise.all([
       enfermedadService.listar(),
-      empleadoService.listar()
+      empleadoService.listar(),
+      api.get('/bovino/listar')
     ])
     enfermedades.value = enfermedadesRes.data
     empleados.value = empleadosRes.data
+    bovinos.value = bovinosRes.data
   } catch (error) {
     console.error('Error al cargar datos auxiliares:', error)
   }
@@ -203,7 +221,7 @@ async function guardar() {
   background: white;
   border-radius: 20px;
   width: 100%;
-  max-width: 600px;
+  max-width: 650px;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -212,19 +230,19 @@ async function guardar() {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 2rem 2rem 1.5rem;
+  padding: 1.5rem 2rem;
   border-bottom: 1.5px solid #f0f0ed;
 }
 
 .modal-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #1a1a1a;
   margin-bottom: 0.25rem;
 }
 
 .modal-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #6b7280;
   font-weight: 500;
 }
@@ -239,35 +257,30 @@ async function guardar() {
   transition: all 0.2s;
 }
 
-.btn-close:hover {
-  background: #f5f5f5;
-  color: #1a1a1a;
-}
-
 .modal-body {
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .form-label {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #374151;
 }
 
 .form-label .material-symbols-outlined {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #4c9a4c;
 }
 
@@ -278,30 +291,20 @@ async function guardar() {
 }
 
 .form-input, .form-select {
-  padding: 0.75rem;
+  padding: 0.65rem;
   border: 1.5px solid #e5e7eb;
   border-radius: 10px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   transition: all 0.2s;
   width: 100%;
   background: white;
 }
 
-.form-input:focus {
+.form-input:focus, .form-select:focus {
   outline: none;
   border-color: #4c9a4c;
   background: #f0f9f0;
-}
-
-.form-select {
-  cursor: pointer;
-}
-
-.form-select:focus {
-  outline: none;
-  border-color: #9ca3af;
-  background: #f3f4f6;
 }
 
 .form-grid {
@@ -313,7 +316,7 @@ async function guardar() {
 .modal-footer {
   display: flex;
   gap: 12px;
-  padding-top: 1rem;
+  padding: 1.5rem 2rem;
   border-top: 1.5px solid #f0f0ed;
 }
 
@@ -323,11 +326,11 @@ async function guardar() {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 0.85rem;
+  padding: 0.75rem;
   border: none;
   border-radius: 12px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
@@ -338,32 +341,14 @@ async function guardar() {
   color: white;
 }
 
-.btn--primary:hover:not(:disabled) {
-  background: #3d7a3d;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
-}
-
-.btn--primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .btn--secondary {
   background: #f5f5f5;
   color: #374151;
 }
 
-.btn--secondary:hover {
-  background: #e5e7eb;
-}
-
 @media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;
-  }
-  .modal-body {
-    padding: 1.5rem;
   }
 }
 </style>

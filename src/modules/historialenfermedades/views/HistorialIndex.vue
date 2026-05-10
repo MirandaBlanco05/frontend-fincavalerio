@@ -59,7 +59,7 @@
                 <span v-if="!h.enfermedades?.length" class="text-gray-400">Sin registros</span>
               </div>
             </td>
-            <td class="px-6 py-3">{{ formatearFecha(h.fecha) }}</td>
+            <td class="px-6 py-3 font-semibold text-primary">{{ formatearFecha(h.fecha) }}</td>
             <td class="px-6 py-3 text-gray-500 max-w-xs truncate">{{ h.observaciones || '—' }}</td>
           </tr>
         </tbody>
@@ -147,23 +147,18 @@ const historialesFiltrados = computed(() => {
       if (!tieneEnfermedad) return false
     }
     return true
-  }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+  }).sort((a, b) => {
+    if (!a.fecha) return 1
+    if (!b.fecha) return -1
+    return new Date(b.fecha) - new Date(a.fecha)
+  })
 })
 
-function getNombreBovino(id) {
-  const b = bovinos.value.find(x => x.id_bovino == id)
-  return b ? (b.nombre || `Crotal: ${b.numero_crotal}`) : `ID ${id}`
-}
-
-function getNombreEnfermedad(id) {
-  const e = enfermedades.value.find(x => x.id_enfermedad == id)
-  return e ? e.nombre : `ID ${id}`
-}
-
-function formatearFecha(fechaStr) {
-  if (!fechaStr) return '—'
-  const date = new Date(fechaStr)
-  return new Intl.DateTimeFormat('es-ES', { year: 'numeric', month: 'short', day: '2-digit' }).format(date)
+function formatearFecha(fecha) {
+  if (!fecha) return '—'
+  const [year, month, day] = fecha.split('T')[0].split('-')
+  if (year && month && day) return `${day}/${month}/${year}`
+  return new Date(fecha).toLocaleDateString('es-DO')
 }
 
 function seleccionarFila(h) { 

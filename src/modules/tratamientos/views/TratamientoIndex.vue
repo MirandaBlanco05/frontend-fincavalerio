@@ -26,18 +26,37 @@
     <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
       <table class="w-full text-left text-sm text-text-primary">
         <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
-          <tr><th class="px-6 py-4">ID</th><th class="px-6 py-4">Nombre</th><th class="px-6 py-4">Enfermedad</th><th class="px-6 py-4">Tipo</th><th class="px-6 py-4">Inicio</th><th class="px-6 py-4">Fin</th></tr>
+          <tr>
+            <th class="px-6 py-4">ID</th>
+            <th class="px-6 py-4">Animal</th>
+            <th class="px-6 py-4">Nombre</th>
+            <th class="px-6 py-4">Enfermedad</th>
+            <th class="px-6 py-4">Tipo</th>
+            <th class="px-6 py-4">Inicio</th>
+            <th class="px-6 py-4">Fin</th>
+          </tr>
         </thead>
         <tbody>
-          <tr v-if="store.cargando"><td colspan="6" class="px-6 py-12 text-center text-gray-400"><span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span><p class="mt-2">Cargando...</p></td></tr>
-          <tr v-else-if="tratamientosFiltrados.length === 0"><td colspan="6" class="px-6 py-12 text-center text-gray-400"><span class="material-symbols-outlined text-4xl">medication</span><p class="mt-2">{{ store.tratamientos?.length === 0 ? 'No hay tratamientos.' : 'No hay resultados.' }}</p></td></tr>
+          <tr v-if="store.cargando">
+            <td colspan="7" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
+              <p class="mt-2">Cargando...</p>
+            </td>
+          </tr>
+          <tr v-else-if="tratamientosFiltrados.length === 0">
+            <td colspan="7" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined text-4xl">medication</span>
+              <p class="mt-2">{{ store.tratamientos?.length === 0 ? 'No hay tratamientos.' : 'No hay resultados.' }}</p>
+            </td>
+          </tr>
           <tr v-else v-for="t in tratamientosFiltrados" :key="t.id_tratamiento" @click="seleccionarFila(t)" class="cursor-pointer border-b transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_tratamiento === t.id_tratamiento }">
             <td class="px-6 py-3 font-bold">#{{ t.id_tratamiento }}</td>
-            <td class="px-6 py-3 font-medium">{{ t.nombre }}</td>
+            <td class="px-6 py-3 font-medium text-primary">{{ t.animal || '—' }}</td>
+            <td class="px-6 py-3">{{ t.nombre }}</td>
             <td class="px-6 py-3">{{ t.enfermedad || '—' }}</td>
             <td class="px-6 py-3">{{ t.tipo_tratamiento || '—' }}</td>
-            <td class="px-6 py-3">{{ t.fecha_inicio ? new Date(t.fecha_inicio).toLocaleDateString('es-DO') : '—' }}</td>
-            <td class="px-6 py-3">{{ t.fecha_fin ? new Date(t.fecha_fin).toLocaleDateString('es-DO') : '—' }}</td>
+            <td class="px-6 py-3">{{ formatearFecha(t.fecha_inicio) }}</td>
+            <td class="px-6 py-3">{{ formatearFecha(t.fecha_fin) }}</td>
           </tr>
         </tbody>
       </table>
@@ -112,7 +131,7 @@ const tratamientosFiltrados = computed(() => {
     const { nombre, tipo, fechaDesde } = filtrosAplicados.value
     if (nombre && t.nombre !== nombre) return false
     if (tipo && t.tipo_tratamiento !== tipo) return false
-    if (fechaDesde && t.fecha_inicio && new Date(t.fecha_inicio) < new Date(fechaDesde)) return false
+    if (fechaDesde && t.fecha_inicio && t.fecha_inicio < fechaDesde) return false
     return true
   })
 })
@@ -123,5 +142,13 @@ async function confirmarEliminar() { if (!filaSeleccionada.value || !confirm('¿
 function aplicarFiltros() { filtrosAplicados.value = { ...filtros.value }; modalFiltros.value = false }
 function limpiarFiltros() { filtros.value = { nombre: '', tipo: '', fechaDesde: '' }; filtrosAplicados.value = { nombre: '', tipo: '', fechaDesde: '' }; modalFiltros.value = false }
 function cerrarFiltros() { modalFiltros.value = false }
+
+function formatearFecha(fecha) {
+  if (!fecha) return '—'
+  const [year, month, day] = fecha.split('-')
+  if (year && month && day) return `${day}/${month}/${year}`
+  return new Date(fecha).toLocaleDateString('es-DO')
+}
+
 onMounted(() => store.cargarTratamientos())
 </script>
