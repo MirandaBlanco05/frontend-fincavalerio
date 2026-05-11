@@ -107,7 +107,19 @@
                   <span class="material-symbols-outlined">category</span>
                   Tipo Insumo
                 </label>
-                <input v-model="form.tipo_insumo" type="text" required class="form-input" />
+                <select v-model="form.tipo_insumo" required class="form-select">
+                  <option value="">Seleccione...</option>
+                  <option v-for="tipo in tiposUnicos" :key="tipo" :value="tipo">{{ tipo }}</option>
+                  <option value="OTRO">+ Agregar nuevo tipo...</option>
+                </select>
+                <input 
+                  v-if="form.tipo_insumo === 'OTRO'" 
+                  v-model="nuevoTipo" 
+                  type="text" 
+                  placeholder="Escriba el nuevo tipo" 
+                  class="form-input mt-2"
+                  @blur="seleccionarNuevoTipo"
+                />
               </div>
             </div>
 
@@ -213,6 +225,20 @@ const form = reactive({
   cantidad_stock: 0,
   precio: 0,
   estado: 'Activo'
+})
+
+const nuevoTipo = ref('')
+
+function seleccionarNuevoTipo() {
+  if (nuevoTipo.value.trim()) {
+    form.tipo_insumo = nuevoTipo.value.trim()
+    nuevoTipo.value = ''
+  }
+}
+
+const tiposUnicos = computed(() => {
+  const tipos = store.insumos.map(i => i.tipo_insumo).filter(Boolean)
+  return [...new Set(tipos)].sort()
 })
 
 const modoEdicion = computed(() => !!filaSeleccionada.value)
