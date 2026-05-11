@@ -80,58 +80,60 @@
     <!-- Modal de Filtros -->
     <Teleport to="body">
       <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="cerrarFiltros">
-        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl overflow-hidden shadow-2xl">
-          <!-- Handle mobile -->
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
           <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
-            <div class="h-1.5 w-12 rounded-full bg-gray-200"></div>
+            <div class="h-1 w-9 rounded-full bg-gray-300"></div>
           </div>
 
-          <div class="flex items-center justify-between p-6 border-b border-gray-100">
-            <div>
-              <h3 class="text-xl font-extrabold text-gray-900">Filtrar Ordeño</h3>
-              <p class="text-xs text-gray-500 font-medium">Gestión de producción diaria</p>
-            </div>
-            <button @click="cerrarFiltros" class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
-              <span class="material-symbols-outlined text-gray-400">close</span>
+          <div class="flex items-center justify-between p-4 border-b border-gray-200">
+            <h3 class="text-lg font-bold text-text-primary">Filtrar Ordeño</h3>
+            <button @click="cerrarFiltros" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
+              <span class="material-symbols-outlined text-base">close</span>
             </button>
           </div>
 
-          <div class="flex flex-col gap-6 p-6">
-            <div class="space-y-2">
-              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Bovino</label>
-              <select v-model="filtros.bovino" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+          <div class="flex flex-col gap-4 p-4">
+            
+            <!-- Filtro por Bovino -->
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Bovino</label>
+              <select v-model="filtros.bovino" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
                 <option value="">Todos los animales</option>
-                <option v-for="bovino in bovinos" :key="bovino.id_bovino" :value="bovino.id_bovino">{{ bovino.nombre }}</option>
+                <option v-for="bovino in bovinos" :key="bovino.id_bovino" :value="bovino.id_bovino">
+                  {{ bovino.nombre }}
+                </option>
               </select>
             </div>
 
-            <div class="space-y-2">
-              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Turno / Momento</label>
-              <select v-model="filtros.turno" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+            <!-- Filtro por Turno -->
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Turno</label>
+              <select v-model="filtros.turno" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
                 <option value="">Todos los turnos</option>
                 <option value="Mañana">Mañana</option>
                 <option value="Tarde">Tarde</option>
               </select>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Desde</label>
-                <input v-model="filtros.fechaDesde" type="date" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50" />
-              </div>
-
-              <div class="space-y-2">
-                <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Hasta</label>
-                <input v-model="filtros.fechaHasta" type="date" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50" />
-              </div>
+            <!-- Filtro por Fecha Desde -->
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Fecha Desde</label>
+              <input v-model="filtros.fechaDesde" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
+
+            <!-- Filtro por Fecha Hasta -->
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Fecha Hasta</label>
+              <input v-model="filtros.fechaHasta" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+            </div>
+
           </div>
 
-          <div class="flex gap-4 p-6 bg-gray-50">
-            <button @click="limpiarFiltros" class="flex-1 rounded-xl bg-white border border-gray-200 px-6 py-3.5 text-sm font-bold text-gray-600 transition-all hover:bg-gray-100 active:scale-95">
+          <div class="flex gap-3 p-4 border-t border-gray-200">
+            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200">
               Limpiar
             </button>
-            <button @click="aplicarFiltros" class="flex-1 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 active:scale-95">
+            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90">
               Aplicar Filtros
             </button>
           </div>
