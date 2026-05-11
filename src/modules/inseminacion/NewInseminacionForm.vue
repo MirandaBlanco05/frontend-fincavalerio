@@ -25,7 +25,7 @@
       <form id="form-inseminacion" @submit.prevent="guardar" class="modal-body">
 
         <div class="form-grid">
-          <!-- ID Veterinario -->
+          <!-- Veterinario -->
           <div class="form-group">
             <label class="form-label required">
               <span class="material-symbols-outlined">medical_services</span>
@@ -99,7 +99,7 @@
             <select v-model="form.resultado" required class="form-select">
               <option value="Pendiente">Pendiente</option>
               <option value="Efectiva">Efectiva</option>
-              <option value="Inefectiva">Inefectiva</option>
+              <option value="Inefectiva">Fallida</option>
             </select>
           </div>
         </div>
@@ -152,7 +152,7 @@ onMounted(async () => {
     }
     const ins = store.inseminaciones.find(i => i.id_inseminacion == route.params.id)
     if (ins) {
-      form.id_veterinario = ins.id_veterinario || ins.Id_veterinaro || (ins.veterinario?.id_veterinario) || ''
+      form.id_veterinario = ins.id_veterinario || ins.Id_veterinario || (ins.veterinario?.id_veterinario) || ''
       form.id_ciclo       = ins.id_ciclo || ins.Id_ciclo || (ins.ciclo?.id_ciclo) || ''
       form.fecha          = ins.fecha ? ins.fecha.split('T')[0] : ''
       form.tipo           = ins.tipo_inseminacion || ins.Tipo_inseminacion || ''
@@ -190,7 +190,7 @@ async function guardar() {
     }
 
   } catch (error) {
-    errorLocal.value = 'Error desconocido al guardar'
+    errorLocal.value = error.response?.data?.error || 'Error desconocido al guardar'
   } finally {
     cargando.value = false
   }
@@ -231,19 +231,19 @@ async function guardar() {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 2rem 2rem 1.5rem;
+  padding: 1.5rem 2rem;
   border-bottom: 1.5px solid #f0f0ed;
 }
 
 .modal-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #1a1a1a;
   margin-bottom: 0.25rem;
 }
 
 .modal-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #6b7280;
   font-weight: 500;
 }
@@ -258,16 +258,11 @@ async function guardar() {
   transition: all 0.2s;
 }
 
-.btn-close:hover {
-  background: #f5f5f5;
-  color: #1a1a1a;
-}
-
 .modal-body {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .form-group {
@@ -349,32 +344,14 @@ async function guardar() {
   color: white;
 }
 
-.btn--primary:hover:not(:disabled) {
-  background: #3d7a3d;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
-}
-
-.btn--primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .btn--secondary {
   background: #f5f5f5;
   color: #374151;
 }
 
-.btn--secondary:hover {
-  background: #e5e7eb;
-}
-
 @media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;
-  }
-  .modal-body {
-    padding: 1.5rem;
   }
 }
 </style>

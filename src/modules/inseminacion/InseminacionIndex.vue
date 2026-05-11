@@ -75,8 +75,8 @@
               </div>
             </td>
             <td class="px-6 py-3">
-              <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="ins.resultado === 'Efectiva' ? 'bg-green-100 text-green-700' : (ins.resultado === 'Inefectiva' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700')">
-                {{ ins.resultado || 'Pendiente' }}
+              <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="ins.resultado === 'Efectiva' ? 'bg-green-100 text-green-700' : (ins.resultado === 'Inefectiva' || ins.resultado === 'Fallida' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700')">
+                {{ ins.resultado === 'Inefectiva' ? 'Fallida' : (ins.resultado || 'Pendiente') }}
               </span>
             </td>
           </tr>
@@ -87,7 +87,7 @@
     <!-- Modal de Filtros -->
     <Teleport to="body">
       <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="cerrarFiltros">
-        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl shadow-xl">
           <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
             <div class="h-1 w-9 rounded-full bg-gray-300"></div>
           </div>
@@ -116,7 +116,7 @@
                 <option value="">Todos</option>
                 <option value="Pendiente">Pendiente</option>
                 <option value="Efectiva">Efectiva</option>
-                <option value="Inefectiva">Inefectiva</option>
+                <option value="Inefectiva">Fallida</option>
               </select>
             </div>
 
@@ -250,13 +250,21 @@ const inseminacionesFiltradas = computed(() => {
 
 function formatearFecha(fecha) {
   if (!fecha) return '—'
+  const [year, month, day] = fecha.split('T')[0].split('-')
+  if (year && month && day) return `${day}/${month}/${year}`
   return new Date(fecha).toLocaleDateString('es-DO')
 }
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+.relative {
+  font-family: 'DM Sans', sans-serif;
 }
 </style>

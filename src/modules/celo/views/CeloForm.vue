@@ -25,19 +25,18 @@
       <form id="form-celo" @submit.prevent="guardar" class="modal-body">
 
         <div class="form-grid">
-          <!-- ID Bovino -->
+          <!-- Animal (Select) -->
           <div class="form-group">
             <label class="form-label required">
               <span class="material-symbols-outlined">pets</span>
-              ID Bovino
+              Animal (Bovino)
             </label>
-            <input
-              v-model="form.id_bovino"
-              type="number"
-              required
-              class="form-input"
-              placeholder="Código del bovino"
-            />
+            <select v-model="form.id_bovino" required class="form-select">
+              <option value="">Seleccione un animal...</option>
+              <option v-for="b in bovinos" :key="b.id_bovino" :value="b.id_bovino">
+                {{ b.nombre }} {{ b.numero_crotal ? '· #' + b.numero_crotal : '' }}
+              </option>
+            </select>
           </div>
         </div>
 
@@ -124,6 +123,7 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCeloStore } from '../store/celo.store.js'
+import api from '@/core/api/axios.js'
 
 const router = useRouter()
 const route  = useRoute()
@@ -132,6 +132,7 @@ const store  = useCeloStore()
 const modoEdicion = computed(() => !!route.params.id)
 const cargando    = ref(false)
 const errorLocal  = ref('')
+const bovinos     = ref([])
 
 const form = reactive({
   id_bovino:      '',
@@ -142,6 +143,8 @@ const form = reactive({
 })
 
 onMounted(async () => {
+  await cargarBovinos()
+  
   if (modoEdicion.value) {
     try {
       if (store.ciclos.length === 0) {
@@ -149,7 +152,7 @@ onMounted(async () => {
       }
       const celo = store.ciclos.find(c => c.id_ciclo == route.params.id)
       if (celo) {
-        form.id_bovino     = celo.id_bovino
+        form.id_bovino     = celo.id_bovino || (celo.bovino?.id_bovino)
         form.fecha_inicio  = celo.fecha_inicio ? celo.fecha_inicio.split('T')[0] : ''
         form.fecha_fin     = celo.fecha_fin ? celo.fecha_fin.split('T')[0] : ''
         form.duracion      = celo.duracion
@@ -162,6 +165,15 @@ onMounted(async () => {
     }
   }
 })
+
+async function cargarBovinos() {
+  try {
+    const res = await api.get('/bovino/listar')
+    bovinos.value = res.data
+  } catch (e) {
+    console.error('Error al cargar bovinos:', e)
+  }
+}
 
 function calcularDuracion() {
   if (form.fecha_inicio && form.fecha_fin) {
@@ -178,13 +190,7 @@ async function guardar() {
   cargando.value   = true
 
   try {
-    const payload = {
-      id_bovino:     form.id_bovino,
-      fecha_inicio:  form.fecha_inicio,
-      fecha_fin:     form.fecha_fin,
-      duracion:      form.duracion,
-      observaciones: form.observaciones
-    }
+    const payload = { ...form }
 
     let resultado
     if (modoEdicion.value) {
@@ -243,19 +249,19 @@ async function guardar() {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 2rem 2rem 1.5rem;
+  padding: 1.5rem 2rem;
   border-bottom: 1.5px solid #f0f0ed;
 }
 
 .modal-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #1a1a1a;
   margin-bottom: 0.25rem;
 }
 
 .modal-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #6b7280;
   font-weight: 500;
 }
@@ -270,16 +276,11 @@ async function guardar() {
   transition: all 0.2s;
 }
 
-.btn-close:hover {
-  background: #f5f5f5;
-  color: #1a1a1a;
-}
-
 .modal-body {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .form-group {
@@ -368,32 +369,14 @@ textarea {
   color: white;
 }
 
-.btn--primary:hover:not(:disabled) {
-  background: #3d7a3d;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
-}
-
-.btn--primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .btn--secondary {
   background: #f5f5f5;
   color: #374151;
 }
 
-.btn--secondary:hover {
-  background: #e5e7eb;
-}
-
 @media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;
-  }
-  .modal-body {
-    padding: 1.5rem;
   }
 }
 </style>
