@@ -110,7 +110,7 @@ const form = reactive({
 async function guardarCiclo() {
   try {
     await axios.post(
-      "http://localhost:3000/api/ciclo/crear",
+      "/api/ciclo/crear",
       { ...form }
     )
 
