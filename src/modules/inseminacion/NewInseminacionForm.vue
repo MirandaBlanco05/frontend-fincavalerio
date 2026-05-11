@@ -153,7 +153,7 @@ onMounted(async () => {
     veterinarians.value = vetStore.veterinarios
 
     if (modoEdicion.value) {
-      const { data } = await api.get(`/inseminacion/${route.params.id}`)
+      const { data } = await api.get(`/inseminacion/listar/${route.params.id}`)
       form.id_veterinario = data.id_veterinario
       form.id_ciclo      = data.id_ciclo
       form.fecha         = data.fecha ? data.fecha.split('T')[0] : ''
