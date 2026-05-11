@@ -206,40 +206,64 @@
 
     <!-- Modal Filtros -->
     <Teleport to="body">
-      <div v-if="modalFiltros" class="modal-overlay" @click.self="modalFiltros = false">
-        <div class="modal-content modal-content--small">
-          <div class="modal-header">
-            <h3 class="modal-title">Filtros Avanzados</h3>
-            <button @click="modalFiltros = false" class="btn-close">
-              <span class="material-symbols-outlined">close</span>
+      <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="modalFiltros = false">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl overflow-hidden shadow-2xl">
+          <!-- Handle mobile -->
+          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
+            <div class="h-1.5 w-12 rounded-full bg-gray-200"></div>
+          </div>
+
+          <div class="flex items-center justify-between p-6 border-b border-gray-100">
+            <div>
+              <h3 class="text-xl font-extrabold text-gray-900">Filtrar Insumos</h3>
+              <p class="text-xs text-gray-500 font-medium">Personalice su vista de inventario</p>
+            </div>
+            <button @click="modalFiltros = false" class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+              <span class="material-symbols-outlined text-gray-400">close</span>
             </button>
           </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label class="form-label">Tipo Insumo</label>
-              <select v-model="filtros.tipo" class="form-select">
-                <option value="">Todos</option>
+
+          <div class="flex flex-col gap-6 p-6">
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Tipo Insumo</label>
+              <select v-model="filtros.tipo" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+                <option value="">Todos los tipos</option>
                 <option v-for="tipo in tiposUnicos" :key="tipo" :value="tipo">{{ tipo }}</option>
               </select>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Estado</label>
-              <select v-model="filtros.estado" class="form-select">
-                <option value="">Todos</option>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Estado</label>
+              <select v-model="filtros.estado" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+                <option value="">Cualquier estado</option>
                 <option value="Activo">Activo</option>
                 <option value="Inactivo">Inactivo</option>
               </select>
             </div>
 
-            <div class="flex items-center gap-3 pt-2">
-              <input type="checkbox" v-model="filtros.stockBajo" id="stockBajo" class="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" />
-              <label for="stockBajo" class="text-sm font-bold text-gray-700 cursor-pointer">Solo stock bajo (< 10 unidades)</label>
+            <div class="flex items-center gap-4 p-4 rounded-xl bg-primary/5 border border-primary/10">
+              <div class="relative flex items-center h-6">
+                <input 
+                  type="checkbox" 
+                  v-model="filtros.stockBajo" 
+                  id="stockBajo" 
+                  class="h-6 w-6 rounded-md border-gray-300 text-primary focus:ring-primary cursor-pointer transition-all" 
+                />
+              </div>
+              <label for="stockBajo" class="text-sm font-bold text-gray-800 cursor-pointer select-none">
+                Solo stock crítico
+                <span class="block text-[10px] text-gray-500 font-medium">Menos de 10 unidades disponibles</span>
+              </label>
             </div>
           </div>
-          <div class="modal-footer">
-            <button @click="limpiarFiltros" class="btn btn--secondary">Limpiar</button>
-            <button @click="modalFiltros = false" class="btn btn--primary">Aplicar</button>
+
+          <div class="flex gap-4 p-6 bg-gray-50">
+            <button @click="limpiarFiltros" class="flex-1 rounded-xl bg-white border border-gray-200 px-6 py-3.5 text-sm font-bold text-gray-600 transition-all hover:bg-gray-100 active:scale-95">
+              Limpiar
+            </button>
+            <button @click="modalFiltros = false" class="flex-1 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 active:scale-95">
+              Aplicar Filtros
+            </button>
           </div>
         </div>
       </div>
