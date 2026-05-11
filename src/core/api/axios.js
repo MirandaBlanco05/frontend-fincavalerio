@@ -10,10 +10,21 @@ const api = axios.create({
 
 // Interceptor para asegurar que todas las rutas lleven el prefijo /api correctamente
 api.interceptors.request.use(config => {
-  // Si la URL no es absoluta y no empieza por /api, se lo agregamos
-  if (!config.url.startsWith('http') && !config.url.startsWith('/api')) {
+  const isProd = import.meta.env.PROD;
+  const backendUrl = 'https://backend-fincavalerio.onrender.com/api';
+
+  if (!config.url.startsWith('http')) {
     const cleanUrl = config.url.startsWith('/') ? config.url.substring(1) : config.url;
-    config.url = `/api/${cleanUrl}`;
+    
+    if (isProd) {
+      // En producción, forzamos la URL absoluta del backend
+      config.url = `${backendUrl}/${cleanUrl.replace(/^api\//, '')}`;
+    } else {
+      // En desarrollo, usamos el prefijo /api para el proxy
+      if (!config.url.startsWith('/api') && !config.url.startsWith('api/')) {
+        config.url = `/api/${cleanUrl}`;
+      }
+    }
   }
   return config;
 }, error => {
