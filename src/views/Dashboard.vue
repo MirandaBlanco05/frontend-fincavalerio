@@ -208,7 +208,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '@/core/api/axios.js'
+import axios from 'axios' // Keep for weather API
 
 const router = useRouter()
 const nombreUsuario = ref(localStorage.getItem('usuario') || 'Alex')
@@ -280,12 +281,12 @@ async function cargarClimaReal() {
 
 async function cargarDatos() {
   try {
-    const bovinosRes = await axios.get('/api/bovino/listar')
+    const bovinosRes = await api.get('/bovino/listar')
     estadisticas.value.totalBovinos = bovinosRes.data.length
     estadisticas.value.bovinosActivos = bovinosRes.data.filter(b => b.estado === 'Activo').length
 
     try {
-      const visitasRes = await axios.get('/api/visita/listar')
+      const visitasRes = await api.get('/visita/listar')
       const hoy = new Date()
       const en7Dias = new Date()
       en7Dias.setDate(en7Dias.getDate() + 7)
@@ -303,7 +304,7 @@ async function cargarDatos() {
     }
 
     cargandoInventario.value = true
-    const insumosRes = await axios.get('/api/insumo/listar')
+    const insumosRes = await api.get('/insumo/listar')
     inventarioCritico.value = insumosRes.data
       .filter(i => i.cantidad_actual <= i.cantidad_minima)
       .map(i => ({
@@ -317,7 +318,7 @@ async function cargarDatos() {
 
     cargandoPartos.value = true
     try {
-      const partosRes = await axios.get('/api/parto/listar')
+      const partosRes = await api.get('/parto/listar')
       const hoy = new Date()
       const en30Dias = new Date()
       en30Dias.setDate(en30Dias.getDate() + 30)
