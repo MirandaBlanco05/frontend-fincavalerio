@@ -24,18 +24,18 @@
 
   <!-- ID Embarazo -->
   <div class="flex flex-col gap-2 md:col-span-2">
-    <label class="text-xs font-bold">ID Embarazo</label>
-    <select v-model="parto.Id_embarazo" required class="input-refined">
+    <label class="text-xs font-bold uppercase tracking-wider text-slate-500">ID Embarazo</label>
+    <select v-model="parto.id_embarazo" required class="input-refined">
       <option value="">Seleccione Embarazo Foco...</option>
-      <option v-for="emb in embarazos" :key="emb.Id_embarazo" :value="emb.Id_embarazo">
-        Embarazo ID: {{ emb.Id_embarazo }} | Fase: {{ emb.fase || 'N/A' }}
+      <option v-for="emb in embarazos" :key="emb.id_embarazo" :value="emb.id_embarazo">
+        Embarazo ID: {{ emb.id_embarazo }} | Fase: {{ emb.fase || 'N/A' }}
       </option>
     </select>
   </div>
 
   <!-- Fecha Parto -->
   <div class="flex flex-col gap-2">
-    <label class="text-xs font-bold">Fecha del Parto</label>
+    <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Fecha del Parto</label>
     <input
       type="date"
       v-model="parto.fecha_parto"
@@ -46,10 +46,10 @@
 
   <!-- Número de Crías -->
   <div class="flex flex-col gap-2">
-    <label class="text-xs font-bold">Número de Crías</label>
+    <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Número de Crías</label>
     <input
       type="number"
-      v-model="parto.Numero_crias"
+      v-model="parto.numero_crias"
       min="1"
       max="5"
       placeholder="1"
@@ -57,14 +57,59 @@
     />
   </div>
 
+  <!-- Tipo de Parto -->
+  <div class="flex flex-col gap-2">
+    <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Tipo de Parto</label>
+    <select v-model="parto.tipo_parto" class="input-refined">
+      <option value="">Seleccione...</option>
+      <option value="Normal">Normal</option>
+      <option value="Distócico">Distócico (Complicado)</option>
+      <option value="Cesárea">Cesárea</option>
+    </select>
+  </div>
+
+  <!-- Sexo de la Cría -->
+  <div class="flex flex-col gap-2">
+    <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Sexo de la Cría</label>
+    <select v-model="parto.sexo_cria" class="input-refined">
+      <option value="">Seleccione...</option>
+      <option value="Hembra">Hembra</option>
+      <option value="Macho">Macho</option>
+      <option value="Múltiple">Múltiple</option>
+    </select>
+  </div>
+
+  <!-- Peso de la Cría -->
+  <div class="flex flex-col gap-2">
+    <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Peso Cría (kg)</label>
+    <input
+      type="number"
+      step="0.1"
+      v-model="parto.peso_cria"
+      placeholder="Ej: 35.5"
+      class="input-refined"
+    />
+  </div>
+
+  <!-- Estado de la Cría -->
+  <div class="flex flex-col gap-2">
+    <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Estado de la Cría</label>
+    <select v-model="parto.estado_cria" class="input-refined">
+      <option value="">Seleccione...</option>
+      <option value="Vivo">Vivo</option>
+      <option value="Muerto">Muerto</option>
+      <option value="Débil">Débil</option>
+    </select>
+  </div>
+
   <!-- Observaciones -->
   <div class="flex flex-col gap-2 md:col-span-2">
-    <label class="text-xs font-bold">Observaciones Generales</label>
+    <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Observaciones Generales</label>
     <textarea
       v-model="parto.observaciones"
       rows="3"
       class="input-refined"
-      placeholder="Indique estado de la cría, complicaciones, etc..."
+      placeholder="Indique complicaciones, cuidados especiales, etc..."
     ></textarea>
   </div>
 
@@ -72,10 +117,10 @@
   <div class="md:col-span-2 mt-6">
     <button
       type="submit"
-      class="w-full bg-primary text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-primary/90 transition-colors"
+      class="w-full bg-primary text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-primary/90 transition-colors shadow-lg"
     >
       <span class="material-symbols-outlined">save</span>
-      Guardar Parto
+      Guardar Registro de Parto
     </button>
   </div>
 
@@ -100,15 +145,21 @@ const store = usePartoStore()
 const embarazos = ref([])
 
 const parto = reactive({
-  Id_embarazo: "",
+  id_embarazo: "",
   fecha_parto: "",
-  Numero_crias: 1,
+  numero_crias: 1,
+  tipo_parto: "",
+  sexo_cria: "",
+  peso_cria: "",
+  estado_cria: "",
   observaciones: ""
 })
 
 onMounted(async () => {
   try {
-    embarazos.value = await embarazoService.listar()
+    const res = await embarazoService.listar()
+    // Asegurar que usamos minúsculas si el backend las devuelve así
+    embarazos.value = res.data || res
   } catch (error) {
     console.error("Error cargando embarazos", error)
   }
@@ -116,12 +167,9 @@ onMounted(async () => {
 
 async function guardarParto() {
   try {
-    const payload = {
-      Id_embarazo: parto.Id_embarazo,
-      fecha_parto: parto.fecha_parto,
-      Numero_crias: parto.Numero_crias || null,
-      observaciones: parto.observaciones || null
-    }
+    const payload = { ...parto }
+    // Convertir peso a número si existe
+    if (payload.peso_cria) payload.peso_cria = parseFloat(payload.peso_cria)
 
     await store.crearParto(payload)
 
