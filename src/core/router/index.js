@@ -133,32 +133,14 @@ const routes = [
     ]
   },
   
-  {
-    path: '/inseminaciones',
-    component: InseminacionIndex,
-    children: [
-      { path: '',      name: 'InseminacionesList',      component: InseminacionForm },
-      { path: 'nuevo', name: 'InseminacionNueva',       component: NewInseminacionForm }
-    ]
-  },
+  { path: '/inseminaciones',       name: 'InseminacionesList', component: InseminacionForm },
+  { path: '/inseminaciones/nuevo', name: 'InseminacionNueva',  component: NewInseminacionForm },
 
-  {
-    path: '/embarazos',
-    component: EmbarazoIndex,
-    children: [
-      { path: '',      name: 'EmbarazosList',      component: EmbarazoForm },
-      { path: 'nuevo', name: 'EmbarazoNuevo',      component: NewEmbarazoForm }
-    ]
-  },
+  { path: '/embarazos',       name: 'EmbarazosList', component: EmbarazoIndex },
+  { path: '/embarazos/nuevo', name: 'EmbarazoNuevo',  component: NewEmbarazoForm },
 
-  {
-    path: '/partos',
-    component: PartoIndex,
-    children: [
-      { path: '',      name: 'PartosList',      component: PartoForm },
-      { path: 'nuevo', name: 'PartoNuevo',      component: NewPartoForm }
-    ]
-  },
+  { path: '/partos',       name: 'PartosList', component: PartoIndex },
+  { path: '/partos/nuevo', name: 'PartoNuevo',  component: NewPartoForm },
 
   { path: '/:pathMatch(.*)*', redirect: '/login' }
 ]
