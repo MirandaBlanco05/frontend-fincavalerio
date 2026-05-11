@@ -5,7 +5,7 @@
     <div class="mb-4 flex flex-wrap items-center gap-3">
       <button @click="irAFormulario" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
         <span class="material-symbols-outlined text-base">add</span>
-        <span class="truncate">Nuevo Insumo</span>
+        <span class="truncate">Nueva Inseminación</span>
       </button>
 
       <button @click="irAEditar" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
@@ -18,20 +18,15 @@
         <span class="truncate">Eliminar</span>
       </button>
 
-      <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
-        <span class="material-symbols-outlined text-base">filter_list</span>
-        <span class="truncate">Filtrar</span>
-      </button>
+      <div class="relative flex flex-1 items-center min-w-[200px] sm:flex-none">
+        <span class="material-symbols-outlined absolute left-3 text-gray-400 text-base">search</span>
+        <input v-model="busqueda" type="text" placeholder="Buscar inseminación..." class="w-full rounded-lg border border-border-color bg-white py-2 pl-9 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+      </div>
     </div>
 
     <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
       <span class="material-symbols-outlined text-base">warning</span>
       {{ store.error }}
-    </div>
-
-    <div v-if="store.mensaje" class="mb-4 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-      <span class="material-symbols-outlined text-base">check_circle</span>
-      {{ store.mensaje }}
     </div>
 
     <!-- Tabla -->
@@ -40,187 +35,111 @@
         <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
             <th class="px-6 py-4">ID</th>
-            <th class="px-6 py-4">Nombre</th>
+            <th class="px-6 py-4">Bovino</th>
+            <th class="px-6 py-4">Veterinario</th>
+            <th class="px-6 py-4">Fecha</th>
             <th class="px-6 py-4">Tipo</th>
-            <th class="px-6 py-4">Uso</th>
-            <th class="px-6 py-4">Stock</th>
-            <th class="px-6 py-4">Precio</th>
-            <th class="px-6 py-4">Vencimiento</th>
-            <th class="px-6 py-4">Estado</th>
+            <th class="px-6 py-4">Estatus</th>
           </tr>
         </thead>
 
         <tbody>
           <tr v-if="store.cargando">
-            <td colspan="8" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
-              <p class="mt-2">Cargando insumos...</p>
+              <p class="mt-2">Cargando inseminaciones...</p>
             </td>
           </tr>
 
-          <tr v-else-if="insumosFiltrados.length === 0">
-            <td colspan="8" class="px-6 py-12 text-center text-gray-400">
-              <span class="material-symbols-outlined text-4xl">inventory</span>
-              <p class="mt-2">{{ store.insumos.length === 0 ? 'No hay insumos registrados.' : 'No hay resultados con los filtros aplicados.' }}</p>
+          <tr v-else-if="inseminacionesFiltradas.length === 0">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined text-4xl">search_off</span>
+              <p class="mt-2">No se encontraron resultados.</p>
             </td>
           </tr>
 
-          <tr v-else v-for="i in insumosFiltrados" :key="i.id_insumo" @click="seleccionarFila(i)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_insumo === i.id_insumo }">
-            <td class="px-6 py-3 font-bold">#{{ i.id_insumo }}</td>
-            <td class="px-6 py-3 font-medium">{{ i.nombre }}</td>
-            <td class="px-6 py-3">{{ i.tipo_insumo || '—' }}</td>
-            <td class="px-6 py-3">{{ i.uso || '—' }}</td>
-            <td class="px-6 py-3">{{ i.cantidad_stock }}</td>
-            <td class="px-6 py-3">RD$ {{ formatearMonto(i.precio) }}</td>
-            <td class="px-6 py-3">{{ formatearFecha(i.fecha_vencimiento) }}</td>
+          <tr v-else v-for="i in inseminacionesFiltradas" :key="i.id_inseminacion" @click="seleccionarFila(i)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_inseminacion === i.id_inseminacion }">
+            <td class="px-6 py-3 font-bold">#{{ i.id_inseminacion }}</td>
+            <td class="px-6 py-3">{{ i.ciclo?.bovino?.nombre || 'N/A' }}</td>
+            <td class="px-6 py-3">{{ i.veterinario?.nombre || 'N/A' }}</td>
+            <td class="px-6 py-3">{{ formatearFecha(i.fecha) }}</td>
+            <td class="px-6 py-3">{{ i.tipo_inseminacion }}</td>
             <td class="px-6 py-3">
-              <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="i.estado === 'Activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'">
-                {{ i.estado }}
+              <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="{
+                'bg-yellow-100 text-yellow-700': i.resultado === 'Pendiente',
+                'bg-green-100 text-green-700': i.resultado === 'Efectiva',
+                'bg-red-100 text-red-700': i.resultado === 'Inefectiva'
+              }">
+                {{ i.resultado }}
               </span>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <!-- Modal de Filtros -->
-    <Teleport to="body">
-      <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="modalFiltros = false">
-        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
-          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
-            <div class="h-1 w-9 rounded-full bg-gray-300"></div>
-          </div>
-
-          <div class="flex items-center justify-between p-4">
-            <h3 class="text-lg font-bold text-text-primary">Filtrar Insumos</h3>
-            <button @click="modalFiltros = false" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
-              <span class="material-symbols-outlined text-base">close</span>
-            </button>
-          </div>
-
-          <div class="flex flex-col gap-4 p-4">
-            <div>
-              <label class="mb-1 block text-sm font-medium">Tipo</label>
-              <select v-model="filtros.tipo" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
-                <option value="">Todos los tipos</option>
-                <option v-for="tipo in tiposUnicos" :key="tipo" :value="tipo">{{ tipo }}</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="mb-1 block text-sm font-medium">Estado</label>
-              <select v-model="filtros.estado" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
-                <option value="">Todos</option>
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-              </select>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <input type="checkbox" v-model="filtros.porVencer" id="porVencer" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
-              <label for="porVencer" class="text-sm font-medium cursor-pointer">Por vencer en 30 días</label>
-            </div>
-          </div>
-
-          <div class="flex gap-3 p-4">
-            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30">
-              Limpiar
-            </button>
-            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90">
-              Aplicar Filtros
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
-
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useInsumoStore } from '../store/insumo.store.js'
+import { useInseminacionStore } from './store/Inseminacion.store.js'
 
 const router = useRouter()
-const store = useInsumoStore()
+const store = useInseminacionStore()
 
 const filaSeleccionada = ref(null)
-const modalFiltros = ref(false)
-const filtros = ref({ tipo: '', estado: '', porVencer: false })
-const filtrosAplicados = ref({ tipo: '', estado: '', porVencer: false })
+const busqueda = ref('')
 
 onMounted(() => {
-  store.cargarInsumos()
+  store.cargarInseminaciones()
 })
 
-function seleccionarFila(insumo) {
-  if (filaSeleccionada.value?.id_insumo === insumo.id_insumo) {
+const inseminacionesFiltradas = computed(() => {
+  if (!busqueda.value) return store.inseminaciones
+  const b = busqueda.value.toLowerCase()
+  return store.inseminaciones.filter(i => {
+    return (
+      i.id_inseminacion?.toString().includes(b) ||
+      i.veterinario?.nombre?.toLowerCase().includes(b) ||
+      i.ciclo?.bovino?.nombre?.toLowerCase().includes(b) ||
+      i.resultado?.toLowerCase().includes(b)
+    )
+  })
+})
+
+function seleccionarFila(inseminacion) {
+  if (filaSeleccionada.value?.id_inseminacion === inseminacion.id_inseminacion) {
     filaSeleccionada.value = null
   } else {
-    filaSeleccionada.value = insumo
-    store.limpiarMensajes?.()
+    filaSeleccionada.value = inseminacion
   }
 }
 
 function irAFormulario() {
-  router.push({ name: 'InsumoNuevo' })
+  router.push({ name: 'InseminacionNueva' })
 }
 
 function irAEditar() {
   if (!filaSeleccionada.value) return
-  router.push({ name: 'InsumoEditar', params: { id: filaSeleccionada.value.id_insumo } })
+  // Se navega a InseminacionNueva pero con parámetro id
+  router.push({ name: 'InseminacionNueva', params: { id: filaSeleccionada.value.id_inseminacion } })
 }
 
-function confirmarEliminar() {
+async function confirmarEliminar() {
   if (!filaSeleccionada.value) return
-  const nombre = filaSeleccionada.value.nombre
-  if (confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) {
-    store.eliminarInsumo(filaSeleccionada.value.id_insumo)
-    filaSeleccionada.value = null
+  if (confirm(`¿Está seguro de eliminar la inseminación #${filaSeleccionada.value.id_inseminacion}?`)) {
+    const exito = await store.eliminarInseminacion(filaSeleccionada.value.id_inseminacion)
+    if (exito) {
+      filaSeleccionada.value = null
+    } else {
+      alert(store.error || 'Error al eliminar')
+    }
   }
 }
 
-function aplicarFiltros() {
-  filtrosAplicados.value = { ...filtros.value }
-  modalFiltros.value = false
-}
-
-function limpiarFiltros() {
-  filtros.value = { tipo: '', estado: '', porVencer: false }
-  filtrosAplicados.value = { tipo: '', estado: '', porVencer: false }
-  modalFiltros.value = false
-}
-
-const tiposUnicos = computed(() => {
-  return [...new Set(store.insumos.map(i => i.tipo_insumo).filter(Boolean))].sort()
-})
-
-const insumosFiltrados = computed(() => {
-  return store.insumos.filter(i => {
-    const { tipo, estado, porVencer } = filtrosAplicados.value
-
-    if (tipo && i.tipo_insumo !== tipo) return false
-    if (estado && i.estado !== estado) return false
-
-    if (porVencer && i.fecha_vencimiento) {
-      const hoy = new Date()
-      const vencimiento = new Date(i.fecha_vencimiento)
-      const diasRestantes = Math.ceil((vencimiento - hoy) / (1000 * 60 * 60 * 24))
-      if (diasRestantes > 30 || diasRestantes < 0) return false
-    }
-
-    return true
-  })
-})
-
-function formatearMonto(monto) {
-  if (!monto) return '0.00'
-  return Number(monto).toFixed(2)
-}
-
-function formatearFecha(fecha) {
-  if (!fecha) return '—'
-  return new Date(fecha).toLocaleDateString('es-DO')
+function formatearFecha(fechaStr) {
+  if (!fechaStr) return '—'
+  return new Date(fechaStr).toLocaleDateString('es-DO', { year: 'numeric', month: '2-digit', day: '2-digit' })
 }
 </script>

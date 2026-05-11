@@ -110,7 +110,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useVacunaStore } from '../store/vacuna.store.js'
 import { bovinoService } from '@/modules/bovino/services/bovino.service.js'
 import insumoService from '@/modules/insumo/services/insumo.service.js'
-import empleadoService from '@/modules/empleado/services/empleado.service.js'
+import { empleadoService } from '@/modules/empleado/services/empleado.service.js'
 
 const router = useRouter()
 const route = useRoute()

@@ -3,12 +3,7 @@
     <!-- Header -->
     <div class="header">
       <div class="logo-section">
-        <img 
-          src="/logo.png" 
-          alt="Finca Valerio" 
-          class="logo-img"
-          @error="(e) => e.target.style.display = 'none'"
-        />
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin: 0;">FINCA VALERIO</h2>
       </div>
       <div class="title-section">
         <h1>FACTURA<br>VENTA</h1>

@@ -92,7 +92,7 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useHistorialStore } from '../store/historial.store.js'
-import bovinoService from '@/modules/bovino/services/bovino.service.js'
+import { bovinoService } from '@/modules/bovino/services/bovino.service.js'
 import enfermedadService from '@/modules/enfermedad/services/enfermedad.service.js'
 
 const router = useRouter()
