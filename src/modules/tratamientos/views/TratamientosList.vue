@@ -44,6 +44,7 @@
             <th class="px-6 py-4">ID</th>
             <th class="px-6 py-4">Nombre</th>
             <th class="px-6 py-4">Tipo</th>
+            <th class="px-6 py-4">Animal</th>
             <th class="px-6 py-4">Enfermedad</th>
             <th class="px-6 py-4">Empleado</th>
             <th class="px-6 py-4">Fecha Inicio</th>
