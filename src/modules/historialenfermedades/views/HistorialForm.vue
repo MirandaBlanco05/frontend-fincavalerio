@@ -8,7 +8,7 @@
           <h3 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nuevo' }} Registro de Enfermedad</h3>
           <p class="modal-subtitle">Complete los datos del historial</p>
         </div>
-        <button type="button" @click="router.push({ name: 'HistorialEnfermedades' })" class="btn-close">
+        <button type="button" @click="router.push({ name: 'HistorialList' })" class="btn-close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
@@ -34,7 +34,7 @@
             <select v-model="form.id_bovino" required class="form-select">
               <option value="">Seleccione un animal...</option>
               <option v-for="b in bovinos" :key="b.id_bovino" :value="b.id_bovino">
-                {{ b.nombre }} - {{ b.codigo || b.numero_crotal }}
+                {{ b.nombre }} - {{ b.codigo }}
               </option>
             </select>
           </div>
@@ -62,6 +62,15 @@
               Fecha del Diagnóstico
             </label>
             <input v-model="form.fecha" type="date" required class="form-input" />
+          </div>
+
+          <!-- Observaciones (opcional) -->
+          <div class="form-group">
+            <label class="form-label">
+              <span class="material-symbols-outlined">description</span>
+              Observaciones
+            </label>
+            <input v-model="form.observaciones" type="text" class="form-input" placeholder="Opcional" />
           </div>
         </div>
 
@@ -98,7 +107,8 @@ const enfermedades = ref([])
 const form = reactive({
   id_bovino: '',
   id_enfermedad: '',
-  fecha: new Date().toISOString().split('T')[0]
+  fecha: new Date().toISOString().split('T')[0],
+  observaciones: ''
 })
 
 onMounted(async () => {

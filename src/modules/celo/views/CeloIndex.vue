@@ -251,14 +251,19 @@ async function guardar() {
   store.error = null
 
   try {
-    // Validación: No puede pasar de 9 meses (aprox 275 días)
+    // Validación: El ciclo de celo dura aprox 21 días, máximo 23
     if (form.fecha_inicio && form.fecha_fin) {
       const inicio = new Date(form.fecha_inicio)
       const fin = new Date(form.fecha_fin)
-      const diffMeses = (fin.getFullYear() - inicio.getFullYear()) * 12 + (fin.getMonth() - inicio.getMonth())
+      const diffDias = Math.floor((fin - inicio) / (1000 * 60 * 60 * 24))
       
-      if (diffMeses > 9) {
-        window.alert('ERROR: El ciclo de celo no puede durar más de 9 meses. Revise las fechas.')
+      if (diffDias > 23) {
+        window.alert('ERROR: El ciclo de celo no puede durar más de 23 días. Revise las fechas.')
+        guardando.value = false
+        return
+      }
+      if (diffDias < 0) {
+        window.alert('ERROR: La fecha de fin no puede ser anterior a la de inicio.')
         guardando.value = false
         return
       }

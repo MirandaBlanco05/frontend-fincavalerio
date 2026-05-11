@@ -51,17 +51,19 @@
             <th class="px-6 py-4">ID</th>
             <th class="px-6 py-4">Animal</th>
             <th class="px-6 py-4">Enfermedad</th>
+            <th class="px-6 py-4">Causa</th>
+            <th class="px-6 py-4">Fecha</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="store.cargando">
-            <td colspan="3" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
               <p class="mt-2">Cargando historial...</p>
             </td>
           </tr>
           <tr v-else-if="store.historiales.length === 0">
-            <td colspan="3" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined text-4xl">search_off</span>
               <p class="mt-2">No hay registros de historial.</p>
             </td>
@@ -81,6 +83,10 @@
             <td class="px-6 py-3">
               {{ h.enfermedades?.length ? h.enfermedades.map(e => e.nombre).join(', ') : '—' }}
             </td>
+            <td class="px-6 py-3">
+              {{ h.enfermedades?.length ? h.enfermedades.map(e => e.causa || '').filter(c => c).join(', ') || '—' : '—' }}
+            </td>
+            <td class="px-6 py-3">{{ h.fecha ? formatearFecha(h.fecha) : '—' }}</td>
           </tr>
         </tbody>
       </table>
