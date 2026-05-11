@@ -1,0 +1,1 @@
+import{_ as o,a as n,c as r,k as t,m as a}from"./index-yC5sYXBd.js";const c={name:"EmbarazoIndex"};function s(_,m,p,d,i,l){const e=a("router-view");return n(),r("div",null,[t(e)])}const f=o(c,[["render",s]]);export{f as default};

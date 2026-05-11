@@ -49,7 +49,7 @@ export const useBovinoStore = defineStore('bovino', () => {
     mensaje.value = null
     try {
       const { data } = await bovinoService.actualizar(id, datos)
-      const idx = bovinos.value.findIndex(b => b.id_bovino == id)
+      const idx = bovinos.value.findIndex(b => b.id_bovino === id)
       if (idx !== -1) bovinos.value[idx] = data.bovino
       mensaje.value = data.message
       return true

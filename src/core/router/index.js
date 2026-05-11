@@ -10,36 +10,37 @@ const ProduccionIndex = () => import('@/modules/produccion/views/ProduccionIndex
 const CeloIndex       = () => import('@/modules/celo/views/CeloIndex.vue')
 const EmpleadoIndex   = () => import('@/modules/empleado/views/EmpleadoIndex.vue')
 const OrdenioIndex    = () => import('@/modules/ordenio/views/OrdenioIndex.vue')
-const OrdenioForm     = () => import('@/modules/ordenio/views/OrdenioForm.vue')
 const CompraIndex     = () => import('@/modules/compra/views/compraindex.vue')
 
 const VentaIndex      = () => import('@/modules/venta/views/VentaIndex.vue')
 const VentaForm       = () => import('@/modules/venta/views/VentaForm.vue')
 
 const InseminacionIndex   = () => import('@/modules/inseminacion/InseminacionIndex.vue')
+const InseminacionForm    = () => import('@/modules/inseminacion/InseminacionForm.vue')
 const NewInseminacionForm = () => import('@/modules/inseminacion/NewInseminacionForm.vue')
 
 const EmbarazoIndex   = () => import('@/modules/Embarazo/EmbarazoIndex.vue')
+const EmbarazoForm    = () => import('@/modules/Embarazo/EmbarazoForm.vue')
 const NewEmbarazoForm = () => import('@/modules/Embarazo/NewEmbarazoForm.vue')
 
 const PartoIndex   = () => import('@/modules/Parto/PartoIndex.vue')
+const PartoForm    = () => import('@/modules/Parto/PartoForm.vue')
 const NewPartoForm = () => import('@/modules/Parto/NewPartoForm.vue')
 
 // Salud y Bienestar
 const VeterinarioIndex     = () => import('@/modules/veterinario/views/VeterinariosList.vue')
-const VeterinarioForm = () => import('@/modules/veterinario/views/VeterinarioForm.vue')
 const AgendaVeterinariaIndex = () => import('@/modules/agendaveterinaria/views/AgendaVeterinariaIndex.vue')
 
 // Historial de Enfermedades
-const HistorialIndex = () => import('@/modules/historialenfermedades/views/HistorialIndex.vue')
+const HistorialList = () => import('@/modules/historialenfermedades/views/HistorialList.vue')
 const HistorialForm = () => import('@/modules/historialenfermedades/views/HistorialForm.vue')
 
-// Vacunas (comentadas temporalmente porque la carpeta no existe)
-// const VacunasIndex = () => import('@/modules/vacuna/views/VacunaIndex.vue')
-// const VacunaForm  = () => import('@/modules/vacuna/views/VacunaForm.vue')
+// Vacunas
+const VacunasList = () => import('@/modules/vacuna/views/VacunasList.vue')
+const VacunaForm  = () => import('@/modules/vacuna/views/VacunaForm.vue')
 
 // Tratamientos
-const TratamientosIndex = () => import('@/modules/tratamientos/views/TratamientoIndex.vue')
+const TratamientosList = () => import('@/modules/tratamientos/views/TratamientosList.vue')
 const TratamientoForm  = () => import('@/modules/tratamientos/views/TratamientoForm.vue')
 
 // Inventario
@@ -59,71 +60,45 @@ const routes = [
   
   // Ganadería
   { path: '/ordenio',    name: 'Ordenio',    component: OrdenioIndex },
-  { path: '/ordenio/nuevo', name: 'OrdenioNuevo', component: OrdenioForm },
-  { path: '/ordenio/editar/:id', name: 'OrdenioEditar', component: OrdenioForm },
   
   // Salud y Bienestar
-  { path: '/veterinarios',           name: 'Veterinarios',        component: VeterinarioIndex },
-{ path: '/veterinarios/nuevo',     name: 'VeterinarioNuevo',    component: VeterinarioForm },
-{ path: '/veterinarios/editar/:id', name: 'VeterinarioEditar',  component: VeterinarioForm },
+  { path: '/veterinarios',          name: 'Veterinarios',          component: VeterinarioIndex },
   { path: '/agenda-veterinaria',    name: 'AgendaVeterinaria',     component: AgendaVeterinariaIndex },
   
   // Historial de Enfermedades
-  { path: '/historial-enfermedades',         name: 'HistorialEnfermedades', component: HistorialIndex },
+  { path: '/historial-enfermedades',         name: 'HistorialEnfermedades', component: HistorialList },
   { path: '/historial-enfermedades/nuevo',   name: 'HistorialNuevo',        component: HistorialForm },
   { path: '/historial-enfermedades/editar/:id', name: 'HistorialEditar',    component: HistorialForm },
   
   // Vacunas
-  // { path: '/vacunas',               name: 'Vacunas',       component: VacunasIndex },
-  // { path: '/vacunas/nuevo',         name: 'VacunaNueva',   component: VacunaForm },
-  // { path: '/vacunas/editar/:id',    name: 'VacunaEditar',  component: VacunaForm },
+  { path: '/vacunas',               name: 'Vacunas',       component: VacunasList },
+  { path: '/vacunas/nuevo',         name: 'VacunaNueva',   component: VacunaForm },
+  { path: '/vacunas/editar/:id',    name: 'VacunaEditar',  component: VacunaForm },
   
   // Tratamientos
-  { path: '/tratamientos',          name: 'Tratamientos',       component: TratamientosIndex },
+  { path: '/tratamientos',          name: 'Tratamientos',       component: TratamientosList },
   { path: '/tratamientos/nuevo',    name: 'TratamientoNuevo',   component: TratamientoForm },
   { path: '/tratamientos/editar/:id', name: 'TratamientoEditar', component: TratamientoForm },
   
   // Reproducción
-  { path: '/ciclo-celo',              name: 'CicloCelo',      component: CeloIndex },
-  { path: '/ciclo-celo/nuevo',        name: 'CeloNuevo',      component: () => import('@/modules/celo/views/CeloForm.vue') },
-  { path: '/ciclo-celo/editar/:id',   name: 'CeloEditar',     component: () => import('@/modules/celo/views/CeloForm.vue') },
-
-  { path: '/inseminaciones',          name: 'Inseminaciones', component: InseminacionIndex },
-  { path: '/inseminaciones/nuevo',    name: 'InseminacionNueva', component: NewInseminacionForm },
-  { path: '/inseminaciones/editar/:id', name: 'InseminacionEditar', component: NewInseminacionForm },
-
-  { path: '/embarazos',               name: 'Embarazos',      component: EmbarazoIndex },
-  { path: '/embarazos/nuevo',         name: 'EmbarazoNuevo',  component: NewEmbarazoForm },
-  { path: '/embarazos/editar/:id',    name: 'EmbarazoEditar', component: NewEmbarazoForm },
-
-  { path: '/partos',                  name: 'Partos',         component: PartoIndex },
-  { path: '/partos/nuevo',            name: 'PartoNuevo',     component: NewPartoForm },
-  { path: '/partos/editar/:id',       name: 'PartoEditar',    component: NewPartoForm },
-
+{
+  path: '/ciclo-celo',
+  name: 'CicloCelo',
+  component: () => import('@/modules/celo/views/CeloIndex.vue')
+},
   // Facturación
   { path: '/venta',       name: 'Venta',       component: VentaIndex },
   { path: '/compra',      name: 'Compra',      component: CompraIndex },
   { path: '/venta/nueva', name: 'VentaNueva',  component: VentaForm },
-  { path: '/venta/editar/:id', name: 'VentaEditar', component: VentaForm },
-  { path: '/compra/nueva', name: 'CompraNueva', component: () => import('@/modules/compra/views/CompraForm.vue') },
-  { path: '/compra/editar/:id', name: 'CompraEditar', component: () => import('@/modules/compra/views/CompraForm.vue') },
 
   // Inventario
   { path: '/productos', name: 'Productos', component: ProductoIndex },
-  { path: '/productos/nuevo', name: 'ProductoNuevo', component: () => import('@/modules/producto/views/ProductoForm.vue') },
-  { path: '/productos/editar/:id', name: 'ProductoEditar', component: () => import('@/modules/producto/views/ProductoForm.vue') },
   { path: '/insumos',   name: 'Insumos',   component: InsumoIndex },
   
   // Contactos
-  { path: '/empleados',    name: 'Empleados',   component: EmpleadoIndex },
-  { path: '/empleados/nuevo', name: 'EmpleadoNuevo', component: () => import('@/modules/empleado/views/EmpleadoForm.vue') },
-  { path: '/empleados/editar/:id', name: 'EmpleadoEditar', component: () => import('@/modules/empleado/views/EmpleadoForm.vue') },
+  { path: '/empleado',    name: 'Empleado',   component: EmpleadoIndex },
   { path: '/clientes',    name: 'Clientes',   component: ClienteIndex },
-  { path: '/clientes/nuevo', name: 'ClienteNuevo', component: () => import('@/modules/cliente/views/ClienteForm.vue') },
-  { path: '/clientes/editar/:id', name: 'ClienteEditar', component: () => import('@/modules/cliente/views/ClienteForm.vue') },
   { path: '/proveedores', name: 'Proveedores',component: ProveedorIndex },
-  { path: '/proveedores/nuevo', name: 'ProveedorNuevo', component: () => import('@/modules/proveedor/views/ProveedorForm.vue') },
-  { path: '/proveedores/editar/:id', name: 'ProveedorEditar', component: () => import('@/modules/proveedor/views/ProveedorForm.vue') },
 
   // Rutas anidadas para módulos complejos
   {
@@ -133,6 +108,33 @@ const routes = [
       { path: '',           name: 'BovinosList',    component: BovinoList },
       { path: 'nuevo',      name: 'BovinoNuevo',   component: BovinoForm },
       { path: 'editar/:id', name: 'BovinoEditar',  component: BovinoForm }
+    ]
+  },
+  
+  {
+    path: '/inseminaciones',
+    component: InseminacionIndex,
+    children: [
+      { path: '',      name: 'InseminacionesList',      component: InseminacionForm },
+      { path: 'nuevo', name: 'InseminacionNueva',       component: NewInseminacionForm }
+    ]
+  },
+
+  {
+    path: '/embarazos',
+    component: EmbarazoIndex,
+    children: [
+      { path: '',      name: 'EmbarazosList',      component: EmbarazoForm },
+      { path: 'nuevo', name: 'EmbarazoNuevo',      component: NewEmbarazoForm }
+    ]
+  },
+
+  {
+    path: '/partos',
+    component: PartoIndex,
+    children: [
+      { path: '',      name: 'PartosList',      component: PartoForm },
+      { path: 'nuevo', name: 'PartoNuevo',      component: NewPartoForm }
     ]
   },
 

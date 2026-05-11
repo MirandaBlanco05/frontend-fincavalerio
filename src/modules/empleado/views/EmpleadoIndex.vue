@@ -21,7 +21,6 @@
       <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
         <span class="material-symbols-outlined text-base">filter_list</span>
         <span class="truncate">Filtrar</span>
-        <span v-if="filtrosActivos > 0" class="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-xs text-white">{{ filtrosActivos }}</span>
       </button>
     </div>
 
@@ -97,15 +96,18 @@
 
           <div class="flex flex-col gap-4 p-4">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Buscar por Nombre</label>
-              <input v-model="filtros.nombre" type="text" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Buscar nombre..." />
+              <label class="mb-1 block text-sm font-medium">Nacionalidad</label>
+              <select v-model="filtros.nacionalidad" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todas</option>
+                <option v-for="nac in nacionalidadesUnicas" :key="nac" :value="nac">{{ nac }}</option>
+              </select>
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Filtrar por Nacionalidad</label>
-              <select v-model="filtros.nacionalidad" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
-                <option value="">Todas las nacionalidades</option>
-                <option v-for="nac in nacionalidadesUnicas" :key="nac" :value="nac">{{ nac }}</option>
+              <label class="mb-1 block text-sm font-medium">Puesto</label>
+              <select v-model="filtros.puesto" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todos los puestos</option>
+                <option v-for="puesto in puestosUnicos" :key="puesto" :value="puesto">{{ puesto }}</option>
               </select>
             </div>
           </div>
@@ -135,15 +137,8 @@ const store = useEmpleadoStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
-const filtros = ref({ nombre: '', nacionalidad: '' })
-const filtrosAplicados = ref({ nombre: '', nacionalidad: '' })
-
-const filtrosActivos = computed(() => {
-  let c = 0
-  if (filtrosAplicados.value.nombre) c++
-  if (filtrosAplicados.value.nacionalidad) c++
-  return c
-})
+const filtros = ref({ nacionalidad: '', puesto: '' })
+const filtrosAplicados = ref({ nacionalidad: '', puesto: '' })
 
 onMounted(() => {
   store.cargarEmpleados()
@@ -182,8 +177,8 @@ function aplicarFiltros() {
 }
 
 function limpiarFiltros() {
-  filtros.value = { nombre: '', nacionalidad: '' }
-  filtrosAplicados.value = { nombre: '', nacionalidad: '' }
+  filtros.value = { nacionalidad: '', puesto: '' }
+  filtrosAplicados.value = { nacionalidad: '', puesto: '' }
   modalFiltros.value = false
 }
 
@@ -197,10 +192,10 @@ const puestosUnicos = computed(() => {
 
 const empleadosFiltrados = computed(() => {
   return store.empleados.filter(e => {
-    const { nombre, nacionalidad } = filtrosAplicados.value
+    const { nacionalidad, puesto } = filtrosAplicados.value
 
-    if (nombre && !e.nombre.toLowerCase().includes(nombre.toLowerCase())) return false
     if (nacionalidad && e.nacionalidad !== nacionalidad) return false
+    if (puesto && e.puesto !== puesto) return false
 
     return true
   })

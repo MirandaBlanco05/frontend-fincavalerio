@@ -26,7 +26,7 @@ export const useCeloStore = defineStore('celo', {
       }
     },
 
-    async crearCelo(datos) {
+    async crearCiclo(datos) {
       this.cargando = true
       this.error = null
       this.mensaje = null
@@ -37,7 +37,7 @@ export const useCeloStore = defineStore('celo', {
         setTimeout(() => { this.mensaje = null }, 3000)
         return { success: true, data: response.data }
       } catch (error) {
-        this.error = error.response?.data?.error || error.response?.data?.mensaje || 'Error al crear ciclo'
+        this.error = error.response?.data?.mensaje || 'Error al crear ciclo'
         console.error('Error al crear ciclo:', error)
         return { success: false }
       } finally {
@@ -45,7 +45,7 @@ export const useCeloStore = defineStore('celo', {
       }
     },
 
-    async actualizarCelo(id, datos) {
+    async actualizarCiclo(id, datos) {
       this.cargando = true
       this.error = null
       this.mensaje = null
@@ -56,7 +56,7 @@ export const useCeloStore = defineStore('celo', {
         setTimeout(() => { this.mensaje = null }, 3000)
         return { success: true, data: response.data }
       } catch (error) {
-        this.error = error.response?.data?.error || error.response?.data?.mensaje || 'Error al actualizar ciclo'
+        this.error = error.response?.data?.mensaje || 'Error al actualizar ciclo'
         console.error('Error al actualizar ciclo:', error)
         return { success: false }
       } finally {
@@ -82,11 +82,6 @@ export const useCeloStore = defineStore('celo', {
         this.cargando = false
       }
     },
-
-    // Aliases para compatibilidad con versiones anteriores del formulario
-    async crearCiclo(datos) { return this.crearCelo(datos) },
-    async actualizarCiclo(id, datos) { return this.actualizarCelo(id, datos) },
-    async eliminarCicloAlias(id) { return this.eliminarCiclo(id) },
 
     limpiarMensajes() {
       this.error = null

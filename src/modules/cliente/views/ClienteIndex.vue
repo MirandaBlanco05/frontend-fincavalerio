@@ -21,7 +21,6 @@
       <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
         <span class="material-symbols-outlined text-base">filter_list</span>
         <span class="truncate">Filtrar</span>
-        <span v-if="filtrosActivos > 0" class="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-xs text-white">{{ filtrosActivos }}</span>
       </button>
     </div>
 
@@ -71,7 +70,7 @@
             <td class="px-6 py-3 font-mono text-xs">{{ c.rnc || '—' }}</td>
             <td class="px-6 py-3">{{ c.telefono || '—' }}</td>
             <td class="px-6 py-3">{{ c.correo || '—' }}</td>
-            <td class="px-6 py-3">{{ c.provincia?.nombre || '—' }}</td>
+            <td class="px-6 py-3">{{ c.provincia || '—' }}</td>
             <td class="px-6 py-3">
               <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="c.estado === 'activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'">
                 {{ c.estado }}
@@ -99,8 +98,11 @@
 
           <div class="flex flex-col gap-4 p-4">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Buscar por Nombre</label>
-              <input v-model="filtros.nombre" type="text" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Buscar nombre..." />
+              <label class="mb-1 block text-sm font-medium">Estado</label>
+              <select v-model="filtros.estado" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todos</option>
+                <option v-for="estado in estadosUnicos" :key="estado" :value="estado">{{ estado }}</option>
+              </select>
             </div>
           </div>
 
@@ -129,14 +131,8 @@ const store = useClienteStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
-const filtros = ref({ nombre: '' })
-const filtrosAplicados = ref({ nombre: '' })
-
-const filtrosActivos = computed(() => {
-  let c = 0
-  if (filtrosAplicados.value.nombre) c++
-  return c
-})
+const filtros = ref({ estado: '' })
+const filtrosAplicados = ref({ estado: '' })
 
 onMounted(() => {
   store.cargarClientes()
@@ -175,8 +171,8 @@ function aplicarFiltros() {
 }
 
 function limpiarFiltros() {
-  filtros.value = { nombre: '' }
-  filtrosAplicados.value = { nombre: '' }
+  filtros.value = { estado: '' }
+  filtrosAplicados.value = { estado: '' }
   modalFiltros.value = false
 }
 
@@ -185,11 +181,10 @@ const estadosUnicos = computed(() => {
 })
 
 const clientesFiltrados = computed(() => {
-  if (!store.clientes) return []
   return store.clientes.filter(c => {
-    const { nombre } = filtrosAplicados.value
-    
-    if (nombre && !c.nombre?.toLowerCase().includes(nombre.toLowerCase())) return false
+    const { estado } = filtrosAplicados.value
+
+    if (estado && c.estado !== estado) return false
 
     return true
   })

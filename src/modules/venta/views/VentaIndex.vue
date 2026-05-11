@@ -21,7 +21,6 @@
       <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
         <span class="material-symbols-outlined text-base">filter_list</span>
         <span class="truncate">Filtrar</span>
-        <span v-if="filtrosActivos > 0" class="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-xs text-white">{{ filtrosActivos }}</span>
       </button>
     </div>
 
@@ -106,12 +105,7 @@
                 <option value="activo">Activo</option>
                 <option value="inactivo">Inactivo</option>
               </select>
-            
-            <div>
-              <label class="mb-1 block text-sm font-medium">Buscar por Concepto</label>
-              <input v-model="filtros.concepto" type="text" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Buscar..." />
             </div>
-    </div>
 
             <div>
               <label class="mb-1 block text-sm font-medium">Fecha Desde</label>
@@ -188,14 +182,6 @@ const modalEliminar = ref(false)
 const modalFiltros = ref(false)
 const filtros = ref({ estado: '', fechaDesde: '', fechaHasta: '' })
 const filtrosAplicados = ref({ estado: '', fechaDesde: '', fechaHasta: '' })
-
-const filtrosActivos = computed(() => {
-  let c = 0
-  if (filtrosAplicados.value.estado) c++
-  if (filtrosAplicados.value.fechaDesde) c++
-  if (filtrosAplicados.value.fechaHasta) c++
-  return c
-})
 
 onMounted(() => {
   store.cargarVentas()

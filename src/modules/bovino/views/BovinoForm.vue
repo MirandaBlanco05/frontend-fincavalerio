@@ -27,10 +27,10 @@
               <span class="material-symbols-outlined">dataset</span>
               Grupo
             </label>
-            <select v-model="form.id_grupo" required class="form-select">
+            <select v-model="form.Id_grupo" required class="form-select">
               <option value="">Seleccione grupo...</option>
-              <option v-for="g in grupos" :key="g.id_grupo || g.Id_grupo" :value="g.id_grupo || g.Id_grupo">
-                {{ g.nombre || g.Nombre || g.Tipo_grupo || `Grupo ${g.id_grupo || g.Id_grupo}` }}
+              <option v-for="g in grupos" :key="g.id_grupo" :value="g.id_grupo">
+                {{ g.nombre }}
               </option>
             </select>
           </div>
@@ -50,10 +50,10 @@
               <span class="material-symbols-outlined">category</span>
               Raza
             </label>
-            <select v-model="form.id_raza" required class="form-select">
+            <select v-model="form.Id_raza" required class="form-select">
               <option value="">Seleccione raza...</option>
-              <option v-for="r in razas" :key="r.id_raza || r.Id_raza" :value="r.id_raza || r.Id_raza">
-                {{ r.nombre || r.Tipo_raza || r.Nombre || `Raza ${r.id_raza || r.Id_raza}` }}
+              <option v-for="r in razas" :key="r.id_raza" :value="r.id_raza">
+                {{ r.nombre }}
               </option>
             </select>
           </div>
@@ -160,9 +160,9 @@ const grupos = ref([])
 const razas = ref([])
 
 const form = reactive({
-  id_grupo:         '',
+  Id_grupo:         '',
   numero_crotal:    '',
-  id_raza:          '',
+  Id_raza:          '',
   nombre:           '',
   fecha_nacimiento: '',
   nombre_madre:     '',
@@ -181,9 +181,9 @@ onMounted(async () => {
     }
     const bovino = store.bovinos.find(b => b.id_bovino == route.params.id)
     if (bovino) {
-      form.id_grupo         = bovino.id_grupo
+      form.Id_grupo         = bovino.Id_grupo
       form.numero_crotal    = bovino.numero_crotal
-      form.id_raza          = bovino.id_raza
+      form.Id_raza          = bovino.Id_raza
       form.nombre           = bovino.nombre
       form.fecha_nacimiento = bovino.fecha_nacimiento
       form.nombre_madre     = bovino.nombre_madre
@@ -217,7 +217,7 @@ async function guardar() {
     ok = await store.crearBovino({ ...form })
   }
   if (ok) {
-    router.push({ name: 'BovinosList' })
+    router.push({ name: 'Bovinos' })
   }
 }
 </script>

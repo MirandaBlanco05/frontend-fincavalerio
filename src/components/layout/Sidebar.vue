@@ -83,7 +83,13 @@
               <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Historial Enfermedades</p>
             </li>
           </RouterLink>
-        
+          <RouterLink to="/vacunas" custom v-slot="{ isActive, navigate }">
+            <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg pl-10 pr-4 transition-colors"
+              :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
+              <span class="material-symbols-outlined text-[18px]" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">vaccines</span>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Vacunas</p>
+            </li>
+          </RouterLink>
           <RouterLink to="/tratamientos" custom v-slot="{ isActive, navigate }">
             <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg pl-10 pr-4 transition-colors"
               :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
@@ -211,7 +217,7 @@
             :class="[open.contactos ? 'rotate-180 text-[#8B6914]' : 'text-[#5a3a1a]/40']">expand_more</span>
         </button>
         <ul v-show="open.contactos" class="mt-1 space-y-0.5">
-          <RouterLink to="/empleados" custom v-slot="{ isActive, navigate }">
+          <RouterLink to="/empleado" custom v-slot="{ isActive, navigate }">
             <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg pl-10 pr-4 transition-colors"
               :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
               <span class="material-symbols-outlined text-[18px]" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">badge</span>

@@ -25,22 +25,19 @@
       <form id="form-inseminacion" @submit.prevent="guardar" class="modal-body">
 
         <div class="form-grid">
-          <!-- Veterinario -->
+          <!-- ID Veterinario -->
           <div class="form-group">
             <label class="form-label required">
               <span class="material-symbols-outlined">medical_services</span>
-              Veterinario
+              ID Veterinario
             </label>
-            <select
-              v-model="form.id_veterinario"
+            <input
+              v-model="form.id_veterinaro"
+              type="number"
               required
-              class="form-select"
-            >
-              <option value="" disabled>Seleccione un veterinario...</option>
-              <option v-for="vet in vetStore.veterinarios" :key="vet.id_veterinario" :value="vet.id_veterinario">
-                {{ vet.nombre }}
-              </option>
-            </select>
+              class="form-input"
+              placeholder="Código veterinario"
+            />
           </div>
 
           <!-- ID Ciclo -->
@@ -99,7 +96,7 @@
             <select v-model="form.resultado" required class="form-select">
               <option value="Pendiente">Pendiente</option>
               <option value="Efectiva">Efectiva</option>
-              <option value="Inefectiva">Fallida</option>
+              <option value="Inefectiva">Inefectiva</option>
             </select>
           </div>
         </div>
@@ -123,20 +120,17 @@
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useInseminacionStore } from './store/inseminacion.store.js'
-import { useVeterinarioStore } from '../veterinario/store/veterinario.store.js'
+import axios from 'axios'
 
-const router   = useRouter()
-const route    = useRoute()
-const store    = useInseminacionStore()
-const vetStore = useVeterinarioStore()
+const router = useRouter()
+const route  = useRoute()
 
 const modoEdicion = computed(() => !!route.params.id)
 const cargando    = ref(false)
 const errorLocal  = ref('')
 
 const form = reactive({
-  id_veterinario: '',
+  id_veterinaro: '',
   id_ciclo:      '',
   fecha:         '',
   tipo:          '',
@@ -144,21 +138,16 @@ const form = reactive({
 })
 
 onMounted(async () => {
-  await vetStore.cargarVeterinarios()
-  
   if (modoEdicion.value) {
-    if (store.inseminaciones.length === 0) {
-      await store.cargarInseminaciones()
-    }
-    const ins = store.inseminaciones.find(i => i.id_inseminacion == route.params.id)
-    if (ins) {
-      form.id_veterinario = ins.id_veterinario || ins.Id_veterinario || (ins.veterinario?.id_veterinario) || ''
-      form.id_ciclo       = ins.id_ciclo || ins.Id_ciclo || (ins.ciclo?.id_ciclo) || ''
-      form.fecha          = ins.fecha ? ins.fecha.split('T')[0] : ''
-      form.tipo           = ins.tipo_inseminacion || ins.Tipo_inseminacion || ''
-      form.resultado      = ins.resultado || 'Pendiente'
-    } else {
-      errorLocal.value = 'No se pudo encontrar la inseminación.'
+    try {
+      const { data } = await axios.get(`http://localhost:3000/api/inseminacion/${route.params.id}`)
+      form.id_veterinaro = data.Id_veterinaro
+      form.id_ciclo      = data.Id_ciclo
+      form.fecha         = data.fecha
+      form.tipo          = data.Tipo_inseminacion
+      form.resultado     = data.resultado
+    } catch (e) {
+      errorLocal.value = 'No se pudo cargar la inseminación.'
     }
   }
 })
@@ -169,28 +158,25 @@ async function guardar() {
 
   try {
     const payload = {
-      id_veterinario:    form.id_veterinario,
-      id_ciclo:          form.id_ciclo,
-      fecha:             form.fecha,
-      tipo_inseminacion: form.tipo,
-      resultado:         form.resultado
+      Id_veterinaro:    form.id_veterinaro,
+      Id_ciclo:         form.id_ciclo,
+      fecha:            form.fecha,
+      Tipo_inseminacion: form.tipo,
+      resultado:        form.resultado
     }
 
-    let ok = false
     if (modoEdicion.value) {
-      ok = await store.actualizarInseminacion(route.params.id, payload)
+      await axios.put(`http://localhost:3000/api/inseminacion/actualizar/${route.params.id}`, payload)
     } else {
-      ok = await store.crearInseminacion(payload)
+      await axios.post('http://localhost:3000/api/inseminacion/crear', payload)
     }
 
-    if (ok) {
-      router.push('/inseminaciones')
-    } else {
-      errorLocal.value = store.error || 'Error al guardar la inseminación'
-    }
+    router.push('/inseminaciones')
 
   } catch (error) {
-    errorLocal.value = error.response?.data?.error || 'Error desconocido al guardar'
+    errorLocal.value = error.response?.data?.error
+      || error.response?.data?.mensaje
+      || 'Error desconocido en el servidor'
   } finally {
     cargando.value = false
   }
@@ -231,19 +217,19 @@ async function guardar() {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 1.5rem 2rem;
+  padding: 2rem 2rem 1.5rem;
   border-bottom: 1.5px solid #f0f0ed;
 }
 
 .modal-title {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #1a1a1a;
   margin-bottom: 0.25rem;
 }
 
 .modal-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #6b7280;
   font-weight: 500;
 }
@@ -258,11 +244,16 @@ async function guardar() {
   transition: all 0.2s;
 }
 
+.btn-close:hover {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
 .modal-body {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .form-group {
@@ -344,14 +335,32 @@ async function guardar() {
   color: white;
 }
 
+.btn--primary:hover:not(:disabled) {
+  background: #3d7a3d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
+}
+
+.btn--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn--secondary {
   background: #f5f5f5;
   color: #374151;
 }
 
+.btn--secondary:hover {
+  background: #e5e7eb;
+}
+
 @media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;
+  }
+  .modal-body {
+    padding: 1.5rem;
   }
 }
 </style>

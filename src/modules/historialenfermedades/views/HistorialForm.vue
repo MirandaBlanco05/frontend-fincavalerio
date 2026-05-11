@@ -8,7 +8,7 @@
           <h3 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nuevo' }} Registro de Enfermedad</h3>
           <p class="modal-subtitle">Complete los datos del historial</p>
         </div>
-        <button type="button" @click="router.push({ name: 'HistorialEnfermedades' })" class="btn-close">
+        <button type="button" @click="router.push({ name: 'HistorialList' })" class="btn-close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
@@ -34,25 +34,23 @@
             <select v-model="form.id_bovino" required class="form-select">
               <option value="">Seleccione un animal...</option>
               <option v-for="b in bovinos" :key="b.id_bovino" :value="b.id_bovino">
-                {{ b.nombre || 'Sin nombre' }} - {{ b.numero_crotal || 'Sin crotal' }}
+                {{ b.nombre }} - {{ b.codigo }}
               </option>
             </select>
           </div>
 
-          <!-- Enfermedades (Múltiple) -->
-          <div class="form-group col-span-2">
+          <!-- Enfermedad -->
+          <div class="form-group">
             <label class="form-label required">
               <span class="material-symbols-outlined">medical_services</span>
-              Enfermedades Diagnosticadas
+              Enfermedad
             </label>
-            <div class="checkbox-grid">
-              <label v-for="e in enfermedades" :key="e.id_enfermedad" class="checkbox-card" :class="{ 'is-selected': form.enfermedades.includes(e.id_enfermedad) }">
-                <input type="checkbox" :value="e.id_enfermedad" v-model="form.enfermedades" class="hidden-checkbox" />
-                <span class="checkbox-marker"></span>
-                <span class="checkbox-label">{{ e.nombre }}</span>
-              </label>
-            </div>
-            <p v-if="form.enfermedades.length === 0" class="text-xs text-gray-400 mt-2">Seleccione al menos una enfermedad</p>
+            <select v-model="form.id_enfermedad" required class="form-select">
+              <option value="">Seleccione una enfermedad...</option>
+              <option v-for="e in enfermedades" :key="e.id_enfermedad" :value="e.id_enfermedad">
+                {{ e.nombre }}
+              </option>
+            </select>
           </div>
         </div>
 
@@ -94,8 +92,8 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useHistorialStore } from '../store/historial.store.js'
-import { bovinoService } from '@/modules/bovino/services/bovino.service.js'
-import   enfermedadService  from '@/modules/enfermedad/services/enfermedad.service.js'
+import bovinoService from '@/modules/bovino/services/bovino.service.js'
+import enfermedadService from '@/modules/enfermedad/services/enfermedad.service.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -108,7 +106,7 @@ const enfermedades = ref([])
 
 const form = reactive({
   id_bovino: '',
-  enfermedades: [], // Ahora es un array para many-to-many
+  id_enfermedad: '',
   fecha: new Date().toISOString().split('T')[0],
   observaciones: ''
 })
@@ -123,11 +121,7 @@ onMounted(async () => {
     const hist = store.historiales.find(h => h.id_historial == route.params.id)
     if (hist) {
       form.id_bovino = hist.id_bovino
-      // El backend devuelve objetos en h.enfermedades, necesitamos mapear a IDs comparando nombres con el catálogo
-      form.enfermedades = enfermedades.value
-        .filter(e => hist.enfermedades?.some(he => he.nombre === e.nombre))
-        .map(e => e.id_enfermedad)
-      
+      form.id_enfermedad = hist.id_enfermedad
       form.fecha = hist.fecha ? hist.fecha.split('T')[0] : new Date().toISOString().split('T')[0]
       form.observaciones = hist.observaciones || ''
     }
@@ -148,10 +142,6 @@ async function cargarDatosAuxiliares() {
 }
 
 async function guardar() {
-  if (form.enfermedades.length === 0) {
-    alert('Por favor seleccione al menos una enfermedad')
-    return
-  }
   let ok
   if (modoEdicion.value) {
     ok = await store.actualizarHistorial(route.params.id, { ...form })
@@ -293,83 +283,7 @@ async function guardar() {
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-
-.col-span-2 {
-  grid-column: span 2;
-}
-
-.checkbox-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 10px;
-  margin-top: 5px;
-}
-
-.checkbox-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: #fcfcfc;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  user-select: none;
-}
-
-.checkbox-card:hover {
-  background: #f5f5f5;
-  border-color: #9ca3af;
-}
-
-.checkbox-card.is-selected {
-  background: #f0f9f0;
-  border-color: #4c9a4c;
-  box-shadow: 0 2px 8px rgba(76, 154, 76, 0.1);
-}
-
-.hidden-checkbox {
-  display: none;
-}
-
-.checkbox-marker {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #d1d5db;
-  border-radius: 5px;
-  position: relative;
-  transition: all 0.2s;
-  background: white;
-}
-
-.is-selected .checkbox-marker {
-  background: #4c9a4c;
-  border-color: #4c9a4c;
-}
-
-.is-selected .checkbox-marker::after {
-  content: '';
-  position: absolute;
-  left: 5px;
-  top: 1px;
-  width: 5px;
-  height: 9px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
-.checkbox-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #374151;
-}
-
-.is-selected .checkbox-label {
-  color: #1a1a1a;
+  gap: 1rem;
 }
 
 .modal-footer {

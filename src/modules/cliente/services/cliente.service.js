@@ -1,26 +1,44 @@
-import api from '@/core/api/axios.js'
-
-const BASE = '/cliente'
+const API_URL = 'http://localhost:3000/api/cliente'
 
 const clienteService = {
-  listar() {
-    return api.get(`${BASE}/listar`).then(res => res.data)
+  async listar() {
+    const res = await fetch(`${API_URL}/listar`)
+    if (!res.ok) throw new Error('Error al listar clientes')
+    return await res.json()
   },
 
-  obtener(id) {
-    return api.get(`${BASE}/${id}`).then(res => res.data)
+  async obtener(id) {
+    const res = await fetch(`${API_URL}/${id}`)
+    if (!res.ok) throw new Error('Error al obtener cliente')
+    return await res.json()
   },
 
-  crear(datos) {
-    return api.post(`${BASE}/crear`, datos).then(res => res.data)
+  async crear(datos) {
+    const res = await fetch(`${API_URL}/crear`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    })
+    if (!res.ok) throw new Error('Error al crear cliente')
+    return await res.json()
   },
 
-  actualizar(id, datos) {
-    return api.put(`${BASE}/update/${id}`, datos).then(res => res.data)
+  async actualizar(id, datos) {
+    const res = await fetch(`${API_URL}/update/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    })
+    if (!res.ok) throw new Error('Error al actualizar cliente')
+    return await res.json()
   },
 
-  eliminar(id) {
-    return api.delete(`${BASE}/eliminar/${id}`).then(res => res.data)
+  async eliminar(id) {
+    const res = await fetch(`${API_URL}/eliminar/${id}`, {
+      method: 'DELETE'
+    })
+    if (!res.ok) throw new Error('Error al eliminar cliente')
+    return await res.json()
   }
 }
 

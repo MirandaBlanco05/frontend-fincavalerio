@@ -3,12 +3,12 @@
 
     <!-- Action Bar -->
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <button @click="router.push('/compra/nueva')" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
+      <button @click="abrirModal()" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
         <span class="material-symbols-outlined text-base">add</span>
         <span class="truncate">Nueva Compra</span>
       </button>
 
-      <button @click="editarCompra()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+      <button @click="abrirModal(filaSeleccionada)" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">edit</span>
         <span class="truncate">Editar</span>
       </button>
@@ -21,7 +21,6 @@
       <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
         <span class="material-symbols-outlined text-base">filter_list</span>
         <span class="truncate">Filtrar</span>
-        <span v-if="filtrosActivos > 0" class="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-xs text-white">{{ filtrosActivos }}</span>
       </button>
     </div>
 
@@ -44,19 +43,20 @@
             <th class="px-6 py-4">Proveedor</th>
             <th class="px-6 py-4">Fecha</th>
             <th class="px-6 py-4">NCF</th>
+            <th class="px-6 py-4">Factura</th>
           </tr>
         </thead>
 
         <tbody>
           <tr v-if="store.cargando">
-            <td colspan="4" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
               <p class="mt-2">Cargando compras...</p>
             </td>
           </tr>
 
           <tr v-else-if="comprasFiltradas.length === 0">
-            <td colspan="4" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined text-4xl">inventory_2</span>
               <p class="mt-2">{{ store.compras.length === 0 ? 'No hay compras registradas.' : 'No hay resultados con los filtros aplicados.' }}</p>
             </td>
@@ -66,7 +66,13 @@
             <td class="px-6 py-3 font-bold">#{{ compra.id_compra }}</td>
             <td class="px-6 py-3">{{ compra.proveedor?.nombre || 'Sin proveedor' }}</td>
             <td class="px-6 py-3">{{ formatearFecha(compra.fecha) }}</td>
-            <td class="px-6 py-3 font-mono text-xs">{{ getSecuenciaNCF(compra.ncf) }}</td>
+            <td class="px-6 py-3 font-mono text-xs">{{ compra.ncf || '—' }}</td>
+            <td class="px-6 py-3">
+              <span v-if="compra.url_factura" class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700">
+                <span class="material-symbols-outlined text-xs">attach_file</span> Adjunta
+              </span>
+              <span v-else class="text-gray-400 text-xs">—</span>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -89,22 +95,26 @@
 
           <div class="flex flex-col gap-4 p-4">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Concepto</label>
-              <select v-model="filtros.concepto" class="w-full rounded-lg border border-border-color px-3 py-2.5 text-sm focus:border-primary focus:outline-none">
-                <option value="">Todos los conceptos</option>
-                <option value="Leche">Leche</option>
-                <option value="Ganado">Ganado</option>
-                <option value="Insumos">Insumos</option>
-                <option value="Otros">Otros</option>
-              </select>
+              <label class="mb-1 block text-sm font-medium">Fecha Desde</label>
+              <input v-model="filtros.fechaDesde" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+            </div>
+
+            <div>
+              <label class="mb-1 block text-sm font-medium">Fecha Hasta</label>
+              <input v-model="filtros.fechaHasta" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+            </div>
+
+            <div class="flex items-center gap-2">
+              <input type="checkbox" v-model="filtros.conFactura" id="conFactura" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+              <label for="conFactura" class="text-sm font-medium cursor-pointer">Solo con factura adjunta</label>
             </div>
           </div>
 
-          <div class="flex gap-3 p-4 border-t border-gray-200">
-            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-200">
+          <div class="flex gap-3 p-4">
+            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30">
               Limpiar
             </button>
-            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary/90">
+            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90">
               Aplicar Filtros
             </button>
           </div>
@@ -117,32 +127,18 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import api from '@/core/api/axios.js'
 import { useComprasStore } from '@/modules/compra/store/compra.store.js'
 
 const store = useComprasStore()
-const router = useRouter()
-const ncfs = ref([])
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
-const filtros = ref({ concepto: '' })
-const filtrosAplicados = ref({ concepto: '' })
-
-const filtrosActivos = computed(() => {
-  let c = 0
-  if (filtrosAplicados.value.concepto) c++
-  return c
-})
+const filtros = ref({ fechaDesde: '', fechaHasta: '', conFactura: false })
+const filtrosAplicados = ref({ fechaDesde: '', fechaHasta: '', conFactura: false })
 
 onMounted(async () => {
   await store.cargarCompras()
   await store.cargarProveedores()
-  try {
-    const res = await api.get('/ncf/secuencia/listar')
-    ncfs.value = res.data || []
-  } catch(e) { console.error('Error NCF:', e) }
 })
 
 function seleccionarFila(compra) {
@@ -154,9 +150,8 @@ function seleccionarFila(compra) {
   }
 }
 
-function editarCompra() {
-  if (!filaSeleccionada.value) return
-  router.push(`/compra/editar/${filaSeleccionada.value.id_compra}`)
+function abrirModal(compra = null) {
+  // Lógica del modal de crear/editar (si existe)
 }
 
 function confirmarEliminar() {
@@ -174,37 +169,36 @@ function aplicarFiltros() {
 }
 
 function limpiarFiltros() {
-  filtros.value = { concepto: '' }
-  filtrosAplicados.value = { concepto: '' }
+  filtros.value = { fechaDesde: '', fechaHasta: '', conFactura: false }
+  filtrosAplicados.value = { fechaDesde: '', fechaHasta: '', conFactura: false }
   modalFiltros.value = false
 }
 
 const comprasFiltradas = computed(() => {
-  return store.compras
-    .filter(c => {
-      const { concepto } = filtrosAplicados.value
-      if (concepto && c.concepto !== concepto) return false
-      return true
-    })
-    .sort((a, b) => b.id_compra - a.id_compra)
+  return store.compras.filter(c => {
+    const { fechaDesde, fechaHasta, conFactura } = filtrosAplicados.value
+
+    if (fechaDesde && c.fecha) {
+      const fechaCompra = new Date(c.fecha)
+      const fechaMin = new Date(fechaDesde)
+      if (fechaCompra < fechaMin) return false
+    }
+
+    if (fechaHasta && c.fecha) {
+      const fechaCompra = new Date(c.fecha)
+      const fechaMax = new Date(fechaHasta)
+      if (fechaCompra > fechaMax) return false
+    }
+
+    if (conFactura && !c.url_factura) return false
+
+    return true
+  })
 })
 
 function formatearFecha(fecha) {
   if (!fecha) return '—'
   return new Date(fecha).toLocaleDateString('es-DO')
-}
-
-function getSecuenciaNCF(id) {
-  if (!id) return '—'
-  const ncf = ncfs.value.find(n => n.id_secuencia == id)
-  
-  if (!ncf) return id;
-  if (!ncf.comprobante) return ncf.secuencia;
-  const serie = ncf.comprobante.serie;
-  const tipo = String(ncf.comprobante.tipo || 1).padStart(2, '0');
-  const num = String(ncf.secuencia).padStart(8, '0');
-  return `${serie}${tipo}${num}`;
-
 }
 </script>
 
@@ -238,12 +232,27 @@ function getSecuenciaNCF(id) {
   overflow-y: auto;
 }
 
+.modal-content--small {
+  max-width: 450px;
+}
+
 .modal-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   padding: 2rem 2rem 1.5rem;
   border-bottom: 1.5px solid #f0f0ed;
+}
+
+.modal-header--danger {
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.modal-header--danger .material-symbols-outlined {
+  font-size: 3rem;
+  color: #dc2626;
 }
 
 .modal-title {
@@ -274,6 +283,13 @@ function getSecuenciaNCF(id) {
   color: #1a1a1a;
 }
 
+.modal-body {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -294,7 +310,13 @@ function getSecuenciaNCF(id) {
   color: #4c9a4c;
 }
 
-.form-select {
+.form-label.required::after {
+  content: '*';
+  color: #dc2626;
+  margin-left: 4px;
+}
+
+.form-input, .form-select {
   padding: 0.75rem;
   border: 1.5px solid #e5e7eb;
   border-radius: 10px;
@@ -305,10 +327,16 @@ function getSecuenciaNCF(id) {
   background: white;
 }
 
-.form-select:focus {
+.form-input:focus, .form-select:focus {
   outline: none;
   border-color: #4c9a4c;
   background: #f0f9f0;
+}
+
+.form-input[readonly] {
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
 }
 
 .form-select {
@@ -320,6 +348,71 @@ function getSecuenciaNCF(id) {
   background-size: 1.25rem;
   padding-right: 2.5rem;
 }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding-top: 1rem;
+  border-top: 1.5px solid #f0f0ed;
+}
+
+.btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn--primary {
+  background: #4c9a4c;
+  color: white;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #3d7a3d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
+}
+
+.btn--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--secondary {
+  background: #f5f5f5;
+  color: #374151;
+}
+
+.btn--secondary:hover {
+  background: #e5e7eb;
+}
+
+.btn--danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn--danger:hover {
+  background: #b91c1c;
+}
+
+.text-center { text-align: center; }
 
 @media (max-width: 640px) {
   .form-grid {

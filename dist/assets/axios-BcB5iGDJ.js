@@ -1,0 +1,1 @@
+import{a}from"./index-C0Zqfgkc.js";const n=a.create({baseURL:"/api",timeout:1e4,headers:{"Content-Type":"application/json"}});n.interceptors.response.use(e=>e,e=>{var o,r;const s=((r=(o=e.response)==null?void 0:o.data)==null?void 0:r.error)||"Error de conexión con el servidor";return console.error("[API Error]",s,e),Promise.reject(e)});export{n as a};

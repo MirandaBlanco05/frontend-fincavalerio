@@ -3,17 +3,17 @@
 
     <!-- Action Bar -->
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <button @click="irANuevo" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
+      <button @click="router.push({ name: 'OrdenioNuevo' })" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
         <span class="material-symbols-outlined text-base">add</span>
         <span class="truncate">Nuevo Ordeño</span>
       </button>
 
-      <button @click="irAEditar" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+      <button @click="editarOrdenio()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">edit</span>
         <span class="truncate">Editar</span>
       </button>
 
-      <button @click="confirmarEliminar" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+      <button @click="confirmarEliminar()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">delete</span>
         <span class="truncate">Eliminar</span>
       </button>
@@ -31,9 +31,9 @@
       {{ store.error }}
     </div>
 
-    <div v-if="mensajeExito" class="mb-4 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+    <div v-if="store.mensaje" class="mb-4 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
       <span class="material-symbols-outlined text-base">check_circle</span>
-      {{ mensajeExito }}
+      {{ store.mensaje }}
     </div>
 
     <!-- Tabla -->
@@ -68,10 +68,10 @@
           <tr v-else v-for="ord in ordeniosFiltrados" :key="ord.id_ordenio" @click="seleccionarFila(ord)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_ordenio === ord.id_ordenio }">
             <td class="px-6 py-3 font-bold">#{{ ord.id_ordenio }}</td>
             <td class="px-6 py-3">{{ formatearFecha(ord.fecha) }}</td>
-            <td class="px-6 py-3">{{ ord.BOVINO?.nombre || ord.bovino?.nombre || ord.id_bovino || '—' }}</td>
-            <td class="px-6 py-3">{{ ord.cantidad_total || '—' }} L</td>
-            <td class="px-6 py-3">{{ ord.momento_dia || '—' }}</td>
-            <td class="px-6 py-3">{{ ord.empleado?.nombre || ord.id_empleado || '—' }}</td>
+            <td class="px-6 py-3">{{ ord.bovino?.nombre || '—' }}</td>
+            <td class="px-6 py-3">{{ ord.cantidad_litros }} L</td>
+            <td class="px-6 py-3">{{ ord.turno }}</td>
+            <td class="px-6 py-3">{{ ord.empleado?.nombre || '—' }}</td>
           </tr>
         </tbody>
       </table>
@@ -94,6 +94,7 @@
 
           <div class="flex flex-col gap-4 p-4">
             
+            <!-- Filtro por Bovino -->
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700">Bovino</label>
               <select v-model="filtros.bovino" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
@@ -104,6 +105,7 @@
               </select>
             </div>
 
+            <!-- Filtro por Turno -->
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700">Turno</label>
               <select v-model="filtros.turno" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
@@ -113,11 +115,13 @@
               </select>
             </div>
 
+            <!-- Filtro por Fecha Desde -->
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700">Fecha Desde</label>
               <input v-model="filtros.fechaDesde" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
 
+            <!-- Filtro por Fecha Hasta -->
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700">Fecha Hasta</label>
               <input v-model="filtros.fechaHasta" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
@@ -131,6 +135,29 @@
             </button>
             <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90">
               Aplicar Filtros
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Modal Eliminar -->
+    <Teleport to="body">
+      <div v-if="modalEliminar" class="modal-overlay" @click.self="modalEliminar = false">
+        <div class="modal-content modal-content--small">
+          <div class="modal-header modal-header--danger">
+            <span class="material-symbols-outlined">warning</span>
+            <h3 class="modal-title">Eliminar Ordeño</h3>
+          </div>
+          <div class="modal-body">
+            <p class="text-center">¿Está seguro que desea eliminar este registro de ordeño?</p>
+            <p class="text-center text-sm text-muted">Esta acción no se puede deshacer.</p>
+          </div>
+          <div class="modal-footer">
+            <button @click="modalEliminar = false" class="btn btn--secondary">Cancelar</button>
+            <button @click="eliminarOrdenio" class="btn btn--danger">
+              <span class="material-symbols-outlined">delete</span>
+              Eliminar
             </button>
           </div>
         </div>
@@ -151,8 +178,8 @@ const store = useOrdenioStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
+const modalEliminar = ref(false)
 const bovinos = ref([])
-const mensajeExito = ref('')
 
 const filtros = ref({
   bovino: '',
@@ -178,20 +205,22 @@ const filtrosActivos = computed(() => {
 })
 
 const ordeniosFiltrados = computed(() => {
-  if (!store.ordenios || store.ordenios.length === 0) return []
-  
   return store.ordenios.filter(ord => {
     const { bovino, turno, fechaDesde, fechaHasta } = filtrosAplicados.value
 
     if (bovino && ord.id_bovino !== parseInt(bovino)) return false
-    if (turno && ord.momento_dia !== turno) return false
+    if (turno && ord.turno !== turno) return false
 
     if (fechaDesde && ord.fecha) {
-      if (ord.fecha < fechaDesde) return false
+      const fechaOrd = new Date(ord.fecha)
+      const fechaMin = new Date(fechaDesde)
+      if (fechaOrd < fechaMin) return false
     }
 
     if (fechaHasta && ord.fecha) {
-      if (ord.fecha > fechaHasta) return false
+      const fechaOrd = new Date(ord.fecha)
+      const fechaMax = new Date(fechaHasta)
+      if (fechaOrd > fechaMax) return false
     }
 
     return true
@@ -203,46 +232,26 @@ function seleccionarFila(ord) {
     filaSeleccionada.value = null
   } else {
     filaSeleccionada.value = ord
-    mensajeExito.value = ''
+    store.limpiarMensajes?.()
   }
 }
 
-function irANuevo() {
-  console.log('🔥 Intentando ir a nuevo ordeño')
-  router.push({ name: 'OrdenioNuevo' }).catch(err => {
-    console.error('❌ Error navegando a nuevo:', err)
-  })
+function editarOrdenio() {
+  if (!filaSeleccionada.value) return
+  router.push({ name: 'OrdenioEditar', params: { id: filaSeleccionada.value.id_ordenio } })
 }
 
-function irAEditar() {
-  if (!filaSeleccionada.value) {
-    console.log('⚠️ No hay fila seleccionada')
-    return
-  }
-  console.log('🔥 Editando ordeño:', filaSeleccionada.value.id_ordenio)
-  router.push({ 
-    name: 'OrdenioEditar', 
-    params: { id: filaSeleccionada.value.id_ordenio } 
-  }).catch(err => {
-    console.error('❌ Error navegando a editar:', err)
-  })
+function confirmarEliminar() {
+  if (!filaSeleccionada.value) return
+  modalEliminar.value = true
 }
 
-async function confirmarEliminar() {
-  if (!filaSeleccionada.value) {
-    console.log('⚠️ No hay fila seleccionada')
-    return
-  }
-  
-  console.log('🗑️ Intentando eliminar:', filaSeleccionada.value.id_ordenio)
-  
-  if (confirm('¿Eliminar este registro de ordeño? Esta acción no se puede deshacer.')) {
-    const exito = await store.eliminarOrdenio(filaSeleccionada.value.id_ordenio)
-    if (exito) {
-      mensajeExito.value = 'Ordeño eliminado correctamente'
-      filaSeleccionada.value = null
-      setTimeout(() => { mensajeExito.value = '' }, 3000)
-    }
+async function eliminarOrdenio() {
+  if (!filaSeleccionada.value) return
+  const exito = await store.eliminarOrdenio(filaSeleccionada.value.id_ordenio)
+  if (exito) {
+    modalEliminar.value = false
+    filaSeleccionada.value = null
   }
 }
 
@@ -263,28 +272,21 @@ function cerrarFiltros() {
 
 function formatearFecha(fecha) {
   if (!fecha) return '—'
-  // Si la fecha es YYYY-MM-DD, evitamos el desfase de zona horaria
-  const [year, month, day] = fecha.split('-')
-  if (year && month && day) {
-    return `${day}/${month}/${year}`
-  }
   return new Date(fecha).toLocaleDateString('es-DO')
 }
 
 async function cargarBovinos() {
   try {
     const response = await bovinoService.listar()
-    bovinos.value = response.data || []
+    bovinos.value = response.data
   } catch (error) {
     console.error('Error al cargar bovinos:', error)
   }
 }
 
-onMounted(async () => {
-  console.log('🚀 OrdenioIndex montado')
-  await store.cargarOrdenios()
-  await cargarBovinos()
-  console.log('📊 Ordeños cargados:', store.ordenios.length)
+onMounted(() => {
+  store.cargarOrdenios()
+  cargarBovinos()
 })
 </script>
 
@@ -293,4 +295,97 @@ onMounted(async () => {
   font-family: 'Material Symbols Outlined';
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.modal-content--small {
+  max-width: 450px;
+}
+
+.modal-header {
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1.5px solid #f0f0ed;
+}
+
+.modal-header--danger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.modal-header--danger .material-symbols-outlined {
+  font-size: 3rem;
+  color: #dc2626;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 1rem 2rem 2rem;
+}
+
+.btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn--secondary {
+  background: #f5f5f5;
+  color: #374151;
+}
+
+.btn--secondary:hover {
+  background: #e5e7eb;
+}
+
+.btn--danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn--danger:hover {
+  background: #b91c1c;
+}
+
+.text-center { text-align: center; }
+.text-sm { font-size: 0.85rem; }
+.text-muted { color: #9ca3af; }
 </style>
