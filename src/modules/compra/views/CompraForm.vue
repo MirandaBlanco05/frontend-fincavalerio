@@ -41,14 +41,15 @@
 
           <div class="form-group">
             <label class="form-label">
-              <span class="material-symbols-outlined">location_on</span>
-              Dirección
+              <span class="material-symbols-outlined">map</span>
+              Provincia
             </label>
             <input 
-              v-model="compra.proveedor_direccion" 
+              v-model="compra.proveedor_provincia" 
               type="text" 
               class="form-input bg-gray-50"
               readonly
+              placeholder="Provincia del proveedor"
             />
           </div>
 
@@ -59,18 +60,6 @@
             </label>
             <input 
               v-model="compra.proveedor_telefono" 
-              type="text" 
-              class="form-input bg-gray-50"
-              readonly
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">
-              <span class="material-symbols-outlined">map</span>
-              Provincia
-            </label>
-            <input 
-              v-model="compra.proveedor_provincia" 
               type="text" 
               class="form-input bg-gray-50"
               readonly
@@ -271,7 +260,6 @@ const compra = reactive({
   metodo_pago: 'Transferencia',
   id_proveedor: '',
   proveedor_nombre: '',
-  proveedor_direccion: '',
   proveedor_telefono: '',
   proveedor_provincia: ''
 })
@@ -284,14 +272,12 @@ const proveedores = computed(() => store.proveedores)
 
 const itemsDisponibles = ref([]);
 const ncfsDisponibles = ref([]);
-const provinciasDisponibles = ref([]);
 
 onMounted(async () => {
   try {
-    const [insRes, ncfRes, provRes] = await Promise.all([
+    const [insRes, ncfRes] = await Promise.all([
       insumoService.listar(),
-      api.get('/ncf/secuencia/listar'),
-      api.get('/provincia/listar')
+      api.get('/ncf/secuencia/listar')
     ])
     itemsDisponibles.value = (insRes || []).map(i => ({
       id_item: i.id_insumo,
@@ -300,7 +286,6 @@ onMounted(async () => {
       precio: parseFloat(i.precio) || 0
     }))
     ncfsDisponibles.value = (ncfRes && ncfRes.data) || ncfRes || []
-    provinciasDisponibles.value = (provRes && provRes.data) || provRes || []
   } catch(e) { console.error('Error cargando catalogos:', e) }
 
   if (store.proveedores.length === 0) {
@@ -309,36 +294,38 @@ onMounted(async () => {
 
   if (modoEdicion.value) {
     const id = route.params.id
-    if (store.compras.length === 0) await store.cargarCompras()
-    const compraExistente = store.compras.find(c => c.id_compra == id)
-    
-    if (compraExistente) {
-      compra.numero_factura = compraExistente.numero_factura || `COM-${compraExistente.id_compra.toString().padStart(3, '0')}`
-      compra.fecha = compraExistente.fecha ? new Date(compraExistente.fecha).toISOString().split('T')[0] : ''
-      compra.ncf = compraExistente.ncf || ''
-      compra.url_factura = compraExistente.url_factura || ''
-      compra.metodo_pago = compraExistente.metodo_pago || 'Transferencia'
-      compra.id_proveedor = compraExistente.id_proveedor || ''
+    try {
+      const res = await api.get(`/compra/obtener/${id}`)
+      const comp = res.data
       
-      if (compraExistente.proveedor) {
-        compra.proveedor_nombre = compraExistente.proveedor.nombre
-        compra.proveedor_direccion = compraExistente.proveedor.direccion || ''
-        compra.proveedor_telefono = compraExistente.proveedor.telefono || ''
-        compra.proveedor_provincia = compraExistente.proveedor.provincia?.nombre || compraExistente.proveedor.provincia || ''
+      if (comp) {
+        compra.numero_factura = comp.numero_factura || `COM-${comp.id_compra.toString().padStart(3, '0')}`
+        compra.fecha = comp.fecha ? new Date(comp.fecha).toISOString().split('T')[0] : ''
+        compra.ncf = comp.ncf || comp.Id_ncf || ''
+        compra.metodo_pago = comp.metodo_pago || 'Transferencia'
+        compra.id_proveedor = comp.id_proveedor || comp.Id_proveedor || ''
+        
+        if (comp.proveedor) {
+          compra.proveedor_nombre = comp.proveedor.nombre
+          compra.proveedor_telefono = comp.proveedor.telefono || ''
+          compra.proveedor_provincia = comp.proveedor.provincia?.nombre || comp.proveedor.provincia || ''
+        }
+        
+        if (comp.productos_compra) {
+          items.value = comp.productos_compra.map(pc => ({
+            id_item: pc.id_insumo || pc.id_producto,
+            tipo: pc.insumo?.tipo_insumo || 'N/A',
+            descripcion: pc.insumo?.nombre || 'N/A',
+            cantidad: pc.cantidad,
+            precio: pc.precio_unitario,
+            total: pc.monto_total || (pc.cantidad * pc.precio_unitario)
+          }))
+        }
+        
+        compraGuardada.value = true
       }
-      
-      if (compraExistente.productos_compra) {
-        items.value = compraExistente.productos_compra.map(pc => ({
-          id_item: pc.id_producto,
-          tipo: pc.producto?.tipo || 'N/A',
-          descripcion: pc.producto?.descripcion || 'N/A',
-          cantidad: pc.cantidad,
-          precio: pc.precio_unitario,
-          total: pc.cantidad * pc.precio_unitario
-        }))
-      }
-      
-      compraGuardada.value = true
+    } catch (e) {
+      console.error("Error al cargar compra para editar", e)
     }
   }
 })
@@ -347,12 +334,10 @@ function cargarDatosProveedor() {
   const prov = proveedores.value.find(p => p.id_proveedor === parseInt(compra.id_proveedor))
   if (prov) {
     compra.proveedor_nombre = prov.nombre
-    compra.proveedor_direccion = prov.direccion || ''
     compra.proveedor_telefono = prov.telefono || ''
     compra.proveedor_provincia = prov.provincia?.nombre || prov.provincia || ''
   } else {
     compra.proveedor_nombre = ''
-    compra.proveedor_direccion = ''
     compra.proveedor_telefono = ''
     compra.proveedor_provincia = ''
   }
@@ -389,7 +374,7 @@ function calcularSubtotal() {
 }
 
 function calcularImpuestos() {
-  return calcularSubtotal() * 0.18 // 18% ITBIS (ejemplo)
+  return calcularSubtotal() * 0.18 // 18% ITBIS
 }
 
 function calcularTotal() {
@@ -405,11 +390,9 @@ function limpiarFormulario() {
     compra.numero_factura = 'COM-001'
     compra.fecha = new Date().toISOString().split('T')[0]
     compra.ncf = ''
-    compra.url_factura = ''
     compra.metodo_pago = 'Transferencia'
     compra.id_proveedor = ''
     compra.proveedor_nombre = ''
-    compra.proveedor_direccion = ''
     compra.proveedor_telefono = ''
     compra.proveedor_provincia = ''
     items.value = []
@@ -431,7 +414,6 @@ async function guardarCompra() {
     id_proveedor: parseInt(compra.id_proveedor),
     fecha: compra.fecha,
     ncf: parseInt(compra.ncf) || null,
-    url_factura: compra.url_factura || null,
     metodo_pago: compra.metodo_pago,
     productos: items.value
   }
@@ -455,7 +437,9 @@ async function guardarCompra() {
 }
 
 function formatoNCF(ncf) {
-  if (!ncf || !ncf.comprobante) return ncf.secuencia;
+  if (!ncf) return '—';
+  if (ncf.ncf_completo) return ncf.ncf_completo;
+  if (!ncf.comprobante) return ncf.secuencia;
   const serie = ncf.comprobante.serie;
   const tipo = String(ncf.comprobante.tipo || 1).padStart(2, '0');
   const num = String(ncf.secuencia).padStart(8, '0');

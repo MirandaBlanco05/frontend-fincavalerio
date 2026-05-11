@@ -386,36 +386,40 @@ onMounted(async () => {
 
   if (modoEdicion.value) {
     const id = route.params.id
-    if (store.ventas.length === 0) await store.cargarVentas()
-    const ventaExistente = store.ventas.find(v => v.id_venta == id)
-    
-    if (ventaExistente) {
-      factura.numero_factura = ventaExistente.numero_factura || `FAC-${ventaExistente.id_venta.toString().padStart(3, '0')}`
-      factura.fecha = ventaExistente.fecha ? new Date(ventaExistente.fecha).toISOString().split('T')[0] : ''
-      factura.ncf = ventaExistente.ncf || ''
-      factura.concepto = ventaExistente.concepto || 'Leche'
-      factura.metodo_pago = ventaExistente.metodo_pago || 'Transferencia'
-      factura.id_cliente = ventaExistente.id_cliente || ''
+    try {
+      const res = await api.get(`/venta/obtener/${id}`)
+      const vent = res.data
       
-      if (ventaExistente.cliente) {
-        factura.cliente_nombre = ventaExistente.cliente.nombre
-        factura.cliente_direccion = ventaExistente.cliente.direccion || ''
-        factura.cliente_telefono = ventaExistente.cliente.telefono || ''
-        factura.cliente_provincia = ventaExistente.cliente.provincia?.nombre || ventaExistente.cliente.provincia || ''
+      if (vent) {
+        factura.numero_factura = vent.numero_factura || `FAC-${vent.id_venta.toString().padStart(3, '0')}`
+        factura.fecha = vent.fecha ? new Date(vent.fecha).toISOString().split('T')[0] : ''
+        factura.ncf = vent.ncf || vent.Id_ncf || ''
+        factura.concepto = vent.concepto || 'Leche'
+        factura.metodo_pago = vent.metodo_pago || 'Transferencia'
+        factura.id_cliente = vent.id_cliente || vent.Id_cliente || ''
+        
+        if (vent.cliente) {
+          factura.cliente_nombre = vent.cliente.nombre
+          factura.cliente_direccion = vent.cliente.direccion || ''
+          factura.cliente_telefono = vent.cliente.telefono || ''
+          factura.cliente_provincia = vent.cliente.provincia?.nombre || vent.cliente.provincia || ''
+        }
+        
+        if (vent.productos_venta) {
+          productos.value = vent.productos_venta.map(pv => ({
+            id_producto: pv.id_producto,
+            tipo: pv.producto?.tipo_producto || 'N/A',
+            descripcion: pv.producto?.descripcion || 'N/A',
+            cantidad: pv.cantidad,
+            precio: pv.precio_unitario,
+            total: pv.total || (pv.cantidad * pv.precio_unitario)
+          }))
+        }
+        
+        facturaGuardada.value = true
       }
-      
-      if (ventaExistente.productos_venta) {
-        productos.value = ventaExistente.productos_venta.map(pv => ({
-          id_producto: pv.id_producto,
-          tipo: pv.producto?.tipo || 'N/A',
-          descripcion: pv.producto?.descripcion || 'N/A',
-          cantidad: pv.cantidad,
-          precio: pv.precio_unitario,
-          total: pv.cantidad * pv.precio_unitario
-        }))
-      }
-      
-      facturaGuardada.value = true
+    } catch (e) {
+      console.error("Error al cargar venta para editar", e)
     }
   }
 })
