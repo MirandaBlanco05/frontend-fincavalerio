@@ -2,16 +2,33 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { bovinoService } from '../services/bovino.service.js'
+import grupoService from '../services/grupo.service.js'
+import razaService from '../services/raza.service.js'
 
 export const useBovinoStore = defineStore('bovino', () => {
 
   // ── Estado ────────────────────────────────────────
   const bovinos   = ref([])
+  const grupos    = ref([])
+  const razas     = ref([])
   const cargando  = ref(false)
   const error     = ref(null)
   const mensaje   = ref(null)
 
   // ── Acciones ──────────────────────────────────────
+
+  async function cargarGruposyRazas() {
+    try {
+      const [gRes, rRes] = await Promise.all([
+        grupoService.listar(),
+        razaService.listar()
+      ])
+      grupos.value = gRes.data
+      razas.value = rRes.data
+    } catch (e) {
+      console.error('Error cargando grupos/razas:', e)
+    }
+  }
 
   async function cargarBovinos() {
     cargando.value = true
@@ -85,9 +102,12 @@ export const useBovinoStore = defineStore('bovino', () => {
 
   return {
     bovinos,
+    grupos,
+    razas,
     cargando,
     error,
     mensaje,
+    cargarGruposyRazas,
     cargarBovinos,
     crearBovino,
     actualizarBovino,

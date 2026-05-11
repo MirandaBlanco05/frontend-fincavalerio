@@ -170,17 +170,14 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { useBovinoStore } from '@/modules/bovino/store/bovino.store.js'
-import grupoService from '@/modules/bovino/services/grupo.service.js'
-import razaService from '@/modules/bovino/services/raza.service.js'
 import bovinoService from '@/modules/bovino/services/bovino.service.js'
 
 const router = useRouter()
 const route = useRoute()
 const store = useBovinoStore()
-
-const grupos = ref([])
-const razas = ref([])
+const { grupos, razas } = storeToRefs(store)
 const modoEdicion = computed(() => !!route.params.id)
 
 const form = reactive({
@@ -200,12 +197,7 @@ const form = reactive({
 
 onMounted(async () => {
   try {
-    const [gRes, rRes] = await Promise.all([
-      grupoService.listar(),
-      razaService.listar()
-    ])
-    grupos.value = gRes.data
-    razas.value = rRes.data
+    await store.cargarGruposyRazas()
 
     if (modoEdicion.value) {
       const res = await bovinoService.obtenerPorId(route.params.id)
