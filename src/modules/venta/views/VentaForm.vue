@@ -311,6 +311,12 @@ const productosDisponibles = ref([])
 const ncfsDisponibles = ref([])
 const metodosPago = ref([])
 
+// Vigilante para cargar datos del cliente automáticamente
+import { watch } from 'vue'
+watch(() => factura.id_cliente, () => {
+  cargarDatosCliente()
+})
+
 onMounted(async () => {
   await cargarListas()
   
@@ -360,10 +366,7 @@ async function cargarDatosVentaEdicion(id) {
         factura.ncf = idNcf;
       }
 
-      // Cargar datos del cliente
-      setTimeout(() => {
-        cargarDatosCliente()
-      }, 100)
+      // El watch se encargará de cargarDatosCliente()
 
       if (data.productos_venta && Array.isArray(data.productos_venta)) {
         productos.value = data.productos_venta.map(p => ({
@@ -401,7 +404,12 @@ const datosParaImprimir = computed(() => ({
 }))
 
 function cargarDatosCliente() {
-  if (!clientes.value || !factura.id_cliente) return
+  if (!clientes.value || !factura.id_cliente) {
+    factura.cliente_nombre = ''
+    factura.cliente_provincia = ''
+    factura.cliente_telefono = ''
+    return
+  }
   const cliente = clientes.value.find(c => c.id_cliente === parseInt(factura.id_cliente))
   if (cliente) {
     factura.cliente_nombre = cliente.nombre
