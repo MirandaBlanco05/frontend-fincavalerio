@@ -194,20 +194,31 @@ async function guardar() {
     console.log('📤 Enviando payload de celo:', JSON.stringify(payload))
 
     if (modoEdicion.value) {
+      console.log('🔄 Actualizando ciclo...')
       await api.put(`/ciclo/actualizar/${route.params.id}`, payload)
     } else {
-      await api.post('/ciclo/crear', payload)
+      console.log('➕ Creando nuevo ciclo...')
+      const response = await api.post('/ciclo/crear', payload)
+      console.log('✅ Respuesta del servidor:', response.data)
     }
 
     await store.cargarCiclos()
     router.push({ name: 'CicloCelo' })
 
   } catch (error) {
-    console.error('❌ Error al guardar celo:', error)
-    errorLocal.value = error.response?.data?.error
+    console.error('❌ Error detallado al guardar:', error)
+    const errorMsg = error.response?.data?.error
       || error.response?.data?.mensaje
       || error.message
       || 'Error desconocido en el servidor'
+    
+    errorLocal.value = errorMsg
+    // Alerta forzada para depuración en vivo
+    window.alert('ERROR AL GUARDAR: ' + errorMsg)
+    
+    if (error.response) {
+      console.error('📦 Respuesta del servidor con error:', error.response.data)
+    }
   } finally {
     cargando.value = false
   }
