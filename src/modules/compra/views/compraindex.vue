@@ -66,7 +66,7 @@
             <td class="px-6 py-3 font-bold">#{{ compra.id_compra }}</td>
             <td class="px-6 py-3">{{ compra.proveedor?.nombre || 'Sin proveedor' }}</td>
             <td class="px-6 py-3">{{ formatearFecha(compra.fecha) }}</td>
-            <td class="px-6 py-3 font-mono text-xs">{{ compra.ncf || '—' }}</td>
+            <td class="px-6 py-3 font-mono text-xs">{{ compra.ncf_completo || '—' }}</td>
             <td class="px-6 py-3">
               <span v-if="compra.url_factura" class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700">
                 <span class="material-symbols-outlined text-xs">attach_file</span> Adjunta
