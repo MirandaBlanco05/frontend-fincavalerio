@@ -15,6 +15,7 @@
       <p><strong>Factura nº:</strong> {{ factura.numero_factura }}</p>
       <p><strong>Fecha:</strong> {{ formatearFecha(factura.fecha) }}</p>
       <p><strong>Cliente:</strong> {{ factura.cliente_nombre }}</p>
+      <p v-if="factura.cliente_provincia"><strong>Provincia:</strong> {{ factura.cliente_provincia }}</p>
       <p v-if="factura.cliente_rnc"><strong>RNC:</strong> {{ factura.cliente_rnc }}</p>
     </div>
 

@@ -371,6 +371,7 @@ const datosParaImprimir = computed(() => ({
   numero_factura: factura.numero_factura,
   fecha: factura.fecha,
   cliente_nombre: factura.cliente_nombre,
+  cliente_provincia: factura.cliente_provincia,
   productos: (productos.value || []).map(p => ({
     descripcion: p.descripcion,
     cantidad: p.cantidad,
