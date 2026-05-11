@@ -314,6 +314,14 @@ async function cargarDatosCompraEdicion() {
     compra.metodo_pago = data.metodo_pago || 'Efectivo'
     compra.id_proveedor = data.id_proveedor || ''
     
+    // Asegurarse de que el NCF asignado actualmente aparezca en el select
+    if (data.ncf && data.secuencia && !store.secuenciasNCF.some(s => s.id_secuencia === data.ncf)) {
+      store.secuenciasNCF.push({
+        ...data.secuencia,
+        ncf_completo: data.ncf_completo || data.secuencia.secuencia
+      })
+    }
+    
     if (data.proveedor) {
       compra.proveedor_nombre = data.proveedor.nombre
       compra.proveedor_telefono = data.proveedor.telefono
