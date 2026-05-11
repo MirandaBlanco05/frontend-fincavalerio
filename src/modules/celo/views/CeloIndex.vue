@@ -210,7 +210,7 @@ function abrirModal() {
 function editarCiclo() {
   if (!filaSeleccionada.value) return
   const ciclo = filaSeleccionada.value
-  form.id_bovino = ciclo.id_bovino
+  form.id_bovino = ciclo.id_bovino || ciclo.bovino?.id_bovino
   form.fecha_inicio = ciclo.fecha_inicio ? ciclo.fecha_inicio.split('T')[0] : ''
   form.fecha_fin = ciclo.fecha_fin ? ciclo.fecha_fin.split('T')[0] : ''
   form.observaciones = ciclo.observaciones || ''
@@ -298,6 +298,11 @@ async function eliminar() {
 }
 function formatearFecha(fecha) {
   if (!fecha) return '—'
+  // Dividir por guion para evitar desfase de zona horaria (YYYY-MM-DD)
+  const partes = fecha.split('T')[0].split('-')
+  if (partes.length === 3) {
+    return `${partes[2]}/${partes[1]}/${partes[0]}`
+  }
   return new Date(fecha).toLocaleDateString('es-DO')
 }
 
