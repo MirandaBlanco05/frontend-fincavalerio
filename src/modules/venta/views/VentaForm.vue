@@ -4,8 +4,8 @@
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Nueva Factura</h1>
-        <p class="text-sm text-gray-600">Complete los datos de la factura y agregue productos</p>
+        <h1 class="text-2xl font-bold text-gray-900">{{ esEdicion ? 'Editar Factura' : 'Nueva Factura' }}</h1>
+        <p class="text-sm text-gray-600">{{ esEdicion ? 'Actualice los datos de la factura' : 'Complete los datos de la factura y agregue productos' }}</p>
       </div>
       <button @click="router.push({ name: 'Venta' })" class="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200">
         <span class="material-symbols-outlined text-base">arrow_back</span>
@@ -269,19 +269,24 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useVentaStore } from '@/modules/venta/store/venta.store.js'
 import FacturaImprimible from '@/modules/venta/components/FacturaImprimible.vue'
+import clienteService from '@/modules/cliente/services/cliente.service.js'
+import productoService from '@/modules/producto/services/producto.service.js'
+import { secuenciaService } from '@/modules/compra/services/secuencia.service.js'
 
 const router = useRouter()
+const route = useRoute()
 const store = useVentaStore()
 
 const facturaImprimibleRef = ref(null)
 const facturaGuardada = ref(false)
+const esEdicion = ref(false)
 
 const factura = reactive({
-  numero_factura: 'FAC-001',
+  numero_factura: 'Generando...',
   fecha: new Date().toISOString().split('T')[0],
   ncf: '',
   concepto: 'Leche',
@@ -295,6 +300,71 @@ const factura = reactive({
 const productos = ref([])
 const productoSeleccionado = ref('')
 const cantidadProducto = ref(1)
+
+const clientes = ref([])
+const productosDisponibles = ref([])
+const ncfsDisponibles = ref([])
+
+onMounted(async () => {
+  await cargarListas()
+  
+  if (route.params.id) {
+    esEdicion.value = true
+    await cargarDatosVentaEdicion(route.params.id)
+  }
+})
+
+async function cargarListas() {
+  try {
+    const [resClientes, resProductos, resNcfs] = await Promise.all([
+      clienteService.listar(),
+      productoService.listar(),
+      secuenciaService.listar()
+    ])
+    clientes.value = resClientes
+    productosDisponibles.value = resProductos
+    ncfsDisponibles.value = resNcfs.filter(n => n.estado === 'Disponible')
+  } catch (error) {
+    console.error('Error al cargar listas:', error)
+  }
+}
+
+async function cargarDatosVentaEdicion(id) {
+  try {
+    const data = await store.obtenerVenta(id)
+    if (data) {
+      factura.numero_factura = `FAC-${String(data.id_venta).padStart(3, '0')}`
+      factura.fecha = data.fecha.split('T')[0]
+      factura.ncf = data.ncf
+      factura.concepto = data.concepto
+      factura.metodo_pago = data.metodo_pago
+      factura.id_cliente = data.id_cliente
+      
+      // Asegurar que el NCF actual aparezca en la lista si está usado
+      if (data.ncf && !ncfsDisponibles.value.find(n => n.id_secuencia === data.ncf)) {
+        ncfsDisponibles.value.push({
+          id_secuencia: data.ncf,
+          ncf_completo: data.ncf_completo || 'NCF Actual'
+        })
+      }
+
+      cargarDatosCliente()
+
+      if (data.productos_venta) {
+        productos.value = data.productos_venta.map(p => ({
+          id_producto: p.id_producto,
+          tipo: p.producto?.tipo || 'N/A',
+          descripcion: p.producto?.descripcion || 'N/A',
+          cantidad: p.cantidad,
+          precio: parseFloat(p.precio_unitario),
+          total: parseFloat(p.total)
+        }))
+      }
+    }
+  } catch (error) {
+    console.error('Error al cargar venta para edición:', error)
+  }
+}
 
 const datosParaImprimir = computed(() => ({
   numero_factura: factura.numero_factura,
@@ -313,22 +383,6 @@ const datosParaImprimir = computed(() => ({
   cuenta: '0123 4567 8901',
   alias: 'Finca Valerio'
 }))
-
-const clientes = ref([
-  { id_cliente: 1, nombre: 'Agropecuaria El Valle', rnc: '123456789', direccion: 'Calle Principal #10', telefono: '809-555-1234' },
-  { id_cliente: 2, nombre: 'Inversiones Ganaderas RD', rnc: '987654321', direccion: 'Av. Central #45', telefono: '809-555-5678' }
-])
-
-const productosDisponibles = ref([
-  { id_producto: 1, tipo: 'Leche', descripcion: 'Leche Fresca 1L', precio: 85.00, stock: 100 },
-  { id_producto: 2, tipo: 'Queso', descripcion: 'Queso Fresco 1lb', precio: 150.00, stock: 50 },
-  { id_producto: 3, tipo: 'Yogurt', descripcion: 'Yogurt Natural 500ml', precio: 120.00, stock: 75 }
-])
-
-const ncfsDisponibles = ref([
-  { id_secuencia: 1, ncf_completo: 'B0100000001' },
-  { id_secuencia: 2, ncf_completo: 'B0100000002' }
-])
 
 function cargarDatosCliente() {
   const cliente = clientes.value.find(c => c.id_cliente === parseInt(factura.id_cliente))
@@ -420,15 +474,24 @@ async function guardarFactura() {
     fecha: factura.fecha,
     concepto: factura.concepto,
     ncf: parseInt(factura.ncf),
+    metodo_pago: factura.metodo_pago,
     estado: 'activo',
     productos: productos.value
   }
 
-  const resultado = await store.crearVenta(datos)
+  let resultado
+  if (esEdicion.value) {
+    resultado = await store.actualizarVenta(route.params.id, datos)
+  } else {
+    resultado = await store.crearVenta(datos)
+  }
   
   if (resultado.success) {
     facturaGuardada.value = true
-    alert('Factura guardada correctamente')
+    alert(esEdicion.value ? 'Factura actualizada correctamente' : 'Factura guardada correctamente')
+    if (!esEdicion.value) {
+       router.push({ name: 'Venta' })
+    }
   } else {
     alert('Error: ' + resultado.error)
   }
