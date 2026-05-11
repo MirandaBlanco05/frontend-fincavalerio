@@ -37,7 +37,9 @@ export const useComprasStore = defineStore('compras', () => {
       compraActual.value = response?.data || response
       return compraActual.value
     } catch (e) {
-      error.value = e.response?.data?.error || 'Error al obtener compra'
+      const serverError = e.response?.data?.error
+      const status = e.response?.status
+      error.value = serverError || (status ? `Error HTTP ${status}` : e.message || 'Error desconocido')
       console.error('Error obteniendo compra:', e)
       return null
     } finally {

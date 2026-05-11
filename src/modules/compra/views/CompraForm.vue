@@ -304,7 +304,7 @@ async function cargarDatosCompraEdicion() {
   try {
     const data = await store.obtenerCompra(compraId.value)
     if (!data) {
-      alert('Error: No se pudo obtener la información de la compra. ' + store.error)
+      alert(`Error crítico: No se pudo obtener la información de la compra #${compraId.value}. Servidor dice: ` + store.error)
       return
     }
 
@@ -332,7 +332,8 @@ async function cargarDatosCompraEdicion() {
       alert('Aviso: Esta compra no tiene productos asociados en el detalle.')
     }
   } catch (error) {
-    alert('Excepción al cargar la compra: ' + error.message)
+    console.error("Detalle completo del error al cargar:", error)
+    alert(`Excepción al cargar la compra: ${error.message}. ` + (error.config ? `URL: ${error.config.url}` : ''))
   }
 }
 
