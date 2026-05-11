@@ -434,9 +434,14 @@ function calcularTotal() {
 }
 
 function formatearNumero(numero) {
-  const val = parseFloat(numero)
-  if (isNaN(val)) return '0.00'
-  return val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  try {
+    const val = parseFloat(numero)
+    if (isNaN(val) || !isFinite(val)) return '0.00'
+    return val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  } catch (e) {
+    console.error('Error al formatear número:', e)
+    return '0.00'
+  }
 }
 
 function limpiarFormulario() {
