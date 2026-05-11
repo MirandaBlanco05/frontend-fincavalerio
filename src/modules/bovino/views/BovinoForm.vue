@@ -131,7 +131,7 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" @click="router.push({ name: 'Bovinos' })" class="btn btn--secondary">Cancelar</button>
+          <button type="button" @click="router.push({ name: 'BovinosList' })" class="btn btn--secondary">Cancelar</button>
           <button type="submit" :disabled="store.cargando" class="btn btn--primary">
             <span class="material-symbols-outlined">save</span>
             {{ store.cargando ? 'Guardando...' : (modoEdicion ? 'Actualizar Registro' : 'Guardar Registro') }}
@@ -217,7 +217,7 @@ async function guardar() {
     ok = await store.crearBovino({ ...form })
   }
   if (ok) {
-    router.push({ name: 'Bovinos' })
+    router.push({ name: 'BovinosList' })
   }
 }
 </script>
