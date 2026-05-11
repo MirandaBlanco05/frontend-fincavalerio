@@ -70,7 +70,7 @@
             <td class="px-6 py-3 font-mono text-xs">{{ c.rnc || '—' }}</td>
             <td class="px-6 py-3">{{ c.telefono || '—' }}</td>
             <td class="px-6 py-3">{{ c.correo || '—' }}</td>
-            <td class="px-6 py-3">{{ c.provincia || '—' }}</td>
+            <td class="px-6 py-3">{{ c.provincia?.nombre || '—' }}</td>
             <td class="px-6 py-3">
               <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="c.estado === 'activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'">
                 {{ c.estado }}
