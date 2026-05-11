@@ -31,11 +31,11 @@
 
         <div class="form-grid">
           <div class="form-group">
-            <label class="form-label required">
+            <label class="form-label">
               <span class="material-symbols-outlined">badge</span>
-              RNC
+              RNC (Opcional)
             </label>
-            <input v-model="form.rnc" type="text" required class="form-input" />
+            <input v-model="form.rnc" type="text" class="form-input" />
           </div>
 
           <div class="form-group">
@@ -53,7 +53,14 @@
               <span class="material-symbols-outlined">category</span>
               Tipo de Proveedor
             </label>
-            <input v-model="form.tipo_proveedor" type="text" required class="form-input" placeholder="Ej: Insumos Agrícolas" />
+            <select v-model="form.tipo_proveedor" required class="form-select">
+              <option value="">Seleccione...</option>
+              <option value="Insumos Agrícolas">Insumos Agrícolas</option>
+              <option value="Ganado">Ganado</option>
+              <option value="Servicios">Servicios</option>
+              <option value="Maquinaria">Maquinaria</option>
+              <option value="Otros">Otros</option>
+            </select>
           </div>
 
           <div class="form-group">

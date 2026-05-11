@@ -31,11 +31,19 @@
 
         <div class="form-grid">
           <div class="form-group">
-            <label class="form-label">
+            <label class="form-label required">
               <span class="material-symbols-outlined">public</span>
               Nacionalidad
             </label>
-            <input v-model="form.nacionalidad" type="text" class="form-input" />
+            <select v-model="form.nacionalidad" required class="form-select">
+              <option value="">Seleccione...</option>
+              <option value="Dominicana">Dominicana</option>
+              <option value="Haitiana">Haitiana</option>
+              <option value="Venezolana">Venezolana</option>
+              <option value="Colombiana">Colombiana</option>
+              <option value="Estadounidense">Estadounidense</option>
+              <option value="Otra">Otra</option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -61,7 +69,16 @@
               <span class="material-symbols-outlined">work</span>
               Puesto
             </label>
-            <input v-model="form.puesto" type="text" required class="form-input" />
+            <select v-model="form.puesto" required class="form-select">
+              <option value="">Seleccione...</option>
+              <option value="Administrador">Administrador</option>
+              <option value="Veterinario">Veterinario</option>
+              <option value="Ordeñador">Ordeñador</option>
+              <option value="Vaquero">Vaquero</option>
+              <option value="Mantenimiento">Mantenimiento</option>
+              <option value="Seguridad">Seguridad</option>
+              <option value="Otros">Otros</option>
+            </select>
           </div>
         </div>
 

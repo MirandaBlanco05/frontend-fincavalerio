@@ -102,8 +102,11 @@
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Buscar por Cédula</label>
-              <input v-model="filtros.cedula" type="text" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Buscar cédula..." />
+              <label class="mb-1 block text-sm font-medium text-gray-700">Filtrar por Nacionalidad</label>
+              <select v-model="filtros.nacionalidad" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todas las nacionalidades</option>
+                <option v-for="nac in nacionalidadesUnicas" :key="nac" :value="nac">{{ nac }}</option>
+              </select>
             </div>
           </div>
 
@@ -132,13 +135,13 @@ const store = useEmpleadoStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
-const filtros = ref({ nombre: '', cedula: '' })
-const filtrosAplicados = ref({ nombre: '', cedula: '' })
+const filtros = ref({ nombre: '', nacionalidad: '' })
+const filtrosAplicados = ref({ nombre: '', nacionalidad: '' })
 
 const filtrosActivos = computed(() => {
   let c = 0
   if (filtrosAplicados.value.nombre) c++
-  if (filtrosAplicados.value.cedula) c++
+  if (filtrosAplicados.value.nacionalidad) c++
   return c
 })
 
@@ -179,8 +182,8 @@ function aplicarFiltros() {
 }
 
 function limpiarFiltros() {
-  filtros.value = { nombre: '', cedula: '' }
-  filtrosAplicados.value = { nombre: '', cedula: '' }
+  filtros.value = { nombre: '', nacionalidad: '' }
+  filtrosAplicados.value = { nombre: '', nacionalidad: '' }
   modalFiltros.value = false
 }
 
@@ -194,10 +197,10 @@ const puestosUnicos = computed(() => {
 
 const empleadosFiltrados = computed(() => {
   return store.empleados.filter(e => {
-    const { nombre, cedula } = filtrosAplicados.value
+    const { nombre, nacionalidad } = filtrosAplicados.value
 
     if (nombre && !e.nombre.toLowerCase().includes(nombre.toLowerCase())) return false
-    if (cedula && !e.cedula?.includes(cedula)) return false
+    if (nacionalidad && e.nacionalidad !== nacionalidad) return false
 
     return true
   })
