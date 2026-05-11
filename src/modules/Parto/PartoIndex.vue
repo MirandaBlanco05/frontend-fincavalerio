@@ -167,7 +167,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { usePartoStore } from '@/modules/parto/store/parto.store.js'
+import { usePartoStore } from '@/modules/Parto/store/Parto.store.js'
 import { bovinoService } from '@/modules/bovino/services/bovino.service.js'
 
 const router = useRouter()
