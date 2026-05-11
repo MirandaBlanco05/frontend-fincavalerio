@@ -8,7 +8,7 @@
           <h3 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nuevo' }} Registro de Enfermedad</h3>
           <p class="modal-subtitle">Complete los datos del historial</p>
         </div>
-        <button type="button" @click="router.push({ name: 'HistorialList' })" class="btn-close">
+        <button type="button" @click="router.push({ name: 'HistorialEnfermedades' })" class="btn-close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
