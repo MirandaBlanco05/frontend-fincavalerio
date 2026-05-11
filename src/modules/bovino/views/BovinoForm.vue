@@ -171,8 +171,8 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useBovinoStore } from '@/modules/bovino/store/bovino.store.js'
-import { grupoService } from '@/modules/bovino/services/grupo.service.js'
-import { razaService } from '@/modules/bovino/services/raza.service.js'
+import grupoService from '@/modules/bovino/services/grupo.service.js'
+import razaService from '@/modules/bovino/services/raza.service.js'
 import bovinoService from '@/modules/bovino/services/bovino.service.js'
 
 const router = useRouter()
