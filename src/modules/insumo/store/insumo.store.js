@@ -41,6 +41,10 @@ export const useInsumoStore = defineStore('insumo', () => {
 
   async function actualizarInsumo(id, datos) {
     limpiarMensajes()
+    if (!id) {
+      error.value = 'ID de insumo no proporcionado'
+      return { success: false, error: error.value }
+    }
     try {
       const data = await insumoService.actualizar(id, datos)
       mensaje.value = 'Insumo actualizado correctamente'
