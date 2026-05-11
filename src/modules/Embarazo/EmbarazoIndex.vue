@@ -184,7 +184,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useEmbarazoStore } from '@/modules/embarazo/store/embarazo.store.js'
+import { useEmbarazoStore } from '@/modules/Embarazo/store/Embarazo.store.js'
 
 const store = useEmbarazoStore()
 const filaSeleccionada = ref(null)
