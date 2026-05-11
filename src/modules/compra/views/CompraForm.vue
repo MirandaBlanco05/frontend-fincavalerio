@@ -301,8 +301,13 @@ watch(insumoSeleccionado, (newId) => {
 })
 
 async function cargarDatosCompraEdicion() {
-  const data = await store.obtenerCompra(compraId.value)
-  if (data) {
+  try {
+    const data = await store.obtenerCompra(compraId.value)
+    if (!data) {
+      alert('Error: No se pudo obtener la información de la compra. ' + store.error)
+      return
+    }
+
     compra.id_compra = data.id_compra
     compra.fecha = data.fecha ? data.fecha.split('T')[0] : ''
     compra.ncf = data.ncf || ''
@@ -323,7 +328,11 @@ async function cargarDatosCompraEdicion() {
         precio_unitario: d.precio_unitario,
         monto_total: d.monto_total || (d.cantidad * d.precio_unitario)
       }))
+    } else {
+      alert('Aviso: Esta compra no tiene productos asociados en el detalle.')
     }
+  } catch (error) {
+    alert('Excepción al cargar la compra: ' + error.message)
   }
 }
 
