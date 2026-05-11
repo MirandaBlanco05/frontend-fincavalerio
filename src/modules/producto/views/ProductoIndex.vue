@@ -66,11 +66,11 @@
 
           <tr v-else v-for="p in productosFiltrados" :key="p.id_producto" @click="seleccionarFila(p)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_producto === p.id_producto }">
             <td class="px-6 py-3 font-bold">#{{ p.id_producto }}</td>
-            <td class="px-6 py-3">{{ p.tipo || '—' }}</td>
+            <td class="px-6 py-3">{{ p.tipo_producto || '—' }}</td>
             <td class="px-6 py-3 font-medium">{{ p.descripcion }}</td>
             <td class="px-6 py-3">
-              <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="p.stock < 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
-                {{ p.stock }}
+              <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="p.cantidad_stock < 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
+                {{ p.cantidad_stock }}
               </span>
             </td>
             <td class="px-6 py-3">{{ p.peso ? p.peso + ' kg' : '—' }}</td>
@@ -182,15 +182,15 @@ function limpiarFiltros() {
 }
 
 const tiposUnicos = computed(() => {
-  return [...new Set(store.productos.map(p => p.tipo).filter(Boolean))].sort()
+  return [...new Set(store.productos.map(p => p.tipo_producto).filter(Boolean))].sort()
 })
 
 const productosFiltrados = computed(() => {
   return store.productos.filter(p => {
     const { tipo, stockBajo } = filtrosAplicados.value
 
-    if (tipo && p.tipo !== tipo) return false
-    if (stockBajo && p.stock >= 10) return false
+    if (tipo && p.tipo_producto !== tipo) return false
+    if (stockBajo && p.cantidad_stock >= 10) return false
 
     return true
   })

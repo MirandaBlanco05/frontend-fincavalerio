@@ -46,6 +46,7 @@ const TratamientoForm  = () => import('@/modules/tratamientos/views/TratamientoF
 
 // Inventario
 const ProductoIndex = () => import('@/modules/producto/views/ProductoIndex.vue')
+const ProductoForm  = () => import('@/modules/producto/views/ProductoForm.vue')
 const InsumoIndex = () => import('@/modules/insumo/views/InsumoIndex.vue')
 
 // Contactos
@@ -96,8 +97,10 @@ const routes = [
   { path: '/compra/editar/:id', name: 'CompraEditar', component: CompraForm },
 
   // Inventario
-  { path: '/productos', name: 'Productos', component: ProductoIndex },
-  { path: '/insumos',   name: 'Insumos',   component: InsumoIndex },
+  { path: '/productos',          name: 'Productos',       component: ProductoIndex },
+  { path: '/productos/nuevo',    name: 'ProductoNuevo',   component: ProductoForm },
+  { path: '/productos/editar/:id', name: 'ProductoEditar',  component: ProductoForm },
+  { path: '/insumos',            name: 'Insumos',         component: InsumoIndex },
   
   // Contactos
   { path: '/empleado',    name: 'Empleado',   component: EmpleadoIndex },
