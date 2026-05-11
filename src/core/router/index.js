@@ -90,6 +90,7 @@ const routes = [
   // Facturación
   { path: '/venta',       name: 'Venta',       component: VentaIndex },
   { path: '/venta/nueva', name: 'VentaNueva',  component: VentaForm },
+  { path: '/venta/editar/:id', name: 'VentaEditar', component: VentaForm },
   { path: '/compra',      name: 'Compra',      component: CompraIndex },
   { path: '/compra/nueva', name: 'CompraNueva', component: CompraForm },
   { path: '/compra/editar/:id', name: 'CompraEditar', component: CompraForm },
