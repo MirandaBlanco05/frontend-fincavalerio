@@ -70,9 +70,9 @@
 
           <tr v-else v-for="b in bovinosFiltrados" :key="b.id_bovino" @click="seleccionarFila(b)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_bovino === b.id_bovino }">
             <td class="px-6 py-3">{{ b.id_bovino }}</td>
-            <td class="px-6 py-3">{{ getNombreGrupo(b.Id_grupo) }}</td>
+            <td class="px-6 py-3">{{ getNombreGrupo(b.id_grupo) }}</td>
             <td class="px-6 py-3">{{ b.numero_crotal ?? '—' }}</td>
-            <td class="px-6 py-3">{{ getNombreRaza(b.Id_raza) }}</td>
+            <td class="px-6 py-3">{{ getNombreRaza(b.id_raza) }}</td>
             <td class="px-6 py-3 font-medium">{{ b.nombre || 'Sin nombre' }}</td>
             <td class="px-6 py-3">{{ b.fecha_nacimiento || 'No especificada' }}</td>
             <td class="px-6 py-3">{{ b.nombre_madre || 'Desconocida' }}</td>
