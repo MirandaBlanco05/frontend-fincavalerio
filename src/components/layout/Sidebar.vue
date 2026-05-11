@@ -43,7 +43,7 @@
             <li @click="navigate" class="flex h-10 cursor-pointer items-center gap-3 rounded-lg px-4 pl-10 transition-colors"
               :class="isActive ? 'bg-[#8B6914]/15' : 'hover:bg-[#5a3a1a]/5'">
               <span class="material-symbols-outlined text-[18px]" :class="isActive ? 'text-[#8B6914]' : 'text-[#5a3a1a]/70'">water_drop</span>
-              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Ordenio</p>
+              <p class="text-sm font-semibold" :class="isActive ? 'text-[#5a3a1a]' : 'text-[#5a3a1a]/80'">Ordeño</p>
             </li>
           </RouterLink>
         </ul>

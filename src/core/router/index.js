@@ -18,17 +18,15 @@ const OrdenioForm     = () => import('@/modules/ordenio/views/OrdenioForm.vue')
 const VentaIndex      = () => import('@/modules/venta/views/VentaIndex.vue')
 const VentaForm       = () => import('@/modules/venta/views/VentaForm.vue')
 
+// Reproducción
+const CeloIndex        = () => import('@/modules/celo/views/CeloIndex.vue')
+const PartoIndex      = () => import('@/modules/Parto/PartoIndex.vue')
 const InseminacionIndex   = () => import('@/modules/inseminacion/InseminacionIndex.vue')
 const InseminacionForm    = () => import('@/modules/inseminacion/InseminacionForm.vue')
 const NewInseminacionForm = () => import('@/modules/inseminacion/NewInseminacionForm.vue')
-
 const EmbarazoIndex   = () => import('@/modules/Embarazo/EmbarazoIndex.vue')
 const EmbarazoForm    = () => import('@/modules/Embarazo/EmbarazoForm.vue')
 const NewEmbarazoForm = () => import('@/modules/Embarazo/NewEmbarazoForm.vue')
-
-const PartoIndex   = () => import('@/modules/Parto/PartoIndex.vue')
-const PartoForm    = () => import('@/modules/Parto/PartoForm.vue')
-const NewPartoForm = () => import('@/modules/Parto/NewPartoForm.vue')
 
 // Salud y Bienestar
 const VeterinarioIndex     = () => import('@/modules/veterinario/views/VeterinariosList.vue')
@@ -140,7 +138,6 @@ const routes = [
   { path: '/embarazos/nuevo', name: 'EmbarazoNuevo',  component: NewEmbarazoForm },
 
   { path: '/partos',       name: 'PartosList', component: PartoIndex },
-  { path: '/partos/nuevo', name: 'PartoNuevo',  component: NewPartoForm },
 
   { path: '/:pathMatch(.*)*', redirect: '/login' }
 ]
