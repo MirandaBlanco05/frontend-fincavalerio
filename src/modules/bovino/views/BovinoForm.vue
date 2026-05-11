@@ -217,7 +217,7 @@ async function guardar() {
     ok = await store.crearBovino({ ...form })
   }
   if (ok) {
-    router.push({ name: 'Bovinos' })
+    router.push({ name: 'BovinosList' })
   }
 }
 </script>
