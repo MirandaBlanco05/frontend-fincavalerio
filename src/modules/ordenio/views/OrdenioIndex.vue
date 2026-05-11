@@ -68,10 +68,10 @@
           <tr v-else v-for="ord in ordeniosFiltrados" :key="ord.id_ordenio" @click="seleccionarFila(ord)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_ordenio === ord.id_ordenio }">
             <td class="px-6 py-3 font-bold">#{{ ord.id_ordenio }}</td>
             <td class="px-6 py-3">{{ formatearFecha(ord.fecha) }}</td>
-            <td class="px-6 py-3">{{ ord.bovino?.nombre || ord.BOVINO?.nombre || (ord.bovino?.numero_crotal || ord.BOVINO?.numero_crotal ? `Crotal ${ord.bovino?.numero_crotal || ord.BOVINO?.numero_crotal}` : `Vaca #${ord.id_bovino}`) }}</td>
+            <td class="px-6 py-3">{{ ord.bovino_nombre || '—' }}</td>
             <td class="px-6 py-3">{{ ord.cantidad_total }} L</td>
             <td class="px-6 py-3">{{ ord.momento_dia }}</td>
-            <td class="px-6 py-3">{{ ord.encargado?.nombre || ord.empleado?.nombre || ord.EMPLEADO?.nombre || `Encargado ID: ${ord.id_empleado}` }}</td>
+            <td class="px-6 py-3">{{ ord.empleado_nombre || '—' }}</td>
           </tr>
         </tbody>
       </table>
