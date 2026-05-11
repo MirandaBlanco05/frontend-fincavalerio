@@ -227,6 +227,8 @@ const form = reactive({
   estado: 'Activo'
 })
 
+const idEnEdicion = ref(null)
+const modoEdicion = computed(() => idEnEdicion.value !== null)
 const nuevoTipo = ref('')
 
 function seleccionarNuevoTipo() {
@@ -241,7 +243,7 @@ const tiposUnicos = computed(() => {
   return [...new Set(tipos)].sort()
 })
 
-const modoEdicion = computed(() => !!filaSeleccionada.value)
+// Quitamos modoEdicion anterior
 
 function seleccionarFila(insumo) {
   if (filaSeleccionada.value?.id_insumo === insumo.id_insumo) {
@@ -254,7 +256,7 @@ function seleccionarFila(insumo) {
 
 function abrirModal(insumo = null) {
   if (insumo) {
-    filaSeleccionada.value = insumo // Asegurar que está seleccionada
+    idEnEdicion.value = insumo.id_insumo
     form.nombre = insumo.nombre
     form.tipo_insumo = insumo.tipo_insumo
     form.uso = insumo.uso
@@ -263,7 +265,7 @@ function abrirModal(insumo = null) {
     form.precio = insumo.precio
     form.estado = insumo.estado
   } else {
-    filaSeleccionada.value = null
+    idEnEdicion.value = null
     resetForm()
   }
   modalAbierto.value = true
@@ -289,15 +291,16 @@ async function guardar() {
   let resultado
 
   if (modoEdicion.value) {
-    resultado = await store.actualizarInsumo(filaSeleccionada.value.id_insumo, form)
+    resultado = await store.actualizarInsumo(idEnEdicion.value, { ...form })
   } else {
-    resultado = await store.crearInsumo(form)
+    resultado = await store.crearInsumo({ ...form })
   }
 
   guardando.value = false
 
   if (resultado.success) {
     cerrarModal()
+    idEnEdicion.value = null
     filaSeleccionada.value = null
   }
 }
