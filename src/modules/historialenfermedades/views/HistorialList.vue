@@ -77,9 +77,15 @@
             :class="{ 'bg-primary/20': filaSeleccionada?.id_historial === h.id_historial }"
           >
             <td class="px-6 py-3">{{ h.id_historial }}</td>
-            <td class="px-6 py-3 font-medium">{{ getNombreBovino(h.id_bovino) }}</td>
-            <td class="px-6 py-3">{{ getNombreEnfermedad(h.id_enfermedad) }}</td>
-            <td class="px-6 py-3">{{ getCausaEnfermedad(h.id_enfermedad) }}</td>
+            <td class="px-6 py-3 font-medium">
+              {{ h.bovino?.nombre || (h.bovino?.numero_crotal ? `Crotal ${h.bovino.numero_crotal}` : `Vaca #${h.id_bovino}`) }}
+            </td>
+            <td class="px-6 py-3">
+              {{ h.enfermedades?.length ? h.enfermedades.map(e => e.nombre).join(', ') : '—' }}
+            </td>
+            <td class="px-6 py-3">
+              {{ h.enfermedades?.length ? h.enfermedades.map(e => e.causa || '').filter(c => c).join(', ') || '—' : '—' }}
+            </td>
             <td class="px-6 py-3">{{ h.fecha ? formatearFecha(h.fecha) : '—' }}</td>
           </tr>
         </tbody>

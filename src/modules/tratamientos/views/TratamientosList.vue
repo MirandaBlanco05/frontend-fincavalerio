@@ -70,8 +70,9 @@
             <td class="px-6 py-3 font-bold">#{{ trat.id_tratamiento }}</td>
             <td class="px-6 py-3">{{ trat.nombre }}</td>
             <td class="px-6 py-3">{{ trat.tipo_tratamiento }}</td>
-            <td class="px-6 py-3">{{ trat.enfermedad?.nombre || '—' }}</td>
-            <td class="px-6 py-3">{{ trat.empleado?.nombre || '—' }}</td>
+            <td class="px-6 py-3">{{ trat.animal || '—' }}</td>
+            <td class="px-6 py-3">{{ trat.enfermedad || '—' }}</td>
+            <td class="px-6 py-3">{{ trat.empleado || '—' }}</td>
             <td class="px-6 py-3">{{ formatearFecha(trat.fecha_inicio) }}</td>
             <td class="px-6 py-3">{{ formatearFecha(trat.fecha_fin) }}</td>
           </tr>

@@ -69,9 +69,9 @@
             <td class="px-6 py-3 font-bold">#{{ vacuna.id_vacuna }}</td>
             <td class="px-6 py-3">{{ vacuna.tipo_vacuna }}</td>
             <td class="px-6 py-3">{{ formatearFecha(vacuna.fecha) }}</td>
-            <td class="px-6 py-3">{{ vacuna.bovino?.nombre || '—' }}</td>
-            <td class="px-6 py-3">{{ vacuna.insumo?.nombre_insumo || '—' }}</td>
-            <td class="px-6 py-3">{{ vacuna.empleado?.nombre || '—' }}</td>
+            <td class="px-6 py-3">{{ vacuna.bovino_nombre || '—' }}</td>
+            <td class="px-6 py-3">{{ vacuna.insumo_nombre || '—' }}</td>
+            <td class="px-6 py-3">{{ vacuna.empleado_nombre || '—' }}</td>
           </tr>
         </tbody>
       </table>
