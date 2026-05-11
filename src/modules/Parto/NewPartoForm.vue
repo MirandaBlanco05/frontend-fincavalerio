@@ -25,7 +25,7 @@
       <form @submit.prevent="guardar" class="modal-body">
 
         <div class="form-grid">
-          <!-- Embarazo -->
+          <!-- Embarazo (Filtrado) -->
           <div class="form-group">
             <label class="form-label required">
               <span class="material-symbols-outlined">pregnancy</span>
@@ -33,10 +33,11 @@
             </label>
             <select v-model="form.id_embarazo" required class="form-select">
               <option value="">Seleccione Embarazo...</option>
-              <option v-for="emb in embarazos" :key="emb.id_embarazo" :value="emb.id_embarazo">
-                Embarazo ID: {{ emb.id_embarazo }} | Fase: {{ emb.fase || 'N/A' }}
+              <option v-for="emb in embarazosActivos" :key="emb.id_embarazo" :value="emb.id_embarazo">
+                Embarazo ID: #{{ emb.id_embarazo }} - Vaca: {{ emb.inseminacion?.ciclo?.bovino?.nombre || 'N/A' }}
               </option>
             </select>
+            <p v-if="embarazosActivos.length === 0" class="text-[11px] text-orange-600 mt-1">No hay embarazos activos disponibles</p>
           </div>
 
           <!-- Fecha Parto -->
@@ -116,6 +117,18 @@ const errorLocal = ref('')
 
 const embarazos = ref([])
 
+// Solo mostrar embarazos que no tengan parto asociado (excepto el actual si estamos editando)
+const embarazosActivos = computed(() => {
+  return embarazos.value.filter(emb => {
+    // Si estamos editando, permitir el embarazo actual
+    if (modoEdicion.value && emb.id_embarazo == form.id_embarazo) return true
+    
+    // Filtrar los que ya tienen parto en la lista del store
+    const tieneParto = store.partos.some(p => p.id_embarazo == emb.id_embarazo)
+    return !tieneParto && emb.finalizado !== true && emb.finalizado !== 1
+  })
+})
+
 const form = reactive({
   id_embarazo: '',
   fecha_parto: '',
@@ -127,15 +140,17 @@ onMounted(async () => {
   try {
     const res = await embarazoService.listar()
     embarazos.value = res.data || res || []
+    
+    // Si no hay partos en el store, cargarlos para poder filtrar correctamente
+    if (store.partos.length === 0) {
+      await store.cargarPartos()
+    }
   } catch (error) {
     console.error("Error cargando embarazos", error)
   }
 
   if (modoEdicion.value) {
     try {
-      if (store.partos.length === 0) {
-        await store.cargarPartos()
-      }
       const p = store.partos.find(x => x.id_parto == route.params.id)
       if (p) {
         form.id_embarazo = p.id_embarazo || ''
@@ -218,19 +233,19 @@ async function guardar() {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 2rem 2rem 1.5rem;
+  padding: 1.5rem 2rem;
   border-bottom: 1.5px solid #f0f0ed;
 }
 
 .modal-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #1a1a1a;
   margin-bottom: 0.25rem;
 }
 
 .modal-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #6b7280;
   font-weight: 500;
 }
@@ -245,16 +260,11 @@ async function guardar() {
   transition: all 0.2s;
 }
 
-.btn-close:hover {
-  background: #f5f5f5;
-  color: #1a1a1a;
-}
-
 .modal-body {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .form-group {
@@ -343,32 +353,14 @@ textarea {
   color: white;
 }
 
-.btn--primary:hover:not(:disabled) {
-  background: #3d7a3d;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
-}
-
-.btn--primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .btn--secondary {
   background: #f5f5f5;
   color: #374151;
 }
 
-.btn--secondary:hover {
-  background: #e5e7eb;
-}
-
 @media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;
-  }
-  .modal-body {
-    padding: 1.5rem;
   }
 }
 </style>

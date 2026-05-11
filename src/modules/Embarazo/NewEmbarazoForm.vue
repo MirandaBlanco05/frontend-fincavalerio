@@ -59,7 +59,7 @@
           <div class="form-group">
             <label class="form-label">
               <span class="material-symbols-outlined">timelapse</span>
-              Fase (Opcional)
+              Fase
             </label>
             <select v-model="form.fase" class="form-select">
               <option value="">Seleccione</option>
@@ -238,19 +238,19 @@ async function guardar() {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 2rem 2rem 1.5rem;
+  padding: 1.5rem 2rem;
   border-bottom: 1.5px solid #f0f0ed;
 }
 
 .modal-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #1a1a1a;
   margin-bottom: 0.25rem;
 }
 
 .modal-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #6b7280;
   font-weight: 500;
 }
@@ -265,16 +265,11 @@ async function guardar() {
   transition: all 0.2s;
 }
 
-.btn-close:hover {
-  background: #f5f5f5;
-  color: #1a1a1a;
-}
-
 .modal-body {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .form-group {
@@ -363,32 +358,14 @@ textarea {
   color: white;
 }
 
-.btn--primary:hover:not(:disabled) {
-  background: #3d7a3d;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
-}
-
-.btn--primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .btn--secondary {
   background: #f5f5f5;
   color: #374151;
 }
 
-.btn--secondary:hover {
-  background: #e5e7eb;
-}
-
 @media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;
-  }
-  .modal-body {
-    padding: 1.5rem;
   }
 }
 </style>

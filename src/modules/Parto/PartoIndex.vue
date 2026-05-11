@@ -1,5 +1,5 @@
 <template>
-  <div class="relative min-h-screen w-full">
+  <div class="relative min-h-screen w-full font-display">
 
     <!-- Action Bar -->
     <div class="mb-4 flex flex-wrap items-center gap-3">
@@ -36,23 +36,24 @@
         <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
             <th class="px-6 py-4">ID</th>
+            <th class="px-6 py-4">Vaca</th>
             <th class="px-6 py-4">Fecha Parto</th>
             <th class="px-6 py-4">N° Crías</th>
             <th class="px-6 py-4">Embarazo</th>
-            <th class="px-6 py-4">Observaciones</th>
+            <th class="px-6 py-4 text-center">Observaciones</th>
           </tr>
         </thead>
 
         <tbody>
           <tr v-if="store.cargando">
-            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
               <p class="mt-2">Cargando partos...</p>
             </td>
           </tr>
 
           <tr v-else-if="partosFiltrados.length === 0">
-            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined text-4xl">search_off</span>
               <p class="mt-2">No hay partos registrados.</p>
             </td>
@@ -60,14 +61,15 @@
 
           <tr v-else v-for="parto in partosFiltrados" :key="parto.id_parto" @click="seleccionarFila(parto)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_parto === parto.id_parto }">
             <td class="px-6 py-3 font-bold">#{{ parto.id_parto }}</td>
-            <td class="px-6 py-3 font-medium">{{ formatearFecha(parto.fecha_parto) }}</td>
+            <td class="px-6 py-3 font-semibold">{{ parto.embarazo?.inseminacion?.ciclo?.bovino?.nombre || '—' }}</td>
+            <td class="px-6 py-3 font-medium text-primary">{{ formatearFecha(parto.fecha_parto) }}</td>
             <td class="px-6 py-3">
               <span class="inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">
                 {{ parto.numero_crias || 0 }} {{ parto.numero_crias === 1 ? 'cría' : 'crías' }}
               </span>
             </td>
-            <td class="px-6 py-3">Emb. {{ parto.id_embarazo }}</td>
-            <td class="px-6 py-3">{{ parto.observaciones || '—' }}</td>
+            <td class="px-6 py-3 text-gray-400 text-xs">Emb. #{{ parto.id_embarazo }}</td>
+            <td class="px-6 py-3 text-gray-500 max-w-xs truncate">{{ parto.observaciones || '—' }}</td>
           </tr>
         </tbody>
       </table>
@@ -76,40 +78,36 @@
     <!-- Modal de Filtros -->
     <Teleport to="body">
       <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="cerrarFiltros">
-        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
-          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
-            <div class="h-1 w-9 rounded-full bg-gray-300"></div>
-          </div>
-
-          <div class="flex items-center justify-between p-4 border-b border-gray-200">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl shadow-2xl overflow-hidden">
+          <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
             <h3 class="text-lg font-bold text-text-primary">Filtrar Partos</h3>
             <button @click="cerrarFiltros" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
               <span class="material-symbols-outlined text-base">close</span>
             </button>
           </div>
 
-          <div class="flex flex-col gap-4 p-4">
+          <div class="flex flex-col gap-4 p-5">
             <div>
-              <label class="mb-1 block text-sm font-medium">Fecha Desde</label>
-              <input v-model="filtros.fechaDesde" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+              <label class="mb-1.5 block text-sm font-bold text-gray-700">Fecha Desde</label>
+              <input v-model="filtros.fechaDesde" type="date" class="w-full rounded-lg border border-border-color px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
             </div>
             
             <div>
-              <label class="mb-1 block text-sm font-medium">Fecha Hasta</label>
-              <input v-model="filtros.fechaHasta" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+              <label class="mb-1.5 block text-sm font-bold text-gray-700">Fecha Hasta</label>
+              <input v-model="filtros.fechaHasta" type="date" class="w-full rounded-lg border border-border-color px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium">Número de Crías</label>
-              <input v-model="filtros.numeroCrias" type="number" min="0" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Ej: 1" />
+              <label class="mb-1.5 block text-sm font-bold text-gray-700">Número de Crías</label>
+              <input v-model="filtros.numeroCrias" type="number" min="0" class="w-full rounded-lg border border-border-color px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" placeholder="Ej: 1" />
             </div>
           </div>
 
-          <div class="flex gap-3 p-4 border-t border-gray-200">
-            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200">
+          <div class="flex gap-3 p-4 border-t border-gray-200 bg-gray-50">
+            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-white border border-gray-300 px-4 py-2.5 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-100">
               Limpiar
             </button>
-            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90">
+            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90 shadow-sm">
               Aplicar Filtros
             </button>
           </div>
@@ -186,19 +184,35 @@ function cerrarFiltros() {
 }
 
 const partosFiltrados = computed(() => {
-  return store.partos.filter(parto => {
-    const { fechaDesde, fechaHasta, numeroCrias } = filtrosAplicados.value
-    
-    const okFechaDesde = !fechaDesde || (parto.fecha_parto && new Date(parto.fecha_parto) >= new Date(fechaDesde))
-    const okFechaHasta = !fechaHasta || (parto.fecha_parto && new Date(parto.fecha_parto) <= new Date(fechaHasta))
-    const okCrias = !numeroCrias || parto.numero_crias == numeroCrias
+  if (!store.partos) return []
+  return store.partos
+    .filter(parto => {
+      const { fechaDesde, fechaHasta, numeroCrias } = filtrosAplicados.value
+      
+      const okFechaDesde = !fechaDesde || (parto.fecha_parto && new Date(parto.fecha_parto) >= new Date(fechaDesde))
+      const okFechaHasta = !fechaHasta || (parto.fecha_parto && new Date(parto.fecha_parto) <= new Date(fechaHasta))
+      const okCrias = !numeroCrias || parto.numero_crias == numeroCrias
 
-    return okFechaDesde && okFechaHasta && okCrias
-  })
+      return okFechaDesde && okFechaHasta && okCrias
+    })
+    .sort((a, b) => b.id_parto - a.id_parto)
 })
 
 function formatearFecha(fecha) {
   if (!fecha) return '—'
+  const [year, month, day] = fecha.split('T')[0].split('-')
+  if (year && month && day) return `${day}/${month}/${year}`
   return new Date(fecha).toLocaleDateString('es-DO')
 }
 </script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+.font-display {
+  font-family: 'DM Sans', sans-serif;
+}
+</style>

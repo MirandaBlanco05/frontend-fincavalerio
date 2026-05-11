@@ -32,6 +32,7 @@
         <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
             <th class="px-6 py-4">ID</th>
+            <th class="px-6 py-4">Vaca</th>
             <th class="px-6 py-4">Fase</th>
             <th class="px-6 py-4">Fecha Secado</th>
             <th class="px-6 py-4">Fecha Prevista Parto</th>
@@ -40,22 +41,27 @@
         </thead>
         <tbody>
           <tr v-if="store.cargando">
-            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
               <p class="mt-2">Cargando...</p>
             </td>
           </tr>
           <tr v-else-if="embarazosFiltrados.length === 0">
-            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined text-4xl">pregnant_woman</span>
               <p class="mt-2">{{ store.embarazos?.length === 0 ? 'No hay embarazos.' : 'No hay resultados.' }}</p>
             </td>
           </tr>
           <tr v-else v-for="emb in embarazosFiltrados" :key="emb.id_embarazo" @click="seleccionarFila(emb)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_embarazo === emb.id_embarazo }">
             <td class="px-6 py-3 font-bold">#{{ emb.id_embarazo }}</td>
-            <td class="px-6 py-3">{{ emb.fase || '—' }}</td>
+            <td class="px-6 py-3 font-medium">{{ emb.inseminacion?.ciclo?.bovino?.nombre || '—' }}</td>
+            <td class="px-6 py-3">
+               <span class="rounded-full px-2 py-0.5 text-[11px] font-bold" :class="emb.fase === 'Primer Tercio' ? 'bg-blue-100 text-blue-700' : (emb.fase === 'Segundo Tercio' ? 'bg-purple-100 text-purple-700' : 'bg-orange-100 text-orange-700')">
+                  {{ emb.fase || 'Sin Fase' }}
+               </span>
+            </td>
             <td class="px-6 py-3">{{ formatearFecha(emb.fecha_secado) }}</td>
-            <td class="px-6 py-3 font-medium">{{ formatearFecha(emb.fecha_prevista_parto) }}</td>
+            <td class="px-6 py-3 font-semibold text-primary">{{ formatearFecha(emb.fecha_prevista_parto) }}</td>
             <td class="px-6 py-3">
               <div class="flex items-center gap-1">
                 <span class="material-symbols-outlined text-[14px] text-gray-400">medical_services</span>
@@ -69,26 +75,31 @@
 
     <Teleport to="body">
       <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="cerrarFiltros">
-        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
-          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden"><div class="h-1 w-9 rounded-full bg-gray-300"></div></div>
-          <div class="flex items-center justify-between p-4 border-b border-gray-200">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl shadow-xl overflow-hidden font-display">
+          <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
             <h3 class="text-lg font-bold">Filtrar Embarazos</h3>
             <button @click="cerrarFiltros" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100"><span class="material-symbols-outlined text-base">close</span></button>
           </div>
-          <div class="flex flex-col gap-4 p-4">
-            <div><label class="mb-1 block text-sm font-medium text-gray-700">Fase</label>
-              <input v-model="filtros.fase" type="text" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Ej: Primer trimestre" />
+          <div class="flex flex-col gap-4 p-5">
+            <div>
+              <label class="mb-1.5 block text-sm font-bold text-gray-700">Fase del Embarazo</label>
+              <select v-model="filtros.fase" class="w-full rounded-lg border border-border-color px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+                <option value="">Todas las fases</option>
+                <option value="Primer Tercio">Primer Tercio</option>
+                <option value="Segundo Tercio">Segundo Tercio</option>
+                <option value="Último Tercio">Último Tercio</option>
+              </select>
             </div>
-            <div><label class="mb-1 block text-sm font-medium text-gray-700">Parto Previsto Desde</label>
-              <input v-model="filtros.partoDesde" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+            <div><label class="mb-1.5 block text-sm font-bold text-gray-700">Parto Previsto Desde</label>
+              <input v-model="filtros.partoDesde" type="date" class="w-full rounded-lg border border-border-color px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
             </div>
-            <div><label class="mb-1 block text-sm font-medium text-gray-700">Parto Previsto Hasta</label>
-              <input v-model="filtros.partoHasta" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+            <div><label class="mb-1.5 block text-sm font-bold text-gray-700">Parto Previsto Hasta</label>
+              <input v-model="filtros.partoHasta" type="date" class="w-full rounded-lg border border-border-color px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
             </div>
           </div>
-          <div class="flex gap-3 p-4 border-t border-gray-200">
-            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-200">Limpiar</button>
-            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">Aplicar</button>
+          <div class="flex gap-3 p-4 border-t border-gray-200 bg-gray-50">
+            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-white border border-gray-300 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-100">Limpiar</button>
+            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary/90">Aplicar Filtros</button>
           </div>
         </div>
       </div>
@@ -122,13 +133,15 @@ const filtrosActivos = computed(() => {
 
 const embarazosFiltrados = computed(() => {
   if (!store.embarazos) return []
-  return store.embarazos.filter(emb => {
-    const { fase, partoDesde, partoHasta } = filtrosAplicados.value
-    if (fase && !emb.fase?.toLowerCase().includes(fase.toLowerCase())) return false
-    if (partoDesde && emb.fecha_prevista_parto && new Date(emb.fecha_prevista_parto) < new Date(partoDesde)) return false
-    if (partoHasta && emb.fecha_prevista_parto && new Date(emb.fecha_prevista_parto) > new Date(partoHasta)) return false
-    return true
-  })
+  return store.embarazos
+    .filter(emb => {
+      const { fase, partoDesde, partoHasta } = filtrosAplicados.value
+      if (fase && emb.fase !== fase) return false
+      if (partoDesde && emb.fecha_prevista_parto && new Date(emb.fecha_prevista_parto) < new Date(partoDesde)) return false
+      if (partoHasta && emb.fecha_prevista_parto && new Date(emb.fecha_prevista_parto) > new Date(partoHasta)) return false
+      return true
+    })
+    .sort((a, b) => b.id_embarazo - a.id_embarazo)
 })
 
 function seleccionarFila(emb) {
@@ -174,6 +187,8 @@ function cerrarFiltros() {
 
 function formatearFecha(fecha) {
   if (!fecha) return '—'
+  const [year, month, day] = fecha.split('T')[0].split('-')
+  if (year && month && day) return `${day}/${month}/${year}`
   return new Date(fecha).toLocaleDateString('es-DO')
 }
 
@@ -192,8 +207,12 @@ function getNombreVeterinario(id) {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+.relative {
+  font-family: 'DM Sans', sans-serif;
 }
 </style>
