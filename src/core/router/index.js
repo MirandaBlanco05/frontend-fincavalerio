@@ -9,6 +9,7 @@ const BovinoForm      = () => import('@/modules/bovino/views/BovinoForm.vue')
 const ProduccionIndex = () => import('@/modules/produccion/views/ProduccionIndex.vue')
 const CeloIndex       = () => import('@/modules/celo/views/CeloIndex.vue')
 const EmpleadoIndex   = () => import('@/modules/empleado/views/EmpleadoIndex.vue')
+const EmpleadoForm    = () => import('@/modules/empleado/views/EmpleadoForm.vue')
 const OrdenioIndex    = () => import('@/modules/ordenio/views/OrdenioIndex.vue')
 const CompraIndex     = () => import('@/modules/compra/views/compraindex.vue')
 const CompraForm      = () => import('@/modules/compra/views/CompraForm.vue')
@@ -103,8 +104,10 @@ const routes = [
   { path: '/insumos',            name: 'Insumos',         component: InsumoIndex },
   
   // Contactos
-  { path: '/empleado',    name: 'Empleado',   component: EmpleadoIndex },
-  { path: '/clientes',    name: 'Clientes',   component: ClienteIndex },
+  { path: '/empleado',          name: 'Empleado',        component: EmpleadoIndex },
+  { path: '/empleado/nuevo',     name: 'EmpleadoNuevo',   component: EmpleadoForm },
+  { path: '/empleado/editar/:id', name: 'EmpleadoEditar',  component: EmpleadoForm },
+  { path: '/clientes',          name: 'Clientes',        component: ClienteIndex },
   { path: '/proveedores', name: 'Proveedores',component: ProveedorIndex },
 
   // Rutas anidadas para módulos complejos

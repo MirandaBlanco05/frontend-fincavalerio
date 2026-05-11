@@ -71,7 +71,7 @@
             <td class="px-6 py-3">{{ e.nacionalidad || '—' }}</td>
             <td class="px-6 py-3">{{ e.cedula || '—' }}</td>
             <td class="px-6 py-3">{{ e.telefono || '—' }}</td>
-            <td class="px-6 py-3">{{ e.tipo_contrato || '—' }}</td>
+            <td class="px-6 py-3">{{ e.contrato || '—' }}</td>
             <td class="px-6 py-3">{{ e.puesto || '—' }}</td>
             <td class="px-6 py-3">RD$ {{ formatearMonto(e.salario) }}</td>
           </tr>
