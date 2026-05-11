@@ -1,5 +1,5 @@
 <template>
-  <!-- Build Timestamp: 2026-05-11 09:42 -->
+  <!-- Build Timestamp: 2026-05-11 18:55 -->
   <div class="min-h-screen bg-[#fafafa] p-8">
     
     <!-- Header -->
@@ -219,12 +219,14 @@
           <div class="flex items-center gap-4">
             <label class="font-bold text-gray-900">Método Pago</label>
             <select 
-              v-model="factura.metodo_pago" 
+              v-model="factura.id_metodo" 
               class="form-select w-48"
+              required
             >
-              <option value="Transferencia">Transferencia</option>
-              <option value="Efectivo">Efectivo</option>
-              <option value="Tarjeta">Tarjeta</option>
+              <option value="">Seleccione...</option>
+              <option v-for="m in metodosPago" :key="m.id_metodo" :value="m.id_metodo">
+                {{ m.tipo_metodo }}
+              </option>
             </select>
           </div>
           <div class="flex items-center gap-4">
@@ -278,6 +280,7 @@ import FacturaImprimible from '@/modules/venta/components/FacturaImprimible.vue'
 import clienteService from '@/modules/cliente/services/cliente.service.js'
 import productoService from '@/modules/producto/services/producto.service.js'
 import { secuenciaService } from '@/modules/compra/services/secuencia.service.js'
+import { metodoPagoService } from '@/modules/venta/services/metodoPago.service.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -292,7 +295,7 @@ const factura = reactive({
   fecha: new Date().toISOString().split('T')[0],
   ncf: '',
   concepto: 'Leche',
-  metodo_pago: 'Transferencia',
+  id_metodo: 1,
   id_cliente: '',
   cliente_nombre: '',
   cliente_provincia: '',
@@ -306,6 +309,7 @@ const cantidadProducto = ref(1)
 const clientes = ref([])
 const productosDisponibles = ref([])
 const ncfsDisponibles = ref([])
+const metodosPago = ref([])
 
 onMounted(async () => {
   await cargarListas()
@@ -318,14 +322,16 @@ onMounted(async () => {
 
 async function cargarListas() {
   try {
-    const [resClientes, resProductos, resNcfs] = await Promise.all([
+    const [resClientes, resProductos, resNcfs, resMetodos] = await Promise.all([
       clienteService.listar(),
       productoService.listar(),
-      secuenciaService.listar()
+      secuenciaService.listar(),
+      metodoPagoService.listar()
     ])
     clientes.value = resClientes || []
     productosDisponibles.value = resProductos || []
     ncfsDisponibles.value = (resNcfs || []).filter(n => n.estado === 'Disponible')
+    metodosPago.value = resMetodos || []
   } catch (error) {
     console.error('Error al cargar listas:', error)
   }
@@ -339,7 +345,7 @@ async function cargarDatosVentaEdicion(id) {
       factura.fecha = data.fecha ? data.fecha.split('T')[0] : new Date().toISOString().split('T')[0]
       factura.ncf = data.ncf
       factura.concepto = data.concepto
-      factura.metodo_pago = data.metodo_pago
+      factura.id_metodo = data.id_metodo
       factura.id_cliente = data.id_cliente ? parseInt(data.id_cliente) : ''
       
       // Asegurar que el NCF actual aparezca en la lista
@@ -460,7 +466,7 @@ function limpiarFormulario() {
     factura.fecha = new Date().toISOString().split('T')[0]
     factura.ncf = ''
     factura.concepto = 'Leche'
-    factura.metodo_pago = 'Transferencia'
+    factura.id_metodo = 1
     factura.id_cliente = ''
     factura.cliente_nombre = ''
     factura.cliente_provincia = ''
@@ -493,7 +499,7 @@ async function guardarFactura() {
     fecha: factura.fecha,
     concepto: factura.concepto,
     ncf: parseInt(factura.ncf),
-    metodo_pago: factura.metodo_pago,
+    id_metodo: parseInt(factura.id_metodo),
     estado: 'activo',
     productos: productos.value
   }
