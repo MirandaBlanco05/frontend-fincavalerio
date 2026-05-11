@@ -42,11 +42,11 @@
 
           <div class="form-group">
             <label class="form-label">
-              <span class="material-symbols-outlined">location_on</span>
-              Dirección
+              <span class="material-symbols-outlined">map</span>
+              Provincia
             </label>
             <input 
-              v-model="factura.cliente_direccion" 
+              v-model="factura.cliente_provincia" 
               type="text" 
               class="form-input bg-gray-50"
               readonly
@@ -294,7 +294,7 @@ const factura = reactive({
   metodo_pago: 'Transferencia',
   id_cliente: '',
   cliente_nombre: '',
-  cliente_direccion: '',
+  cliente_provincia: '',
   cliente_telefono: ''
 })
 
@@ -390,7 +390,7 @@ function cargarDatosCliente() {
   const cliente = clientes.value.find(c => c.id_cliente === parseInt(factura.id_cliente))
   if (cliente) {
     factura.cliente_nombre = cliente.nombre
-    factura.cliente_direccion = cliente.direccion
+    factura.cliente_provincia = cliente.provincia?.nombre || 'N/A'
     factura.cliente_telefono = cliente.telefono
   }
 }
@@ -454,7 +454,7 @@ function limpiarFormulario() {
     factura.metodo_pago = 'Transferencia'
     factura.id_cliente = ''
     factura.cliente_nombre = ''
-    factura.cliente_direccion = ''
+    factura.cliente_provincia = ''
     factura.cliente_telefono = ''
     productos.value = []
     productoSeleccionado.value = ''
