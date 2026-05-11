@@ -340,26 +340,33 @@ async function cargarDatosVentaEdicion(id) {
       factura.ncf = data.ncf
       factura.concepto = data.concepto
       factura.metodo_pago = data.metodo_pago
-      factura.id_cliente = data.id_cliente
+      factura.id_cliente = data.id_cliente ? parseInt(data.id_cliente) : ''
       
-      // Asegurar que el NCF actual aparezca en la lista si está usado
-      if (data.ncf && !ncfsDisponibles.value.find(n => n.id_secuencia === data.ncf)) {
-        ncfsDisponibles.value.push({
-          id_secuencia: data.ncf,
-          ncf_completo: data.ncf_completo || 'NCF Actual'
-        })
+      // Asegurar que el NCF actual aparezca en la lista
+      if (data.ncf) {
+        const idNcf = parseInt(data.ncf);
+        if (!ncfsDisponibles.value.find(n => n.id_secuencia === idNcf)) {
+          ncfsDisponibles.value.push({
+            id_secuencia: idNcf,
+            ncf_completo: data.ncf_completo || 'NCF Actual'
+          })
+        }
+        factura.ncf = idNcf;
       }
 
-      cargarDatosCliente()
+      // Cargar datos del cliente
+      setTimeout(() => {
+        cargarDatosCliente()
+      }, 100)
 
-      if (data.productos_venta) {
+      if (data.productos_venta && Array.isArray(data.productos_venta)) {
         productos.value = data.productos_venta.map(p => ({
           id_producto: p.id_producto,
           tipo: p.producto?.tipo || 'N/A',
           descripcion: p.producto?.descripcion || 'N/A',
           cantidad: p.cantidad || 0,
-          precio: parseFloat(p.precio_unitario) || 0,
-          total: parseFloat(p.total) || 0
+          precio: parseFloat(p.precio_unitario || 0),
+          total: parseFloat(p.total || 0)
         }))
       }
     }
