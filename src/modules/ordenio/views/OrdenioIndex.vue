@@ -71,7 +71,7 @@
             <td class="px-6 py-3">{{ ord.bovino?.nombre || ord.BOVINO?.nombre || (ord.bovino?.numero_crotal || ord.BOVINO?.numero_crotal ? `Crotal ${ord.bovino?.numero_crotal || ord.BOVINO?.numero_crotal}` : `Vaca #${ord.id_bovino}`) }}</td>
             <td class="px-6 py-3">{{ ord.cantidad_total }} L</td>
             <td class="px-6 py-3">{{ ord.momento_dia }}</td>
-            <td class="px-6 py-3">{{ ord.empleado?.nombre || ord.EMPLEADO?.nombre || `ID Empleado: ${ord.id_empleado}` }}</td>
+            <td class="px-6 py-3">{{ ord.encargado?.nombre || ord.empleado?.nombre || ord.EMPLEADO?.nombre || `Encargado ID: ${ord.id_empleado}` }}</td>
           </tr>
         </tbody>
       </table>
