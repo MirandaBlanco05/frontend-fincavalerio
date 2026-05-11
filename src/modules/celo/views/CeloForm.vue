@@ -191,23 +191,22 @@ async function guardar() {
 
   try {
     const payload = { ...form }
+    console.log('📤 Enviando payload de celo:', JSON.stringify(payload))
 
-    let resultado
     if (modoEdicion.value) {
-      resultado = await store.actualizarCelo(route.params.id, payload)
+      await api.put(`/ciclo/actualizar/${route.params.id}`, payload)
     } else {
-      resultado = await store.crearCelo(payload)
+      await api.post('/ciclo/crear', payload)
     }
 
-    if (resultado.success) {
-      router.push({ name: 'CicloCelo' })
-    } else {
-      errorLocal.value = store.error || 'Error al guardar el ciclo.'
-    }
+    await store.cargarCiclos()
+    router.push({ name: 'CicloCelo' })
 
   } catch (error) {
+    console.error('❌ Error al guardar celo:', error)
     errorLocal.value = error.response?.data?.error
       || error.response?.data?.mensaje
+      || error.message
       || 'Error desconocido en el servidor'
   } finally {
     cargando.value = false
