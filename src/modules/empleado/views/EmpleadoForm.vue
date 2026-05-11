@@ -163,7 +163,7 @@ async function guardar() {
     res = await store.crearEmpleado({ ...form })
   }
   
-  if (res.success) {
+  if (res) {
     router.push({ name: 'Empleado' })
   }
 }
