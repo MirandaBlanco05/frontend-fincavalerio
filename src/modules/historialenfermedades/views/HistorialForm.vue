@@ -34,7 +34,7 @@
             <select v-model="form.id_bovino" required class="form-select">
               <option value="">Seleccione un animal...</option>
               <option v-for="b in bovinos" :key="b.id_bovino" :value="b.id_bovino">
-                {{ b.nombre }} - {{ b.codigo }}
+                {{ b.nombre }} - {{ b.codigo || b.numero_crotal }}
               </option>
             </select>
           </div>
@@ -62,15 +62,6 @@
               Fecha del Diagnóstico
             </label>
             <input v-model="form.fecha" type="date" required class="form-input" />
-          </div>
-
-          <!-- Observaciones (opcional) -->
-          <div class="form-group">
-            <label class="form-label">
-              <span class="material-symbols-outlined">description</span>
-              Observaciones
-            </label>
-            <input v-model="form.observaciones" type="text" class="form-input" placeholder="Opcional" />
           </div>
         </div>
 
@@ -107,8 +98,7 @@ const enfermedades = ref([])
 const form = reactive({
   id_bovino: '',
   id_enfermedad: '',
-  fecha: new Date().toISOString().split('T')[0],
-  observaciones: ''
+  fecha: new Date().toISOString().split('T')[0]
 })
 
 onMounted(async () => {
