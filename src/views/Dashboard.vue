@@ -7,35 +7,13 @@
         <h2 class="header-title">¡Hola, {{ nombreUsuario }}!</h2>
         <p class="header-subtitle">Bienvenido de nuevo a Finca Valerio. Aquí tienes el resumen de hoy.</p>
       </div>
-      <div class="relative flex items-center gap-4">
-        <button class="notification-btn" @click="mostrarNotificaciones = !mostrarNotificaciones">
+      <div class="flex items-center gap-4">
+        <button class="notification-btn">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
           </svg>
-          <span v-if="notificaciones.length > 0" class="notification-dot"></span>
+          <span class="notification-dot"></span>
         </button>
-
-        <!-- Dropdown Notificaciones -->
-        <div v-if="mostrarNotificaciones" class="absolute right-0 top-12 z-50 w-80 rounded-xl bg-white shadow-xl ring-1 ring-black/5 overflow-hidden">
-          <div class="flex items-center justify-between border-b border-gray-100 p-4 bg-gray-50/80">
-            <h3 class="font-bold text-gray-900">Notificaciones</h3>
-            <span v-if="notificaciones.length > 0" class="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{{ notificaciones.length }} nuevas</span>
-          </div>
-          <div class="max-h-96 overflow-y-auto p-2">
-            <div v-if="notificaciones.length === 0" class="p-4 text-center text-sm text-gray-500">
-              No tienes notificaciones pendientes
-            </div>
-            <div v-else v-for="noti in notificaciones" :key="noti.id" class="flex items-start gap-3 rounded-lg p-3 hover:bg-gray-50 transition-colors cursor-pointer">
-              <div :class="['flex h-10 w-10 shrink-0 items-center justify-center rounded-full', noti.bg, noti.color]">
-                <span class="material-symbols-outlined text-xl">{{ noti.icono }}</span>
-              </div>
-              <div>
-                <p class="text-sm font-bold text-gray-900">{{ noti.titulo }}</p>
-                <p class="text-xs text-gray-600 mt-0.5">{{ noti.descripcion }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </header>
 
@@ -121,7 +99,31 @@
     <!-- Middle Row: Births & Inventory -->
     <div class="middle-row">
       
-
+      <!-- Upcoming Births -->
+      <div class="births-section">
+        <div class="section-header-row">
+          <h3 class="section-title">Próximos Partos</h3>
+          <span class="alert-badge">ALERTA</span>
+        </div>
+        <div v-if="cargandoPartos" class="loading-mini">
+          <div class="spinner-mini"></div>
+        </div>
+        <div v-else-if="proximosPartos.length === 0" class="empty-mini">
+          <p>No hay partos programados</p>
+        </div>
+        <div v-else class="births-list">
+          <div v-for="parto in proximosPartos" :key="parto.id" class="birth-item">
+            <div class="birth-avatar">{{ parto.codigo }}</div>
+            <div class="birth-info">
+              <p class="birth-name">{{ parto.nombre }}</p>
+              <p class="birth-date">Estimado: {{ parto.fecha }}</p>
+            </div>
+            <div class="birth-days">
+              <span>{{ parto.dias }} días</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Inventory Alerts -->
       <div class="inventory-section">
@@ -188,7 +190,14 @@
           <span class="quick-label">Ver Mapa</span>
         </button>
 
-
+        <!-- FAB -->
+        <div class="fab-container">
+          <button class="fab-btn">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+            </svg>
+          </button>
+        </div>
 
       </div>
     </section>
@@ -199,7 +208,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import api from '@/core/api/axios.js'
+import axios from 'axios'
 
 const router = useRouter()
 const nombreUsuario = ref(localStorage.getItem('usuario') || 'Alex')
@@ -217,45 +226,19 @@ const estadisticas = ref({
   citasPendientes: 0
 })
 
-
-const proximasCitas = ref([])
-const mostrarNotificaciones = ref(false)
-
-
+const proximosPartos = ref([])
+const cargandoPartos = ref(true)
 const cargandoInventario = ref(true)
 const inventarioCritico = ref([])
 const proximaCitaData = ref(null)
 
-const notificaciones = computed(() => {
-  const items = []
-  
-  proximasCitas.value.forEach(cita => {
-    const fecha = new Date(cita.fecha)
-    items.push({
-      id: `cita-${cita.id_visita}`,
-      tipo: 'cita',
-      titulo: 'Cita Veterinaria Próxima',
-      descripcion: `Chequeo programado para el ${fecha.toLocaleDateString('es-DO')} a las ${fecha.toLocaleTimeString('es-DO', {hour: '2-digit', minute:'2-digit'})}`,
-      icono: 'medical_services',
-      color: 'text-blue-600',
-      bg: 'bg-blue-50'
-    })
-  })
-
-
-
-  return items
-})
-
 const proximaCitaTitulo = computed(() => {
-  if (!proximaCitaData.value) return 'Sin citas'
-  const m = proximaCitaData.value.motivos
-  return (m && m.length > 0) ? m.join(', ') : 'Chequeo veterinario'
+  return proximaCitaData.value ? 'Chequeo veterinario' : 'Sin citas'
 })
 
 const proximaCitaHora = computed(() => {
   if (!proximaCitaData.value) return ''
-  const fecha = new Date(proximaCitaData.value.fecha)
+  const fecha = new Date(proximaCitaData.value.fecha_visita)
   return `a las ${fecha.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}`
 })
 
@@ -280,7 +263,7 @@ const inventarioDisplay = computed(() => {
 async function cargarClimaReal() {
   try {
     const API_KEY = '9f92b27e93078b9370dbd0116c87cc5e'
-    const response = await api.get(
+    const response = await axios.get(
       `https://api.openweathermap.org/data/2.5/weather?lat=19.4667&lon=-71.1333&units=metric&lang=es&appid=${API_KEY}`
     )
     
@@ -297,49 +280,69 @@ async function cargarClimaReal() {
 
 async function cargarDatos() {
   try {
-    const bovinosRes = await api.get('/bovino/listar')
+    const bovinosRes = await axios.get('/api/bovino/listar')
     estadisticas.value.totalBovinos = bovinosRes.data.length
     estadisticas.value.bovinosActivos = bovinosRes.data.filter(b => b.estado === 'Activo').length
 
     try {
-      const visitasRes = await api.get('/visita/listar')
+      const visitasRes = await axios.get('/api/visita/listar')
       const hoy = new Date()
-      hoy.setHours(0, 0, 0, 0)
       const en7Dias = new Date()
       en7Dias.setDate(en7Dias.getDate() + 7)
-      en7Dias.setHours(23, 59, 59, 999)
       
       const citasFuturas = visitasRes.data.filter(v => {
-        if (!v.fecha) return false
-        // Normalizamos la fecha para evitar desfases de zona horaria
-        const fechaStr = v.fecha.split('T')[0]
-        const [y, m, d] = fechaStr.split('-').map(Number)
-        const fechaVisita = new Date(y, m - 1, d)
-        
+        if (!v.fecha_visita) return false
+        const fechaVisita = new Date(v.fecha_visita)
         return fechaVisita >= hoy && fechaVisita <= en7Dias
       })
       
       estadisticas.value.citasPendientes = citasFuturas.length
       proximaCitaData.value = citasFuturas[0] || null
-      proximasCitas.value = citasFuturas
     } catch {
       estadisticas.value.citasPendientes = 3
     }
 
     cargandoInventario.value = true
-    const insumosRes = await api.get('/insumo/listar')
+    const insumosRes = await axios.get('/api/insumo/listar')
     inventarioCritico.value = insumosRes.data
-      .filter(i => i.cantidad_stock <= 5) // Usamos 5 como umbral por defecto ya que no hay cantidad_minima en DB
+      .filter(i => i.cantidad_actual <= i.cantidad_minima)
       .map(i => ({
         id: i.id_insumo,
-        nombre: i.nombre,
-        cantidad: i.cantidad_stock,
-        minimo: 5,
-        unidad: i.unidad_medida || 'unid'
+        nombre: i.nombre_insumo,
+        cantidad: i.cantidad_actual,
+        minimo: i.cantidad_minima,
+        unidad: i.unidad_medida
       }))
     cargandoInventario.value = false
 
-
+    cargandoPartos.value = true
+    try {
+      const partosRes = await axios.get('/api/parto/listar')
+      const hoy = new Date()
+      const en30Dias = new Date()
+      en30Dias.setDate(en30Dias.getDate() + 30)
+      
+      proximosPartos.value = partosRes.data
+        .filter(p => {
+          if (!p.fecha_parto) return false
+          const fechaParto = new Date(p.fecha_parto)
+          return fechaParto >= hoy && fechaParto <= en30Dias
+        })
+        .map((p, idx) => {
+          const dias = Math.ceil((new Date(p.fecha_parto) - hoy) / (1000 * 60 * 60 * 24))
+          return {
+            id: p.id_parto,
+            codigo: `V${String(idx + 1).padStart(2, '0')}`,
+            nombre: p.bovino?.nombre || 'Vaca',
+            fecha: new Date(p.fecha_parto).toLocaleDateString('es-DO', { day: 'numeric', month: 'short' }),
+            dias: dias
+          }
+        })
+        .slice(0, 2)
+    } catch {
+      proximosPartos.value = []
+    }
+    cargandoPartos.value = false
 
   } catch (error) {
     console.error('Error:', error)
@@ -689,7 +692,7 @@ onMounted(() => {
 /* MIDDLE ROW */
 .middle-row {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 1.5rem;
   margin-bottom: 2rem;
 }

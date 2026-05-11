@@ -1,16 +1,19 @@
 <template>
   <div class="modal-overlay">
     <div class="modal-content">
+      
+      <!-- Encabezado -->
       <div class="modal-header">
         <div>
           <h3 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nuevo' }} Veterinario</h3>
           <p class="modal-subtitle">Complete los datos del veterinario</p>
         </div>
-        <button type="button" @click="router.push({ name: 'Veterinarios' })" class="btn-close">
+        <button type="button" @click="router.push({ name: 'VeterinariosList' })" class="btn-close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
+      <!-- Alertas -->
       <div v-if="store.error" style="padding: 1rem 2rem;">
         <div style="display: flex; align-items: center; gap: 8px; color: #dc2626; background: #fef2f2; padding: 12px; border-radius: 8px;">
           <span class="material-symbols-outlined">error</span>
@@ -18,40 +21,49 @@
         </div>
       </div>
 
+      <!-- Formulario -->
       <form @submit.prevent="guardar" class="modal-body">
-        <div class="form-group">
-          <label class="form-label required">
-            <span class="material-symbols-outlined">person</span>
-            Nombre
-          </label>
-          <input v-model="form.nombre" type="text" required class="form-input" placeholder="Nombre completo" />
-        </div>
-
+        
         <div class="form-grid">
+          <!-- Nombre -->
           <div class="form-group">
-            <label class="form-label">
+            <label class="form-label required">
+              <span class="material-symbols-outlined">person</span>
+              Nombre Completo
+            </label>
+            <input v-model="form.nombre" type="text" required class="form-input" placeholder="Dr. Juan Pérez" />
+          </div>
+
+          <!-- Cédula -->
+          <div class="form-group">
+            <label class="form-label required">
               <span class="material-symbols-outlined">badge</span>
               Cédula
             </label>
-            <input v-model="form.cedula" type="text" class="form-input" placeholder="000-0000000-0" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label required">
-              <span class="material-symbols-outlined">phone</span>
-              Teléfono
-            </label>
-            <input v-model="form.telefono" type="tel" required class="form-input" placeholder="809-000-0000" />
+            <input v-model="form.cedula" type="text" required class="form-input" placeholder="001-0000000-0" />
           </div>
         </div>
 
+        <div class="form-grid">
+          <!-- Teléfono -->
+          <div class="form-group">
+            <label class="form-label">
+              <span class="material-symbols-outlined">call</span>
+              Teléfono
+            </label>
+            <input v-model="form.telefono" type="tel" class="form-input" placeholder="809-000-0000" />
+          </div>
+        </div>
+
+        <!-- Botones -->
         <div class="modal-footer">
           <button type="button" @click="router.push({ name: 'Veterinarios' })" class="btn btn--secondary">Cancelar</button>
           <button type="submit" :disabled="store.cargando" class="btn btn--primary">
             <span class="material-symbols-outlined">save</span>
-            {{ store.cargando ? 'Guardando...' : (modoEdicion ? 'Actualizar' : 'Guardar') }}
+            {{ store.cargando ? 'Guardando...' : (modoEdicion ? 'Actualizar Registro' : 'Guardar Registro') }}
           </button>
         </div>
+
       </form>
     </div>
   </div>
@@ -76,17 +88,28 @@ const form = reactive({
 
 onMounted(async () => {
   if (modoEdicion.value) {
-    if (!store.veterinarios.length) await store.cargarVeterinarios()
+    if (store.veterinarios.length === 0) {
+      await store.cargarVeterinarios()
+    }
     const vet = store.veterinarios.find(v => v.id_veterinario == route.params.id)
-    if (vet) Object.assign(form, vet)
+    if (vet) {
+      form.nombre = vet.nombre
+      form.cedula = vet.cedula
+      form.telefono = vet.telefono
+    }
   }
 })
 
 async function guardar() {
-  const ok = modoEdicion.value 
-    ? await store.actualizarVeterinario(route.params.id, form) 
-    : await store.crearVeterinario(form)
-  if (ok) router.push({ name: 'Veterinarios' })
+  let ok
+  if (modoEdicion.value) {
+    ok = await store.actualizarVeterinario(route.params.id, { ...form })
+  } else {
+    ok = await store.crearVeterinario({ ...form })
+  }
+  if (ok) {
+    router.push({ name: 'Veterinarios' })
+  }
 }
 </script>
 
@@ -189,7 +212,7 @@ async function guardar() {
   margin-left: 4px;
 }
 
-.form-input {
+.form-input, .form-select {
   padding: 0.75rem;
   border: 1.5px solid #e5e7eb;
   border-radius: 10px;
@@ -204,6 +227,12 @@ async function guardar() {
   outline: none;
   border-color: #4c9a4c;
   background: #f0f9f0;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #9ca3af;
+  background: #f3f4f6;
 }
 
 .form-grid {

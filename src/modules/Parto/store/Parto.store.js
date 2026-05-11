@@ -33,36 +33,6 @@ export const usePartoStore = defineStore('parto', {
         this.cargando = false
         throw err
       }
-    },
-
-    async actualizarParto(id, datos) {
-      this.cargando = true
-      this.error = null
-      try {
-        const exito = await partoService.actualizar(id, datos)
-        if (exito) await this.cargarPartos()
-        this.cargando = false
-        return exito
-      } catch(err) {
-        this.error = 'No se pudo actualizar el parto'
-        this.cargando = false
-        throw err
-      }
-    },
-
-    async eliminarParto(id) {
-      this.cargando = true
-      this.error = null
-      try {
-        const exito = await partoService.eliminar(id)
-        if (exito) await this.cargarPartos()
-        this.cargando = false
-        return exito
-      } catch(err) {
-        this.error = 'No se pudo eliminar el parto'
-        this.cargando = false
-        throw err
-      }
     }
   }
 })

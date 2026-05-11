@@ -6,7 +6,7 @@ export default {
   },
   
   obtenerPorId(id) {
-    return api.get(`/veterinario/buscar/${id}`)
+    return api.get(`/veterinario/${id}`)
   },
   
   crear(datos) {

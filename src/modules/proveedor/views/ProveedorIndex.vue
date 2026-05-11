@@ -21,7 +21,6 @@
       <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
         <span class="material-symbols-outlined text-base">filter_list</span>
         <span class="truncate">Filtrar</span>
-        <span v-if="filtrosActivos > 0" class="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-xs text-white">{{ filtrosActivos }}</span>
       </button>
     </div>
 
@@ -70,8 +69,8 @@
             <td class="px-6 py-3 font-medium">{{ p.nombre }}</td>
             <td class="px-6 py-3 font-mono text-xs">{{ p.rnc || '—' }}</td>
             <td class="px-6 py-3">{{ p.telefono || '—' }}</td>
-            <td class="px-6 py-3">{{ p.tipo_proveedor || p.tipo || '—' }}</td>
-            <td class="px-6 py-3">{{ p.provincia?.nombre || p.provincia || '—' }}</td>
+            <td class="px-6 py-3">{{ p.tipo || '—' }}</td>
+            <td class="px-6 py-3">{{ p.provincia || '—' }}</td>
             <td class="px-6 py-3">
               <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="p.estado === 'Activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'">
                 {{ p.estado }}
@@ -107,8 +106,11 @@
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Buscar por Nombre</label>
-              <input v-model="filtros.nombre" type="text" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" placeholder="Buscar nombre..." />
+              <label class="mb-1 block text-sm font-medium">Estado</label>
+              <select v-model="filtros.estado" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todos</option>
+                <option v-for="estado in estadosUnicos" :key="estado" :value="estado">{{ estado }}</option>
+              </select>
             </div>
           </div>
 
@@ -137,15 +139,8 @@ const store = useProveedorStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
-const filtros = ref({ tipo: '', estado: '', nombre: '' })
-const filtrosAplicados = ref({ tipo: '', estado: '', nombre: '' })
-
-const filtrosActivos = computed(() => {
-  let c = 0
-  if (filtrosAplicados.value.tipo) c++
-  if (filtrosAplicados.value.nombre) c++
-  return c
-})
+const filtros = ref({ tipo: '', estado: '' })
+const filtrosAplicados = ref({ tipo: '', estado: '' })
 
 onMounted(() => {
   store.cargarProveedores()
@@ -184,13 +179,13 @@ function aplicarFiltros() {
 }
 
 function limpiarFiltros() {
-  filtros.value = { tipo: '', estado: '', nombre: '' }
-  filtrosAplicados.value = { tipo: '', estado: '', nombre: '' }
+  filtros.value = { tipo: '', estado: '' }
+  filtrosAplicados.value = { tipo: '', estado: '' }
   modalFiltros.value = false
 }
 
 const tiposUnicos = computed(() => {
-  return [...new Set(store.proveedores.map(p => p.tipo_proveedor || p.tipo).filter(Boolean))].sort()
+  return [...new Set(store.proveedores.map(p => p.tipo).filter(Boolean))].sort()
 })
 
 const estadosUnicos = computed(() => {
@@ -198,13 +193,11 @@ const estadosUnicos = computed(() => {
 })
 
 const proveedoresFiltrados = computed(() => {
-  if (!store.proveedores) return []
   return store.proveedores.filter(p => {
-    const { tipo, estado, nombre } = filtrosAplicados.value
+    const { tipo, estado } = filtrosAplicados.value
 
-    if (tipo && (p.tipo_proveedor !== tipo && p.tipo !== tipo)) return false
+    if (tipo && p.tipo !== tipo) return false
     if (estado && p.estado !== estado) return false
-    if (nombre && !p.nombre?.toLowerCase().includes(nombre.toLowerCase())) return false
 
     return true
   })

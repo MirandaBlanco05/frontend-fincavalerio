@@ -4,8 +4,8 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? '/api' : 'https://backend-fincavalerio.onrender.com/api'),
-  timeout: 60000,
+  baseURL: '/api',          // Proxy configurado en vite.config.js → localhost:3000
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
   }

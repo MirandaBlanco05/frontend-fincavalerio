@@ -70,9 +70,9 @@
 
           <tr v-else v-for="b in bovinosFiltrados" :key="b.id_bovino" @click="seleccionarFila(b)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_bovino === b.id_bovino }">
             <td class="px-6 py-3">{{ b.id_bovino }}</td>
-            <td class="px-6 py-3">{{ getNombreGrupo(b.id_grupo) }}</td>
+            <td class="px-6 py-3">{{ getNombreGrupo(b.Id_grupo) }}</td>
             <td class="px-6 py-3">{{ b.numero_crotal ?? '—' }}</td>
-            <td class="px-6 py-3">{{ getNombreRaza(b.id_raza) }}</td>
+            <td class="px-6 py-3">{{ getNombreRaza(b.Id_raza) }}</td>
             <td class="px-6 py-3 font-medium">{{ b.nombre || 'Sin nombre' }}</td>
             <td class="px-6 py-3">{{ b.fecha_nacimiento || 'No especificada' }}</td>
             <td class="px-6 py-3">{{ b.nombre_madre || 'Desconocida' }}</td>
@@ -226,7 +226,7 @@ async function confirmarEliminar() {
 }
 
 const gruposUnicos = computed(() => {
-  const grupos = [...new Set(store.bovinos.map(b => b.id_grupo))].sort((a, b) => a - b)
+  const grupos = [...new Set(store.bovinos.map(b => b.Id_grupo))].sort((a, b) => a - b)
   return grupos
 })
 
@@ -245,7 +245,7 @@ const bovinosFiltrados = computed(() => {
   return store.bovinos.filter(b => {
     const { grupo, edad, sexo, estado } = filtrosAplicados.value
 
-    const okGrupo = !grupo || b.id_grupo === parseInt(grupo)
+    const okGrupo = !grupo || b.Id_grupo === parseInt(grupo)
 
     let okEdad = true
     if (edad === 'menos1') okEdad = Number(b.edad) < 1
@@ -266,6 +266,6 @@ function getNombreGrupo(id) {
 
 function getNombreRaza(id) {
   const raza = razas.value.find(r => r.id_raza === id)
-  return raza ? (raza.nombre || raza.Tipo_raza) : `Raza ${id}`
+  return raza ? raza.nombre : `Raza ${id}`
 }
 </script>

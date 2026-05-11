@@ -17,12 +17,6 @@
         <span class="material-symbols-outlined text-base">delete</span>
         <span class="truncate">Eliminar</span>
       </button>
-
-      <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
-        <span class="material-symbols-outlined text-base">filter_list</span>
-        <span class="truncate">Filtrar</span>
-        <span v-if="filtrosActivos > 0" class="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-xs text-white">{{ filtrosActivos }}</span>
-      </button>
     </div>
 
     <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -59,14 +53,14 @@
             </td>
           </tr>
 
-          <tr v-else-if="insumosFiltrados.length === 0">
+          <tr v-else-if="store.insumos.length === 0">
             <td colspan="8" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined text-4xl">construction</span>
-              <p class="mt-2">{{ store.insumos.length === 0 ? 'No hay insumos registrados.' : 'No hay resultados con los filtros aplicados.' }}</p>
+              <p class="mt-2">No hay insumos registrados.</p>
             </td>
           </tr>
 
-          <tr v-else v-for="insumo in insumosFiltrados" :key="insumo.id_insumo" @click="seleccionarFila(insumo)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_insumo === insumo.id_insumo }">
+          <tr v-else v-for="insumo in store.insumos" :key="insumo.id_insumo" @click="seleccionarFila(insumo)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_insumo === insumo.id_insumo }">
             <td class="px-6 py-3 font-bold">#{{ insumo.id_insumo }}</td>
             <td class="px-6 py-3">{{ insumo.nombre }}</td>
             <td class="px-6 py-3">{{ insumo.tipo_insumo }}</td>
@@ -113,10 +107,7 @@
                   <span class="material-symbols-outlined">category</span>
                   Tipo Insumo
                 </label>
-                <select v-model="form.tipo_insumo" required class="form-select">
-                  <option value="" disabled>Seleccione un tipo...</option>
-                  <option v-for="tipo in tiposUnicos" :key="tipo" :value="tipo">{{ tipo }}</option>
-                </select>
+                <input v-model="form.tipo_insumo" type="text" required class="form-input" />
               </div>
             </div>
 
@@ -179,49 +170,6 @@
       </div>
     </Teleport>
 
-    <!-- Modal de Filtros -->
-    <Teleport to="body">
-      <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="modalFiltros = false">
-        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
-          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
-            <div class="h-1 w-9 rounded-full bg-gray-300"></div>
-          </div>
-
-          <div class="flex items-center justify-between p-4">
-            <h3 class="text-lg font-bold text-text-primary">Filtrar Insumos</h3>
-            <button @click="modalFiltros = false" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
-              <span class="material-symbols-outlined text-base">close</span>
-            </button>
-          </div>
-
-          <div class="flex flex-col gap-4 p-4">
-            <div>
-              <label class="mb-1 block text-sm font-medium">Estado</label>
-              <select v-model="filtros.estado" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
-                <option value="">Todos</option>
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-              </select>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <input type="checkbox" v-model="filtros.stockBajo" id="stockBajoInsumo" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
-              <label for="stockBajoInsumo" class="text-sm font-medium cursor-pointer">Solo con stock bajo (&lt; 10)</label>
-            </div>
-          </div>
-
-          <div class="flex gap-3 p-4">
-            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30">
-              Limpiar
-            </button>
-            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90">
-              Aplicar Filtros
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
-
     <!-- Modal Eliminar -->
     <Teleport to="body">
       <div v-if="modalEliminar" class="modal-overlay" @click.self="modalEliminar = false">
@@ -255,33 +203,7 @@ const store = useInsumoStore()
 const filaSeleccionada = ref(null)
 const modalAbierto = ref(false)
 const modalEliminar = ref(false)
-const modalFiltros = ref(false)
 const guardando = ref(false)
-
-const filtros = ref({ estado: '', stockBajo: false })
-const filtrosAplicados = ref({ estado: '', stockBajo: false })
-
-const filtrosActivos = computed(() => {
-  let c = 0
-  if (filtrosAplicados.value.estado) c++
-  if (filtrosAplicados.value.stockBajo) c++
-  return c
-})
-
-const insumosFiltrados = computed(() => {
-  return store.insumos.filter(i => {
-    const { estado, stockBajo } = filtrosAplicados.value
-
-    if (estado && i.estado !== estado) return false
-    if (stockBajo && i.cantidad_stock >= 10) return false
-
-    return true
-  })
-})
-
-const tiposUnicos = computed(() => {
-  return [...new Set(store.insumos.map(i => i.tipo_insumo).filter(Boolean))].sort()
-})
 
 const form = reactive({
   nombre: '',
@@ -369,17 +291,6 @@ async function eliminar() {
 
 function formatearNumero(num) {
   return parseFloat(num).toFixed(2)
-}
-
-function aplicarFiltros() {
-  filtrosAplicados.value = { ...filtros.value }
-  modalFiltros.value = false
-}
-
-function limpiarFiltros() {
-  filtros.value = { estado: '', stockBajo: false }
-  filtrosAplicados.value = { estado: '', stockBajo: false }
-  modalFiltros.value = false
 }
 
 onMounted(() => {

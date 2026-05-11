@@ -1,9 +1,9 @@
-import api from '@/core/api/axios.js'
+import axios from '@/core/api/axios.js'
 
 export const proveedorService = {
   async listar() {
     try {
-      const response = await api.get('/proveedor/listar')
+      const response = await axios.get('/proveedor/listar')
       return response.data
     } catch (error) {
       console.error('Error al listar proveedores:', error)
@@ -13,7 +13,7 @@ export const proveedorService = {
 
   async obtener(id) {
     try {
-      const response = await api.get(`/proveedor/${id}`)
+      const response = await axios.get(`/proveedor/${id}`)
       return response.data
     } catch (error) {
       console.error('Error al obtener proveedor:', error)
@@ -23,7 +23,7 @@ export const proveedorService = {
 
   async crear(proveedor) {
     try {
-      const response = await api.post('/proveedor/crear', proveedor)
+      const response = await axios.post('/proveedor/crear', proveedor)
       return response.data
     } catch (error) {
       console.error('Error al crear proveedor:', error)
@@ -33,7 +33,7 @@ export const proveedorService = {
 
   async actualizar(id, proveedor) {
     try {
-      const response = await api.put(`/proveedor/update/${id}`, proveedor)
+      const response = await axios.put(`/proveedor/update/${id}`, proveedor)
       return response.data
     } catch (error) {
       console.error('Error al actualizar proveedor:', error)
@@ -43,7 +43,7 @@ export const proveedorService = {
 
   async eliminar(id) {
     try {
-      const response = await api.delete(`/proveedor/eliminar/${id}`)
+      const response = await axios.delete(`/proveedor/eliminar/${id}`)
       return response.data
     } catch (error) {
       console.error('Error al eliminar proveedor:', error)

@@ -5,7 +5,7 @@
     <div class="mb-4 flex flex-wrap items-center gap-3">
       <button @click="irAFormulario" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
         <span class="material-symbols-outlined text-base">add</span>
-        <span class="truncate">Nuevo Producto</span>
+        <span class="truncate">Nuevo Insumo</span>
       </button>
 
       <button @click="irAEditar" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
@@ -40,42 +40,44 @@
         <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
             <th class="px-6 py-4">ID</th>
+            <th class="px-6 py-4">Nombre</th>
             <th class="px-6 py-4">Tipo</th>
-            <th class="px-6 py-4">Descripción</th>
+            <th class="px-6 py-4">Uso</th>
             <th class="px-6 py-4">Stock</th>
-            <th class="px-6 py-4">Peso</th>
-            <th class="px-6 py-4">Precio Costo</th>
-            <th class="px-6 py-4">Precio Venta</th>
+            <th class="px-6 py-4">Precio</th>
+            <th class="px-6 py-4">Vencimiento</th>
+            <th class="px-6 py-4">Estado</th>
           </tr>
         </thead>
 
         <tbody>
           <tr v-if="store.cargando">
-            <td colspan="7" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="8" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
-              <p class="mt-2">Cargando productos...</p>
+              <p class="mt-2">Cargando insumos...</p>
             </td>
           </tr>
 
-          <tr v-else-if="productosFiltrados.length === 0">
-            <td colspan="7" class="px-6 py-12 text-center text-gray-400">
-              <span class="material-symbols-outlined text-4xl">inventory_2</span>
-              <p class="mt-2">{{ store.productos.length === 0 ? 'No hay productos registrados.' : 'No hay resultados con los filtros aplicados.' }}</p>
+          <tr v-else-if="insumosFiltrados.length === 0">
+            <td colspan="8" class="px-6 py-12 text-center text-gray-400">
+              <span class="material-symbols-outlined text-4xl">inventory</span>
+              <p class="mt-2">{{ store.insumos.length === 0 ? 'No hay insumos registrados.' : 'No hay resultados con los filtros aplicados.' }}</p>
             </td>
           </tr>
 
-          <tr v-else v-for="p in productosFiltrados" :key="p.id_producto" @click="seleccionarFila(p)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_producto === p.id_producto }">
-            <td class="px-6 py-3 font-bold">#{{ p.id_producto }}</td>
-            <td class="px-6 py-3">{{ p.tipo || '—' }}</td>
-            <td class="px-6 py-3 font-medium">{{ p.descripcion }}</td>
+          <tr v-else v-for="i in insumosFiltrados" :key="i.id_insumo" @click="seleccionarFila(i)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_insumo === i.id_insumo }">
+            <td class="px-6 py-3 font-bold">#{{ i.id_insumo }}</td>
+            <td class="px-6 py-3 font-medium">{{ i.nombre }}</td>
+            <td class="px-6 py-3">{{ i.tipo_insumo || '—' }}</td>
+            <td class="px-6 py-3">{{ i.uso || '—' }}</td>
+            <td class="px-6 py-3">{{ i.cantidad_stock }}</td>
+            <td class="px-6 py-3">RD$ {{ formatearMonto(i.precio) }}</td>
+            <td class="px-6 py-3">{{ formatearFecha(i.fecha_vencimiento) }}</td>
             <td class="px-6 py-3">
-              <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="p.stock < 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
-                {{ p.stock }}
+              <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="i.estado === 'Activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'">
+                {{ i.estado }}
               </span>
             </td>
-            <td class="px-6 py-3">{{ p.peso ? p.peso + ' kg' : '—' }}</td>
-            <td class="px-6 py-3">RD$ {{ formatearMonto(p.precio_costo) }}</td>
-            <td class="px-6 py-3">RD$ {{ formatearMonto(p.precio_venta) }}</td>
           </tr>
         </tbody>
       </table>
@@ -90,7 +92,7 @@
           </div>
 
           <div class="flex items-center justify-between p-4">
-            <h3 class="text-lg font-bold text-text-primary">Filtrar Productos</h3>
+            <h3 class="text-lg font-bold text-text-primary">Filtrar Insumos</h3>
             <button @click="modalFiltros = false" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
               <span class="material-symbols-outlined text-base">close</span>
             </button>
@@ -105,9 +107,18 @@
               </select>
             </div>
 
+            <div>
+              <label class="mb-1 block text-sm font-medium">Estado</label>
+              <select v-model="filtros.estado" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todos</option>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+            </div>
+
             <div class="flex items-center gap-2">
-              <input type="checkbox" v-model="filtros.stockBajo" id="stockBajo" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
-              <label for="stockBajo" class="text-sm font-medium cursor-pointer">Solo productos con stock bajo (&lt; 10)</label>
+              <input type="checkbox" v-model="filtros.porVencer" id="porVencer" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+              <label for="porVencer" class="text-sm font-medium cursor-pointer">Por vencer en 30 días</label>
             </div>
           </div>
 
@@ -129,43 +140,43 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useProductoStore } from '../store/producto.store.js'
+import { useInsumoStore } from '../store/insumo.store.js'
 
 const router = useRouter()
-const store = useProductoStore()
+const store = useInsumoStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
-const filtros = ref({ tipo: '', stockBajo: false })
-const filtrosAplicados = ref({ tipo: '', stockBajo: false })
+const filtros = ref({ tipo: '', estado: '', porVencer: false })
+const filtrosAplicados = ref({ tipo: '', estado: '', porVencer: false })
 
 onMounted(() => {
-  store.cargarProductos()
+  store.cargarInsumos()
 })
 
-function seleccionarFila(producto) {
-  if (filaSeleccionada.value?.id_producto === producto.id_producto) {
+function seleccionarFila(insumo) {
+  if (filaSeleccionada.value?.id_insumo === insumo.id_insumo) {
     filaSeleccionada.value = null
   } else {
-    filaSeleccionada.value = producto
+    filaSeleccionada.value = insumo
     store.limpiarMensajes?.()
   }
 }
 
 function irAFormulario() {
-  router.push({ name: 'ProductoNuevo' })
+  router.push({ name: 'InsumoNuevo' })
 }
 
 function irAEditar() {
   if (!filaSeleccionada.value) return
-  router.push({ name: 'ProductoEditar', params: { id: filaSeleccionada.value.id_producto } })
+  router.push({ name: 'InsumoEditar', params: { id: filaSeleccionada.value.id_insumo } })
 }
 
 function confirmarEliminar() {
   if (!filaSeleccionada.value) return
-  const nombre = filaSeleccionada.value.descripcion
+  const nombre = filaSeleccionada.value.nombre
   if (confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) {
-    store.eliminarProducto(filaSeleccionada.value.id_producto)
+    store.eliminarInsumo(filaSeleccionada.value.id_insumo)
     filaSeleccionada.value = null
   }
 }
@@ -176,21 +187,28 @@ function aplicarFiltros() {
 }
 
 function limpiarFiltros() {
-  filtros.value = { tipo: '', stockBajo: false }
-  filtrosAplicados.value = { tipo: '', stockBajo: false }
+  filtros.value = { tipo: '', estado: '', porVencer: false }
+  filtrosAplicados.value = { tipo: '', estado: '', porVencer: false }
   modalFiltros.value = false
 }
 
 const tiposUnicos = computed(() => {
-  return [...new Set(store.productos.map(p => p.tipo).filter(Boolean))].sort()
+  return [...new Set(store.insumos.map(i => i.tipo_insumo).filter(Boolean))].sort()
 })
 
-const productosFiltrados = computed(() => {
-  return store.productos.filter(p => {
-    const { tipo, stockBajo } = filtrosAplicados.value
+const insumosFiltrados = computed(() => {
+  return store.insumos.filter(i => {
+    const { tipo, estado, porVencer } = filtrosAplicados.value
 
-    if (tipo && p.tipo !== tipo) return false
-    if (stockBajo && p.stock >= 10) return false
+    if (tipo && i.tipo_insumo !== tipo) return false
+    if (estado && i.estado !== estado) return false
+
+    if (porVencer && i.fecha_vencimiento) {
+      const hoy = new Date()
+      const vencimiento = new Date(i.fecha_vencimiento)
+      const diasRestantes = Math.ceil((vencimiento - hoy) / (1000 * 60 * 60 * 24))
+      if (diasRestantes > 30 || diasRestantes < 0) return false
+    }
 
     return true
   })
@@ -199,5 +217,10 @@ const productosFiltrados = computed(() => {
 function formatearMonto(monto) {
   if (!monto) return '0.00'
   return Number(monto).toFixed(2)
+}
+
+function formatearFecha(fecha) {
+  if (!fecha) return '—'
+  return new Date(fecha).toLocaleDateString('es-DO')
 }
 </script>

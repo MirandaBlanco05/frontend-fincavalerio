@@ -3,12 +3,12 @@
 
     <!-- Action Bar -->
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <button @click="router.push({ name: 'OrdenioNuevo' })" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
+      <button @click="router.push({ name: 'VacunaNueva' })" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
         <span class="material-symbols-outlined text-base">add</span>
-        <span class="truncate">Nuevo Ordeño</span>
+        <span class="truncate">Nueva Vacuna</span>
       </button>
 
-      <button @click="editarOrdenio()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+      <button @click="editarVacuna()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">edit</span>
         <span class="truncate">Editar</span>
       </button>
@@ -42,10 +42,10 @@
         <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
             <th class="px-6 py-4">ID</th>
+            <th class="px-6 py-4">Tipo Vacuna</th>
             <th class="px-6 py-4">Fecha</th>
             <th class="px-6 py-4">Bovino</th>
-            <th class="px-6 py-4">Cantidad (L)</th>
-            <th class="px-6 py-4">Turno</th>
+            <th class="px-6 py-4">Insumo</th>
             <th class="px-6 py-4">Empleado</th>
           </tr>
         </thead>
@@ -54,24 +54,24 @@
           <tr v-if="store.cargando">
             <td colspan="6" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
-              <p class="mt-2">Cargando registros...</p>
+              <p class="mt-2">Cargando vacunas...</p>
             </td>
           </tr>
 
-          <tr v-else-if="ordeniosFiltrados.length === 0">
+          <tr v-else-if="vacunasFiltradas.length === 0">
             <td colspan="6" class="px-6 py-12 text-center text-gray-400">
-              <span class="material-symbols-outlined text-4xl">water_drop</span>
-              <p class="mt-2">{{ store.ordenios.length === 0 ? 'No hay registros de ordeño.' : 'No hay resultados con los filtros aplicados.' }}</p>
+              <span class="material-symbols-outlined text-4xl">vaccines</span>
+              <p class="mt-2">{{ store.vacunas.length === 0 ? 'No hay vacunas registradas.' : 'No hay resultados con los filtros aplicados.' }}</p>
             </td>
           </tr>
 
-          <tr v-else v-for="ord in ordeniosFiltrados" :key="ord.id_ordenio" @click="seleccionarFila(ord)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_ordenio === ord.id_ordenio }">
-            <td class="px-6 py-3 font-bold">#{{ ord.id_ordenio }}</td>
-            <td class="px-6 py-3">{{ formatearFecha(ord.fecha) }}</td>
-            <td class="px-6 py-3">{{ ord.bovino?.nombre || '—' }}</td>
-            <td class="px-6 py-3">{{ ord.cantidad_litros }} L</td>
-            <td class="px-6 py-3">{{ ord.turno }}</td>
-            <td class="px-6 py-3">{{ ord.empleado?.nombre || '—' }}</td>
+          <tr v-else v-for="vacuna in vacunasFiltradas" :key="vacuna.id_vacuna" @click="seleccionarFila(vacuna)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_vacuna === vacuna.id_vacuna }">
+            <td class="px-6 py-3 font-bold">#{{ vacuna.id_vacuna }}</td>
+            <td class="px-6 py-3">{{ vacuna.tipo_vacuna }}</td>
+            <td class="px-6 py-3">{{ formatearFecha(vacuna.fecha) }}</td>
+            <td class="px-6 py-3">{{ vacuna.bovino?.nombre || '—' }}</td>
+            <td class="px-6 py-3">{{ vacuna.insumo?.nombre_insumo || '—' }}</td>
+            <td class="px-6 py-3">{{ vacuna.empleado?.nombre || '—' }}</td>
           </tr>
         </tbody>
       </table>
@@ -86,7 +86,7 @@
           </div>
 
           <div class="flex items-center justify-between p-4 border-b border-gray-200">
-            <h3 class="text-lg font-bold text-text-primary">Filtrar Ordeño</h3>
+            <h3 class="text-lg font-bold text-text-primary">Filtrar Vacunas</h3>
             <button @click="cerrarFiltros" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
               <span class="material-symbols-outlined text-base">close</span>
             </button>
@@ -105,23 +105,21 @@
               </select>
             </div>
 
-            <!-- Filtro por Turno -->
+            <!-- Filtro por Tipo de Vacuna -->
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Turno</label>
-              <select v-model="filtros.turno" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
-                <option value="">Todos los turnos</option>
-                <option value="Mañana">Mañana</option>
-                <option value="Tarde">Tarde</option>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Tipo de Vacuna</label>
+              <select v-model="filtros.tipo" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                <option value="">Todos los tipos</option>
+                <option v-for="tipo in tiposVacuna" :key="tipo" :value="tipo">{{ tipo }}</option>
               </select>
             </div>
 
-            <!-- Filtro por Fecha Desde -->
+            <!-- Filtro por Rango de Fechas -->
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700">Fecha Desde</label>
               <input v-model="filtros.fechaDesde" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
             </div>
 
-            <!-- Filtro por Fecha Hasta -->
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700">Fecha Hasta</label>
               <input v-model="filtros.fechaHasta" type="date" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none" />
@@ -147,15 +145,15 @@
         <div class="modal-content modal-content--small">
           <div class="modal-header modal-header--danger">
             <span class="material-symbols-outlined">warning</span>
-            <h3 class="modal-title">Eliminar Ordeño</h3>
+            <h3 class="modal-title">Eliminar Vacuna</h3>
           </div>
           <div class="modal-body">
-            <p class="text-center">¿Está seguro que desea eliminar este registro de ordeño?</p>
+            <p class="text-center">¿Está seguro que desea eliminar este registro de vacuna?</p>
             <p class="text-center text-sm text-muted">Esta acción no se puede deshacer.</p>
           </div>
           <div class="modal-footer">
             <button @click="modalEliminar = false" class="btn btn--secondary">Cancelar</button>
-            <button @click="eliminarOrdenio" class="btn btn--danger">
+            <button @click="eliminarVacuna" class="btn btn--danger">
               <span class="material-symbols-outlined">delete</span>
               Eliminar
             </button>
@@ -170,11 +168,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useOrdenioStore } from '@/modules/ordenio/store/ordenio.store.js'
+import { useVacunaStore } from '@/modules/vacuna/store/vacuna.store.js'
 import { bovinoService } from '@/modules/bovino/services/bovino.service.js'
 
 const router = useRouter()
-const store = useOrdenioStore()
+const store = useVacunaStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
@@ -183,62 +181,72 @@ const bovinos = ref([])
 
 const filtros = ref({
   bovino: '',
-  turno: '',
+  tipo: '',
   fechaDesde: '',
   fechaHasta: ''
 })
 
 const filtrosAplicados = ref({
   bovino: '',
-  turno: '',
+  tipo: '',
   fechaDesde: '',
   fechaHasta: ''
+})
+
+const tiposVacuna = computed(() => {
+  const tipos = [...new Set(store.vacunas.map(v => v.tipo_vacuna).filter(Boolean))]
+  return tipos.sort()
 })
 
 const filtrosActivos = computed(() => {
   let count = 0
   if (filtrosAplicados.value.bovino) count++
-  if (filtrosAplicados.value.turno) count++
+  if (filtrosAplicados.value.tipo) count++
   if (filtrosAplicados.value.fechaDesde) count++
   if (filtrosAplicados.value.fechaHasta) count++
   return count
 })
 
-const ordeniosFiltrados = computed(() => {
-  return store.ordenios.filter(ord => {
-    const { bovino, turno, fechaDesde, fechaHasta } = filtrosAplicados.value
+const vacunasFiltradas = computed(() => {
+  return store.vacunas.filter(vacuna => {
+    const { bovino, tipo, fechaDesde, fechaHasta } = filtrosAplicados.value
 
-    if (bovino && ord.id_bovino !== parseInt(bovino)) return false
-    if (turno && ord.turno !== turno) return false
+    // Filtro por bovino
+    if (bovino && vacuna.id_bovino !== parseInt(bovino)) return false
 
-    if (fechaDesde && ord.fecha) {
-      const fechaOrd = new Date(ord.fecha)
+    // Filtro por tipo
+    if (tipo && vacuna.tipo_vacuna !== tipo) return false
+
+    // Filtro por fecha desde
+    if (fechaDesde && vacuna.fecha) {
+      const fechaVacuna = new Date(vacuna.fecha)
       const fechaMin = new Date(fechaDesde)
-      if (fechaOrd < fechaMin) return false
+      if (fechaVacuna < fechaMin) return false
     }
 
-    if (fechaHasta && ord.fecha) {
-      const fechaOrd = new Date(ord.fecha)
+    // Filtro por fecha hasta
+    if (fechaHasta && vacuna.fecha) {
+      const fechaVacuna = new Date(vacuna.fecha)
       const fechaMax = new Date(fechaHasta)
-      if (fechaOrd > fechaMax) return false
+      if (fechaVacuna > fechaMax) return false
     }
 
     return true
   })
 })
 
-function seleccionarFila(ord) {
-  if (filaSeleccionada.value?.id_ordenio === ord.id_ordenio) {
+function seleccionarFila(vacuna) {
+  if (filaSeleccionada.value?.id_vacuna === vacuna.id_vacuna) {
     filaSeleccionada.value = null
   } else {
-    filaSeleccionada.value = ord
+    filaSeleccionada.value = vacuna
     store.limpiarMensajes?.()
   }
 }
 
-function editarOrdenio() {
+function editarVacuna() {
   if (!filaSeleccionada.value) return
-  router.push({ name: 'OrdenioEditar', params: { id: filaSeleccionada.value.id_ordenio } })
+  router.push({ name: 'VacunaEditar', params: { id: filaSeleccionada.value.id_vacuna } })
 }
 
 function confirmarEliminar() {
@@ -246,9 +254,9 @@ function confirmarEliminar() {
   modalEliminar.value = true
 }
 
-async function eliminarOrdenio() {
+async function eliminarVacuna() {
   if (!filaSeleccionada.value) return
-  const exito = await store.eliminarOrdenio(filaSeleccionada.value.id_ordenio)
+  const exito = await store.eliminarVacuna(filaSeleccionada.value.id_vacuna)
   if (exito) {
     modalEliminar.value = false
     filaSeleccionada.value = null
@@ -261,8 +269,8 @@ function aplicarFiltros() {
 }
 
 function limpiarFiltros() {
-  filtros.value = { bovino: '', turno: '', fechaDesde: '', fechaHasta: '' }
-  filtrosAplicados.value = { bovino: '', turno: '', fechaDesde: '', fechaHasta: '' }
+  filtros.value = { bovino: '', tipo: '', fechaDesde: '', fechaHasta: '' }
+  filtrosAplicados.value = { bovino: '', tipo: '', fechaDesde: '', fechaHasta: '' }
   modalFiltros.value = false
 }
 
@@ -285,7 +293,7 @@ async function cargarBovinos() {
 }
 
 onMounted(() => {
-  store.cargarOrdenios()
+  store.cargarVacunas()
   cargarBovinos()
 })
 </script>
