@@ -58,8 +58,8 @@
             </td>
           </tr>
 
-          <tr v-else v-for="ciclo in store.ciclos" :key="ciclo.id_ciclo_celo" @click="seleccionarFila(ciclo)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_ciclo_celo === ciclo.id_ciclo_celo }">
-            <td class="px-6 py-3 font-bold">#{{ ciclo.id_ciclo_celo }}</td>
+          <tr v-else v-for="ciclo in store.ciclos" :key="ciclo.id_ciclo" @click="seleccionarFila(ciclo)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_ciclo === ciclo.id_ciclo }">
+            <td class="px-6 py-3 font-bold">#{{ ciclo.id_ciclo }}</td>
             <td class="px-6 py-3">{{ ciclo.bovino?.nombre || `Bovino #${ciclo.id_bovino}` }}</td>
             <td class="px-6 py-3">{{ formatearFecha(ciclo.fecha_inicio) }}</td>
             <td class="px-6 py-3">{{ ciclo.fecha_fin ? formatearFecha(ciclo.fecha_fin) : '—' }}</td>
@@ -193,7 +193,7 @@ const form = reactive({
 const modoEdicion = computed(() => !!filaSeleccionada.value)
 
 function seleccionarFila(ciclo) {
-  if (filaSeleccionada.value?.id_ciclo_celo === ciclo.id_ciclo_celo) {
+  if (filaSeleccionada.value?.id_ciclo === ciclo.id_ciclo) {
     filaSeleccionada.value = null
   } else {
     filaSeleccionada.value = ciclo
@@ -251,7 +251,7 @@ async function guardar() {
     console.log('📤 Enviando payload (CeloIndex):', JSON.stringify(form))
     
     if (modoEdicion.value) {
-      resultado = await store.actualizarCiclo(filaSeleccionada.value.id_ciclo_celo, form)
+      resultado = await store.actualizarCiclo(filaSeleccionada.value.id_ciclo, form)
     } else {
       resultado = await store.crearCiclo(form)
     }
@@ -277,7 +277,7 @@ function confirmarEliminar() {
 
 async function eliminar() {
   if (!filaSeleccionada.value) return
-  const resultado = await store.eliminarCiclo(filaSeleccionada.value.id_ciclo_celo)
+  const resultado = await store.eliminarCiclo(filaSeleccionada.value.id_ciclo)
   if (resultado.success) {
     modalEliminar.value = false
     filaSeleccionada.value = null
