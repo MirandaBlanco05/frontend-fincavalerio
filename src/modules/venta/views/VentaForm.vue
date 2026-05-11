@@ -321,9 +321,9 @@ async function cargarListas() {
       productoService.listar(),
       secuenciaService.listar()
     ])
-    clientes.value = resClientes
-    productosDisponibles.value = resProductos
-    ncfsDisponibles.value = resNcfs.filter(n => n.estado === 'Disponible')
+    clientes.value = resClientes || []
+    productosDisponibles.value = resProductos || []
+    ncfsDisponibles.value = (resNcfs || []).filter(n => n.estado === 'Disponible')
   } catch (error) {
     console.error('Error al cargar listas:', error)
   }
@@ -334,7 +334,7 @@ async function cargarDatosVentaEdicion(id) {
     const data = await store.obtenerVenta(id)
     if (data) {
       factura.numero_factura = `FAC-${String(data.id_venta).padStart(3, '0')}`
-      factura.fecha = data.fecha.split('T')[0]
+      factura.fecha = data.fecha ? data.fecha.split('T')[0] : new Date().toISOString().split('T')[0]
       factura.ncf = data.ncf
       factura.concepto = data.concepto
       factura.metodo_pago = data.metodo_pago
@@ -355,9 +355,9 @@ async function cargarDatosVentaEdicion(id) {
           id_producto: p.id_producto,
           tipo: p.producto?.tipo || 'N/A',
           descripcion: p.producto?.descripcion || 'N/A',
-          cantidad: p.cantidad,
-          precio: parseFloat(p.precio_unitario),
-          total: parseFloat(p.total)
+          cantidad: p.cantidad || 0,
+          precio: parseFloat(p.precio_unitario) || 0,
+          total: parseFloat(p.total) || 0
         }))
       }
     }
@@ -370,7 +370,7 @@ const datosParaImprimir = computed(() => ({
   numero_factura: factura.numero_factura,
   fecha: factura.fecha,
   cliente_nombre: factura.cliente_nombre,
-  productos: productos.value.map(p => ({
+  productos: (productos.value || []).map(p => ({
     descripcion: p.descripcion,
     cantidad: p.cantidad,
     precio: p.precio,
@@ -385,6 +385,7 @@ const datosParaImprimir = computed(() => ({
 }))
 
 function cargarDatosCliente() {
+  if (!clientes.value || !factura.id_cliente) return
   const cliente = clientes.value.find(c => c.id_cliente === parseInt(factura.id_cliente))
   if (cliente) {
     factura.cliente_nombre = cliente.nombre
@@ -394,20 +395,20 @@ function cargarDatosCliente() {
 }
 
 function agregarProducto() {
-  if (!productoSeleccionado.value) return
+  if (!productoSeleccionado.value || !productosDisponibles.value) return
   
   const prod = productosDisponibles.value.find(p => p.id_producto === parseInt(productoSeleccionado.value))
   if (!prod) return
   
   const cantidad = cantidadProducto.value || 1
-  const total = prod.precio * cantidad
+  const total = (prod.precio || 0) * cantidad
   
   productos.value.push({
     id_producto: prod.id_producto,
     tipo: prod.tipo,
     descripcion: prod.descripcion,
     cantidad: cantidad,
-    precio: prod.precio,
+    precio: prod.precio || 0,
     total: total
   })
   
@@ -420,7 +421,8 @@ function eliminarProducto(index) {
 }
 
 function calcularSubtotal() {
-  return productos.value.reduce((sum, p) => sum + p.total, 0)
+  if (!productos.value) return 0
+  return productos.value.reduce((sum, p) => sum + (p.total || 0), 0)
 }
 
 function calcularImpuestos() {
@@ -432,7 +434,9 @@ function calcularTotal() {
 }
 
 function formatearNumero(numero) {
-  return numero.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  const val = parseFloat(numero)
+  if (isNaN(val)) return '0.00'
+  return val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
 function limpiarFormulario() {
