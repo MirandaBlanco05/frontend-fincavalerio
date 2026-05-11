@@ -226,7 +226,7 @@ async function confirmarEliminar() {
 }
 
 const gruposUnicos = computed(() => {
-  const grupos = [...new Set(store.bovinos.map(b => b.Id_grupo))].sort((a, b) => a - b)
+  const grupos = [...new Set(store.bovinos.map(b => b.id_grupo || b.Id_grupo))].sort((a, b) => a - b)
   return grupos
 })
 
@@ -245,7 +245,7 @@ const bovinosFiltrados = computed(() => {
   return store.bovinos.filter(b => {
     const { grupo, edad, sexo, estado } = filtrosAplicados.value
 
-    const okGrupo = !grupo || b.Id_grupo === parseInt(grupo)
+    const okGrupo = !grupo || (b.id_grupo || b.Id_grupo) === parseInt(grupo)
 
     let okEdad = true
     if (edad === 'menos1') okEdad = Number(b.edad) < 1
