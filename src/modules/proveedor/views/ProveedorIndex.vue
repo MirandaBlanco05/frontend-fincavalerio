@@ -185,7 +185,7 @@ function limpiarFiltros() {
 }
 
 const tiposUnicos = computed(() => {
-  return [...new Set(store.proveedores.map(p => p.tipo).filter(Boolean))].sort()
+  return [...new Set(store.proveedores.map(p => p.tipo_proveedor).filter(Boolean))].sort()
 })
 
 const estadosUnicos = computed(() => {
@@ -196,7 +196,7 @@ const proveedoresFiltrados = computed(() => {
   return store.proveedores.filter(p => {
     const { tipo, estado } = filtrosAplicados.value
 
-    if (tipo && p.tipo !== tipo) return false
+    if (tipo && p.tipo_proveedor !== tipo) return false
     if (estado && p.estado !== estado) return false
 
     return true
