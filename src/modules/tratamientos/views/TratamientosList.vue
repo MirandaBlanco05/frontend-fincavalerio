@@ -84,68 +84,64 @@
     <!-- Modal de Filtros -->
     <Teleport to="body">
       <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="cerrarFiltros">
-        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl overflow-hidden shadow-2xl">
+          <!-- Handle mobile -->
           <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
-            <div class="h-1 w-9 rounded-full bg-gray-300"></div>
+            <div class="h-1.5 w-12 rounded-full bg-gray-200"></div>
           </div>
 
-          <div class="flex items-center justify-between p-4 border-b border-gray-200">
-            <h3 class="text-lg font-bold text-text-primary">Filtrar Tratamientos</h3>
-            <button @click="cerrarFiltros" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
-              <span class="material-symbols-outlined text-base">close</span>
+          <div class="flex items-center justify-between p-6 border-b border-gray-100">
+            <div>
+              <h3 class="text-xl font-extrabold text-gray-900">Filtrar Tratamientos</h3>
+              <p class="text-xs text-gray-500 font-medium">Búsqueda avanzada de salud</p>
+            </div>
+            <button @click="cerrarFiltros" class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+              <span class="material-symbols-outlined text-gray-400">close</span>
             </button>
           </div>
 
-          <div class="flex flex-col gap-4 p-4">
-            
-            <!-- Filtro por Tipo -->
-            <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Tipo de Tratamiento</label>
-              <select v-model="filtros.tipo" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
-                <option value="">Todos los tipos</option>
-                <option v-for="tipo in tiposTratamiento" :key="tipo" :value="tipo">{{ tipo }}</option>
-              </select>
+          <div class="flex flex-col gap-6 p-6">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Tipo</label>
+                <select v-model="filtros.tipo" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+                  <option value="">Todos</option>
+                  <option v-for="tipo in tiposTratamiento" :key="tipo" :value="tipo">{{ tipo }}</option>
+                </select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Estado</label>
+                <select v-model="filtros.estado" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+                  <option value="">Todos</option>
+                  <option value="activo">En curso</option>
+                  <option value="finalizado">Finalizado</option>
+                </select>
+              </div>
             </div>
 
-            <!-- Filtro por Enfermedad -->
-            <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Enfermedad</label>
-              <select v-model="filtros.enfermedad" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Enfermedad</label>
+              <select v-model="filtros.enfermedad" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
                 <option value="">Todas las enfermedades</option>
-                <option v-for="enf in enfermedades" :key="enf.id_enfermedad" :value="enf.id_enfermedad">
-                  {{ enf.nombre }}
-                </option>
+                <option v-for="enf in enfermedades" :key="enf.id_enfermedad" :value="enf.id_enfermedad">{{ enf.nombre }}</option>
               </select>
             </div>
 
-            <!-- Filtro por Empleado -->
-            <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Empleado</label>
-              <select v-model="filtros.empleado" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Empleado Responsable</label>
+              <select v-model="filtros.empleado" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
                 <option value="">Todos los empleados</option>
-                <option v-for="emp in empleados" :key="emp.Id_empleado" :value="emp.Id_empleado">
-                  {{ emp.nombre }}
-                </option>
+                <option v-for="emp in empleados" :key="emp.id_empleado" :value="emp.id_empleado">{{ emp.nombre }}</option>
               </select>
             </div>
-
-            <!-- Filtro por Estado -->
-            <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Estado</label>
-              <select v-model="filtros.estado" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
-                <option value="">Todos</option>
-                <option value="activo">En curso</option>
-                <option value="finalizado">Finalizados</option>
-              </select>
-            </div>
-
           </div>
 
-          <div class="flex gap-3 p-4 border-t border-gray-200">
-            <button @click="limpiarFiltros" class="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200">
+          <div class="flex gap-4 p-6 bg-gray-50">
+            <button @click="limpiarFiltros" class="flex-1 rounded-xl bg-white border border-gray-200 px-6 py-3.5 text-sm font-bold text-gray-600 transition-all hover:bg-gray-100 active:scale-95">
               Limpiar
             </button>
-            <button @click="aplicarFiltros" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90">
+            <button @click="aplicarFiltros" class="flex-1 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 active:scale-95">
               Aplicar Filtros
             </button>
           </div>

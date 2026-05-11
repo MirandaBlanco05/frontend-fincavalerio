@@ -16,8 +16,63 @@
       <button @click="confirmarEliminar()" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-bold text-red-700 ring-1 ring-inset ring-red-200 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">delete</span>
         <span class="truncate">Eliminar</span>
+      <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
+        <span class="material-symbols-outlined text-base">filter_list</span>
+        <span class="truncate">Filtrar</span>
       </button>
     </div>
+
+    <!-- Modal de Filtros -->
+    <Teleport to="body">
+      <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="modalFiltros = false">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl overflow-hidden shadow-2xl">
+          <!-- Handle mobile -->
+          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
+            <div class="h-1.5 w-12 rounded-full bg-gray-200"></div>
+          </div>
+
+          <div class="flex items-center justify-between p-6 border-b border-gray-100">
+            <div>
+              <h3 class="text-xl font-extrabold text-gray-900">Filtrar Embarazos</h3>
+              <p class="text-xs text-gray-500 font-medium">Gestión de reproducción</p>
+            </div>
+            <button @click="modalFiltros = false" class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+              <span class="material-symbols-outlined text-gray-400">close</span>
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-6 p-6">
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Fase de Gestación</label>
+              <select v-model="filtros.fase" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+                <option value="">Todas las fases</option>
+                <option value="Gestación temprana">Gestación temprana</option>
+                <option value="Gestación media">Gestación media</option>
+                <option value="Gestación tardía">Gestación tardía</option>
+                <option value="Preparto">Preparto</option>
+              </select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Veterinario</label>
+              <select v-model="filtros.id_veterinario" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+                <option value="">Todos los veterinarios</option>
+                <option v-for="vet in veterinarios" :key="vet.id_veterinario" :value="vet.id_veterinario">{{ vet.nombre }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex gap-4 p-6 bg-gray-50">
+            <button @click="limpiarFiltros" class="flex-1 rounded-xl bg-white border border-gray-200 px-6 py-3.5 text-sm font-bold text-gray-600 transition-all hover:bg-gray-100 active:scale-95">
+              Limpiar
+            </button>
+            <button @click="modalFiltros = false" class="flex-1 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 active:scale-95">
+              Aplicar Filtros
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
 
     <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
       <span class="material-symbols-outlined text-base">warning</span>
@@ -58,7 +113,7 @@
             </td>
           </tr>
 
-          <tr v-else v-for="embarazo in store.embarazos" :key="embarazo.id_embarazo" @click="seleccionarFila(embarazo)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_embarazo === embarazo.id_embarazo }">
+          <tr v-else v-for="embarazo in embarazosFiltrados" :key="embarazo.id_embarazo" @click="seleccionarFila(embarazo)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_embarazo === embarazo.id_embarazo }">
             <td class="px-6 py-3 font-bold">#{{ embarazo.id_embarazo }}</td>
             <td class="px-6 py-3">#{{ embarazo.id_inseminacion }}</td>
             <td class="px-6 py-3">{{ embarazo.VETERINARIO?.nombre || '—' }}</td>
@@ -191,12 +246,30 @@ import veterinarioService from '@/modules/veterinario/services/veterinario.servi
 const store = useEmbarazoStore()
 const filaSeleccionada = ref(null)
 const modalAbierto = ref(false)
+const modalFiltros = ref(false)
 const modalEliminar = ref(false)
 const guardando = ref(false)
 
-// Mock data - TODO: Cargar desde stores
 const inseminaciones = ref([])
 const veterinarios = ref([])
+
+const filtros = reactive({
+  fase: '',
+  id_veterinario: ''
+})
+
+function limpiarFiltros() {
+  filtros.fase = ''
+  filtros.id_veterinario = ''
+}
+
+const embarazosFiltrados = computed(() => {
+  return store.embarazos.filter(e => {
+    const matchFase = !filtros.fase || e.fase === filtros.fase
+    const matchVet = !filtros.id_veterinario || e.id_veterinario === parseInt(filtros.id_veterinario)
+    return matchFase && matchVet
+  })
+})
 
 const form = reactive({
   id_inseminacion: '',

@@ -70,7 +70,7 @@
           </tr>
           <tr
             v-else
-            v-for="h in store.historiales"
+            v-for="h in historialesFiltrados"
             :key="h.id_historial"
             @click="seleccionarFila(h)"
             class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10"
@@ -92,33 +92,50 @@
       </table>
     </div>
 
-    <!-- Modal Filtro -->
+    <!-- Modal de Filtros -->
     <Teleport to="body">
-      <div
-        v-if="modalFiltro"
-        class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center"
-        @click.self="modalFiltro = false"
-      >
-        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
+      <div v-if="modalFiltro" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="modalFiltro = false">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl overflow-hidden shadow-2xl">
+          <!-- Handle mobile -->
           <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
-            <div class="h-1 w-9 rounded-full bg-gray-300"></div>
+            <div class="h-1.5 w-12 rounded-full bg-gray-200"></div>
           </div>
-          <div class="flex items-center justify-between p-4">
-            <h3 class="text-lg font-bold text-text-primary">Filtrar por Animal</h3>
-            <button @click="modalFiltro = false" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
-              <span class="material-symbols-outlined text-base">close</span>
+
+          <div class="flex items-center justify-between p-6 border-b border-gray-100">
+            <div>
+              <h3 class="text-xl font-extrabold text-gray-900">Filtrar Historial</h3>
+              <p class="text-xs text-gray-500 font-medium">Búsqueda por animal o enfermedad</p>
+            </div>
+            <button @click="modalFiltro = false" class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+              <span class="material-symbols-outlined text-gray-400">close</span>
             </button>
           </div>
-          <div class="p-4">
-            <label class="mb-1 block text-sm font-medium">Animal</label>
-            <select v-model="filtroBovinoId" class="w-full rounded-lg border border-border-color px-3 py-2 text-sm focus:border-primary focus:outline-none">
-              <option value="">Todos los animales</option>
-              <option v-for="b in bovinos" :key="b.id_bovino" :value="b.id_bovino">{{ b.nombre }}</option>
-            </select>
+
+          <div class="flex flex-col gap-6 p-6">
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Por Animal</label>
+              <select v-model="filtros.id_bovino" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+                <option value="">Todos los animales</option>
+                <option v-for="b in bovinos" :key="b.id_bovino" :value="b.id_bovino">{{ b.nombre }}</option>
+              </select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Por Enfermedad</label>
+              <select v-model="filtros.id_enfermedad" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+                <option value="">Todas las enfermedades</option>
+                <option v-for="e in enfermedades" :key="e.id_enfermedad" :value="e.id_enfermedad">{{ e.nombre }}</option>
+              </select>
+            </div>
           </div>
-          <div class="flex gap-3 p-4">
-            <button @click="limpiarFiltro" class="flex-1 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary">Limpiar</button>
-            <button @click="aplicarFiltro" class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white">Aplicar</button>
+
+          <div class="flex gap-4 p-6 bg-gray-50">
+            <button @click="limpiarFiltro" class="flex-1 rounded-xl bg-white border border-gray-200 px-6 py-3.5 text-sm font-bold text-gray-600 transition-all hover:bg-gray-100 active:scale-95">
+              Limpiar
+            </button>
+            <button @click="modalFiltro = false" class="flex-1 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 active:scale-95">
+              Aplicar Filtros
+            </button>
           </div>
         </div>
       </div>
@@ -128,7 +145,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useHistorialStore } from '../store/historial.store.js'
 import { bovinoService } from '@/modules/bovino/services/bovino.service.js'
@@ -139,7 +156,10 @@ const store = useHistorialStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltro = ref(false)
-const filtroBovinoId = ref('')
+const filtros = reactive({
+  id_bovino: '',
+  id_enfermedad: ''
+})
 const bovinos = ref([])
 const enfermedades = ref([])
 
@@ -160,6 +180,14 @@ async function cargarDatosAuxiliares() {
     console.error('Error al cargar datos auxiliares:', error)
   }
 }
+
+const historialesFiltrados = computed(() => {
+  return store.historiales.filter(h => {
+    const matchBovino = !filtros.id_bovino || h.id_bovino === parseInt(filtros.id_bovino)
+    const matchEnfermedad = !filtros.id_enfermedad || (h.enfermedades && h.enfermedades.some(e => e.id_enfermedad === parseInt(filtros.id_enfermedad)))
+    return matchBovino && matchEnfermedad
+  })
+})
 
 function seleccionarFila(historial) {
   filaSeleccionada.value = filaSeleccionada.value?.id_historial === historial.id_historial ? null : historial
@@ -182,18 +210,9 @@ async function confirmarEliminar() {
   }
 }
 
-function aplicarFiltro() {
-  if (filtroBovinoId.value) {
-    store.cargarHistorialesPorBovino(filtroBovinoId.value)
-  } else {
-    store.cargarHistoriales()
-  }
-  modalFiltro.value = false
-}
-
 function limpiarFiltro() {
-  filtroBovinoId.value = ''
-  store.cargarHistoriales()
+  filtros.id_bovino = ''
+  filtros.id_enfermedad = ''
   modalFiltro.value = false
 }
 
