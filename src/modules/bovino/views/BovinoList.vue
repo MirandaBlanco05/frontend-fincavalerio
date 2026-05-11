@@ -266,6 +266,6 @@ function getNombreGrupo(id) {
 
 function getNombreRaza(id) {
   const raza = razas.value.find(r => r.id_raza === id)
-  return raza ? raza.nombre : `Raza ${id}`
+  return raza ? raza.Tipo_raza : `Raza ${id}`
 }
 </script>
