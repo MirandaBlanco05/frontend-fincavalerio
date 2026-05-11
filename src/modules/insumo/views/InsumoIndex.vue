@@ -17,6 +17,27 @@
         <span class="material-symbols-outlined text-base">delete</span>
         <span class="truncate">Eliminar</span>
       </button>
+
+      <div class="h-6 w-px bg-gray-200 hidden sm:block mx-2"></div>
+
+      <!-- Buscador -->
+      <div class="relative flex-1 min-w-[200px]">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
+        <input 
+          v-model="filtros.busqueda" 
+          type="text" 
+          placeholder="Buscar insumo..." 
+          class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+        />
+      </div>
+
+      <button @click="modalFiltros = true" class="flex items-center gap-2 rounded-lg bg-secondary/10 px-4 py-2 text-sm font-bold text-secondary hover:bg-secondary/20 transition-all">
+        <span class="material-symbols-outlined text-base">filter_list</span>
+        Filtros
+        <span v-if="filtrosActivos" class="flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-[10px] text-white">
+          {{ totalFiltrosActivos }}
+        </span>
+      </button>
     </div>
 
     <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -53,14 +74,15 @@
             </td>
           </tr>
 
-          <tr v-else-if="store.insumos.length === 0">
+          <tr v-else-if="insumosFiltrados.length === 0">
             <td colspan="8" class="px-6 py-12 text-center text-gray-400">
-              <span class="material-symbols-outlined text-4xl">construction</span>
-              <p class="mt-2">No hay insumos registrados.</p>
+              <span class="material-symbols-outlined text-4xl">search_off</span>
+              <p class="mt-2">No se encontraron insumos con los filtros actuales.</p>
+              <button @click="limpiarFiltros" class="mt-4 text-primary font-bold hover:underline">Limpiar filtros</button>
             </td>
           </tr>
 
-          <tr v-else v-for="insumo in store.insumos" :key="insumo.id_insumo" @click="seleccionarFila(insumo)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_insumo === insumo.id_insumo }">
+          <tr v-else v-for="insumo in insumosFiltrados" :key="insumo.id_insumo" @click="seleccionarFila(insumo)" class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10" :class="{ 'bg-primary/20': filaSeleccionada?.id_insumo === insumo.id_insumo }">
             <td class="px-6 py-3 font-bold">#{{ insumo.id_insumo }}</td>
             <td class="px-6 py-3">{{ insumo.nombre }}</td>
             <td class="px-6 py-3">{{ insumo.tipo_insumo }}</td>
@@ -182,6 +204,47 @@
       </div>
     </Teleport>
 
+    <!-- Modal Filtros -->
+    <Teleport to="body">
+      <div v-if="modalFiltros" class="modal-overlay" @click.self="modalFiltros = false">
+        <div class="modal-content modal-content--small">
+          <div class="modal-header">
+            <h3 class="modal-title">Filtros Avanzados</h3>
+            <button @click="modalFiltros = false" class="btn-close">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label">Tipo Insumo</label>
+              <select v-model="filtros.tipo" class="form-select">
+                <option value="">Todos</option>
+                <option v-for="tipo in tiposUnicos" :key="tipo" :value="tipo">{{ tipo }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Estado</label>
+              <select v-model="filtros.estado" class="form-select">
+                <option value="">Todos</option>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+              <input type="checkbox" v-model="filtros.stockBajo" id="stockBajo" class="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" />
+              <label for="stockBajo" class="text-sm font-bold text-gray-700 cursor-pointer">Solo stock bajo (< 10 unidades)</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button @click="limpiarFiltros" class="btn btn--secondary">Limpiar</button>
+            <button @click="modalFiltros = false" class="btn btn--primary">Aplicar</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- Modal Eliminar -->
     <Teleport to="body">
       <div v-if="modalEliminar" class="modal-overlay" @click.self="modalEliminar = false">
@@ -230,6 +293,47 @@ const form = reactive({
 const idEnEdicion = ref(null)
 const modoEdicion = computed(() => idEnEdicion.value !== null)
 const nuevoTipo = ref('')
+const modalFiltros = ref(false)
+
+const filtros = reactive({
+  busqueda: '',
+  tipo: '',
+  estado: '',
+  stockBajo: false
+})
+
+const insumosFiltrados = computed(() => {
+  return store.insumos.filter(i => {
+    const matchBusqueda = !filtros.busqueda || 
+      i.nombre.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||
+      i.uso.toLowerCase().includes(filtros.busqueda.toLowerCase())
+    
+    const matchTipo = !filtros.tipo || i.tipo_insumo === filtros.tipo
+    const matchEstado = !filtros.estado || i.estado === filtros.estado
+    const matchStock = !filtros.stockBajo || i.cantidad_stock < 10
+
+    return matchBusqueda && matchTipo && matchEstado && matchStock
+  })
+})
+
+const filtrosActivos = computed(() => {
+  return filtros.tipo || filtros.estado || filtros.stockBajo
+})
+
+const totalFiltrosActivos = computed(() => {
+  let total = 0
+  if (filtros.tipo) total++
+  if (filtros.estado) total++
+  if (filtros.stockBajo) total++
+  return total
+})
+
+function limpiarFiltros() {
+  filtros.busqueda = ''
+  filtros.tipo = ''
+  filtros.estado = ''
+  filtros.stockBajo = false
+}
 
 function seleccionarNuevoTipo() {
   if (nuevoTipo.value.trim()) {
