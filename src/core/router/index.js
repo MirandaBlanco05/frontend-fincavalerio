@@ -32,6 +32,7 @@ const NewPartoForm = () => import('@/modules/Parto/NewPartoForm.vue')
 
 // Salud y Bienestar
 const VeterinarioIndex     = () => import('@/modules/veterinario/views/VeterinariosList.vue')
+const VeterinarioForm      = () => import('@/modules/veterinario/views/VeterinarioForm.vue')
 const AgendaVeterinariaIndex = () => import('@/modules/agendaveterinaria/views/AgendaVeterinariaIndex.vue')
 
 // Historial de Enfermedades
@@ -71,6 +72,8 @@ const routes = [
   
   // Salud y Bienestar
   { path: '/veterinarios',          name: 'Veterinarios',          component: VeterinarioIndex },
+  { path: '/veterinarios/nuevo',    name: 'VeterinarioNuevo',       component: VeterinarioForm },
+  { path: '/veterinarios/editar/:id', name: 'VeterinarioEditar',     component: VeterinarioForm },
   { path: '/agenda-veterinaria',    name: 'AgendaVeterinaria',     component: AgendaVeterinariaIndex },
   
   // Historial de Enfermedades
