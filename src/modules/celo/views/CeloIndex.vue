@@ -248,6 +248,19 @@ async function guardar() {
   store.error = null
 
   try {
+    // Validación: No puede pasar de 9 meses (aprox 275 días)
+    if (form.fecha_inicio && form.fecha_fin) {
+      const inicio = new Date(form.fecha_inicio)
+      const fin = new Date(form.fecha_fin)
+      const diffMeses = (fin.getFullYear() - inicio.getFullYear()) * 12 + (fin.getMonth() - inicio.getMonth())
+      
+      if (diffMeses > 9) {
+        window.alert('ERROR: El ciclo de celo no puede durar más de 9 meses. Revise las fechas.')
+        guardando.value = false
+        return
+      }
+    }
+
     console.log('📤 Enviando payload (CeloIndex):', JSON.stringify(form))
     
     if (modoEdicion.value) {
@@ -296,8 +309,8 @@ function calcularDuracion(inicio, fin) {
 
 onMounted(async () => {
   store.cargarCiclos()
-  const result = await bovinoStore.cargarBovinos()
-  if (result) bovinos.value = bovinoStore.bovinos
+  await bovinoStore.cargarBovinos()
+  bovinos.value = bovinoStore.bovinos
 })
 </script>
 
