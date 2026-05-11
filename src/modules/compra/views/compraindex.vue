@@ -3,12 +3,12 @@
 
     <!-- Action Bar -->
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <button @click="abrirModal()" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
+      <button @click="router.push({ name: 'CompraNueva' })" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary/90 sm:flex-none">
         <span class="material-symbols-outlined text-base">add</span>
         <span class="truncate">Nueva Compra</span>
       </button>
 
-      <button @click="abrirModal(filaSeleccionada)" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
+      <button @click="router.push({ name: 'CompraEditar', params: { id: filaSeleccionada.id_compra } })" :disabled="!filaSeleccionada" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-background-light px-4 py-2 text-sm font-bold text-text-primary ring-1 ring-inset ring-border-color transition-colors hover:bg-border-color/50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
         <span class="material-symbols-outlined text-base">edit</span>
         <span class="truncate">Editar</span>
       </button>
@@ -127,8 +127,10 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useComprasStore } from '@/modules/compra/store/compra.store.js'
 
+const router = useRouter()
 const store = useComprasStore()
 
 const filaSeleccionada = ref(null)
@@ -148,10 +150,6 @@ function seleccionarFila(compra) {
     filaSeleccionada.value = compra
     store.limpiarMensajes?.()
   }
-}
-
-function abrirModal(compra = null) {
-  // Lógica del modal de crear/editar (si existe)
 }
 
 function confirmarEliminar() {
