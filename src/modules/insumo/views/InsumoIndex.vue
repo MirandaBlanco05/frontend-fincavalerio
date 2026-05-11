@@ -254,6 +254,7 @@ function seleccionarFila(insumo) {
 
 function abrirModal(insumo = null) {
   if (insumo) {
+    filaSeleccionada.value = insumo // Asegurar que está seleccionada
     form.nombre = insumo.nombre
     form.tipo_insumo = insumo.tipo_insumo
     form.uso = insumo.uso
@@ -262,8 +263,8 @@ function abrirModal(insumo = null) {
     form.precio = insumo.precio
     form.estado = insumo.estado
   } else {
-    resetForm()
     filaSeleccionada.value = null
+    resetForm()
   }
   modalAbierto.value = true
 }
