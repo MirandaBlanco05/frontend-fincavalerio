@@ -211,8 +211,8 @@ onMounted(async () => {
       const res = await bovinoService.obtenerPorId(route.params.id)
       const data = res.data
       Object.assign(form, {
-        id_grupo: data.id_grupo,
-        id_raza: data.id_raza,
+        id_grupo: data.id_grupo ? Number(data.id_grupo) : '',
+        id_raza: data.id_raza ? Number(data.id_raza) : '',
         numero_crotal: data.numero_crotal,
         nombre: data.nombre,
         fecha_nacimiento: data.fecha_nacimiento ? data.fecha_nacimiento.split('T')[0] : '',
