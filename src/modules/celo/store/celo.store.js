@@ -83,6 +83,11 @@ export const useCeloStore = defineStore('celo', {
       }
     },
 
+    // Aliases para compatibilidad con versiones anteriores del formulario
+    async crearCiclo(datos) { return this.crearCelo(datos) },
+    async actualizarCiclo(id, datos) { return this.actualizarCelo(id, datos) },
+    async eliminarCicloAlias(id) { return this.eliminarCiclo(id) },
+
     limpiarMensajes() {
       this.error = null
       this.mensaje = null
