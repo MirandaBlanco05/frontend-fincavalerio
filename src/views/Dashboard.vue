@@ -291,18 +291,18 @@ async function cargarDatos() {
 
     try {
       const visitasRes = await api.get('/visita/listar')
-      const hoy = new Date()
-      hoy.setHours(0, 0, 0, 0)
+      const hoyISO = new Date().toISOString().split('T')[0]
       const en7Dias = new Date()
       en7Dias.setDate(en7Dias.getDate() + 7)
+      const en7DiasISO = en7Dias.toISOString().split('T')[0]
       
       const citasFuturas = visitasRes.data
         .filter(v => {
           if (!v.fecha) return false
-          const fechaVisita = new Date(v.fecha)
-          return fechaVisita >= hoy && fechaVisita <= en7Dias
+          // Comparación robusta de strings YYYY-MM-DD
+          return v.fecha >= hoyISO && v.fecha <= en7DiasISO
         })
-        .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+        .sort((a, b) => a.fecha.localeCompare(b.fecha) || a.hora.localeCompare(b.hora))
       
       estadisticas.value.citasPendientes = citasFuturas.length
       proximaCitaData.value = citasFuturas[0] || null
@@ -314,42 +314,47 @@ async function cargarDatos() {
 
     cargandoInventario.value = true
     const insumosRes = await api.get('/insumo/listar')
+    // Como no hay cantidad_minima en la BD, usamos un umbral fijo de 10 unidades
+    const UMBRAL_CRITICO = 10
     inventarioCritico.value = insumosRes.data
-      .filter(i => i.cantidad_actual <= i.cantidad_minima)
+      .filter(i => i.cantidad_stock <= UMBRAL_CRITICO)
       .map(i => ({
         id: i.id_insumo,
-        nombre: i.nombre_insumo,
-        cantidad: i.cantidad_actual,
-        minimo: i.cantidad_minima,
-        unidad: i.unidad_medida
+        nombre: i.nombre,
+        cantidad: i.cantidad_stock,
+        minimo: UMBRAL_CRITICO,
+        unidad: 'uds'
       }))
     cargandoInventario.value = false
 
     cargandoPartos.value = true
     try {
-      const partosRes = await api.get('/parto/listar')
-      const hoy = new Date()
+      const embarazosRes = await api.get('/embarazo/listar')
+      const hoyISO = new Date().toISOString().split('T')[0]
       const en30Dias = new Date()
       en30Dias.setDate(en30Dias.getDate() + 30)
+      const en30DiasISO = en30Dias.toISOString().split('T')[0]
       
-      proximosPartos.value = partosRes.data
-        .filter(p => {
-          if (!p.fecha_parto) return false
-          const fechaParto = new Date(p.fecha_parto)
-          return fechaParto >= hoy && fechaParto <= en30Dias
+      proximosPartos.value = embarazosRes.data
+        .filter(e => {
+          if (!e.fecha_prevista_parto) return false
+          return e.fecha_prevista_parto >= hoyISO && e.fecha_prevista_parto <= en30DiasISO
         })
-        .map((p, idx) => {
-          const dias = Math.ceil((new Date(p.fecha_parto) - hoy) / (1000 * 60 * 60 * 24))
+        .map((e, idx) => {
+          const bovino = e.INSEMINACION?.ciclo?.bovino
+          const dias = Math.ceil((new Date(e.fecha_prevista_parto) - new Date()) / (1000 * 60 * 60 * 24))
           return {
-            id: p.id_parto,
-            codigo: `V${String(idx + 1).padStart(2, '0')}`,
-            nombre: p.bovino?.nombre || 'Vaca',
-            fecha: new Date(p.fecha_parto).toLocaleDateString('es-DO', { day: 'numeric', month: 'short' }),
+            id: e.id_embarazo,
+            codigo: bovino?.numero_crotal ? `C${bovino.numero_crotal.slice(-2)}` : `V${String(idx + 1).padStart(2, '0')}`,
+            nombre: bovino?.nombre || 'Vaca',
+            fecha: new Date(e.fecha_prevista_parto).toLocaleDateString('es-DO', { day: 'numeric', month: 'short' }),
             dias: dias
           }
         })
-        .slice(0, 2)
-    } catch {
+        .sort((a, b) => a.dias - b.dias)
+        .slice(0, 3)
+    } catch (e) {
+      console.error('Error cargando partos:', e)
       proximosPartos.value = []
     }
     cargandoPartos.value = false
