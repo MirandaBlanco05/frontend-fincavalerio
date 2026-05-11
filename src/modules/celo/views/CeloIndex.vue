@@ -90,9 +90,9 @@
                 <span class="material-symbols-outlined">pets</span>
                 Bovino
               </label>
-              <select v-model="form.id_bovino" required class="form-select">
+              <select v-model.number="form.id_bovino" required class="form-select">
                 <option value="">Seleccione...</option>
-                <option v-for="bovino in bovinos" :key="bovino.id_bovino" :value="bovino.id_bovino">
+                <option v-for="bovino in bovinoStore.bovinos" :key="bovino.id_bovino" :value="bovino.id_bovino">
                   {{ bovino.nombre }}
                 </option>
               </select>
@@ -210,7 +210,11 @@ function abrirModal() {
 function editarCiclo() {
   if (!filaSeleccionada.value) return
   const ciclo = filaSeleccionada.value
-  form.id_bovino = ciclo.id_bovino || ciclo.bovino?.id_bovino
+  console.log('📝 Editando ciclo:', ciclo)
+  
+  // Forzar a número para asegurar coincidencia en el select
+  form.id_bovino = Number(ciclo.id_bovino || ciclo.bovino?.id_bovino || 0)
+  
   form.fecha_inicio = ciclo.fecha_inicio ? ciclo.fecha_inicio.split('T')[0] : ''
   form.fecha_fin = ciclo.fecha_fin ? ciclo.fecha_fin.split('T')[0] : ''
   form.observaciones = ciclo.observaciones || ''
