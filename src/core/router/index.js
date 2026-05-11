@@ -13,6 +13,7 @@ const EmpleadoForm    = () => import('@/modules/empleado/views/EmpleadoForm.vue'
 const OrdenioIndex    = () => import('@/modules/ordenio/views/OrdenioIndex.vue')
 const CompraIndex     = () => import('@/modules/compra/views/compraindex.vue')
 const CompraForm      = () => import('@/modules/compra/views/CompraForm.vue')
+const OrdenioForm     = () => import('@/modules/ordenio/views/OrdenioForm.vue')
 
 const VentaIndex      = () => import('@/modules/venta/views/VentaIndex.vue')
 const VentaForm       = () => import('@/modules/venta/views/VentaForm.vue')
@@ -64,7 +65,9 @@ const routes = [
   { path: '/produccion', name: 'Produccion', component: ProduccionIndex },
   
   // Ganadería
-  { path: '/ordenio',    name: 'Ordenio',    component: OrdenioIndex },
+  { path: '/ordenio',          name: 'Ordenio',       component: OrdenioIndex },
+  { path: '/ordenio/nuevo',    name: 'OrdenioNuevo',  component: OrdenioForm },
+  { path: '/ordenio/editar/:id', name: 'OrdenioEditar', component: OrdenioForm },
   
   // Salud y Bienestar
   { path: '/veterinarios',          name: 'Veterinarios',          component: VeterinarioIndex },
