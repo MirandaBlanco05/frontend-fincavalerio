@@ -38,7 +38,11 @@
               <span class="material-symbols-outlined">flag</span>
               Nacionalidad
             </label>
-            <input v-model="form.nacionalidad" type="text" required class="form-input" placeholder="Ej: Dominicana" />
+            <select v-model="form.nacionalidad" required class="form-select">
+              <option value="">Seleccione...</option>
+              <option value="Dominicana">Dominicana</option>
+              <option value="Haitiana">Haitiana</option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -74,7 +78,19 @@
               <span class="material-symbols-outlined">work</span>
               Puesto / Cargo
             </label>
-            <input v-model="form.puesto" type="text" class="form-input" placeholder="Ej: Ordeñador" />
+            <select v-model="form.puesto" class="form-select">
+              <option value="">Seleccione...</option>
+              <option value="Administrador">Administrador</option>
+              <option value="Mayordomo">Mayordomo</option>
+              <option value="Ordeñador">Ordeñador</option>
+              <option value="Vaquero">Vaquero</option>
+              <option value="Veterinario">Veterinario</option>
+              <option value="Auxiliar de Veterinaria">Auxiliar de Veterinaria</option>
+              <option value="Inseminador">Inseminador</option>
+              <option value="Operario de Maquinaria">Operario de Maquinaria</option>
+              <option value="Mantenimiento">Mantenimiento</option>
+              <option value="Sereno">Sereno / Guardián</option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -252,7 +268,7 @@ async function guardar() {
   margin-left: 4px;
 }
 
-.form-input {
+.form-input, .form-select {
   padding: 0.75rem;
   border: 1.5px solid #e5e7eb;
   border-radius: 10px;
@@ -263,10 +279,20 @@ async function guardar() {
   background: white;
 }
 
-.form-input:focus {
+.form-input:focus, .form-select:focus {
   outline: none;
   border-color: #4c9a4c;
   background: #f0f9f0;
+}
+
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
 }
 
 .form-grid {
