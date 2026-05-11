@@ -232,15 +232,19 @@ const cargandoPartos = ref(true)
 const cargandoInventario = ref(true)
 const inventarioCritico = ref([])
 const proximaCitaData = ref(null)
+const citasSemana = ref([])
 
 const proximaCitaTitulo = computed(() => {
-  return proximaCitaData.value ? 'Chequeo veterinario' : 'Sin citas'
+  if (!proximaCitaData.value) return 'Sin citas'
+  const motivos = proximaCitaData.value.motivos || []
+  return motivos.length > 0 ? motivos.join(', ') : 'Chequeo'
 })
 
 const proximaCitaHora = computed(() => {
   if (!proximaCitaData.value) return ''
-  const fecha = new Date(proximaCitaData.value.fecha_visita)
-  return `a las ${fecha.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })}`
+  const fechaStr = new Date(proximaCitaData.value.fecha).toLocaleDateString('es-DO', { weekday: 'short', day: 'numeric' })
+  const horaStr = proximaCitaData.value.hora || 'pendiente'
+  return `${fechaStr} • ${horaStr}`
 })
 
 const inventarioDisplay = computed(() => {
@@ -288,19 +292,24 @@ async function cargarDatos() {
     try {
       const visitasRes = await api.get('/visita/listar')
       const hoy = new Date()
+      hoy.setHours(0, 0, 0, 0)
       const en7Dias = new Date()
       en7Dias.setDate(en7Dias.getDate() + 7)
       
-      const citasFuturas = visitasRes.data.filter(v => {
-        if (!v.fecha_visita) return false
-        const fechaVisita = new Date(v.fecha_visita)
-        return fechaVisita >= hoy && fechaVisita <= en7Dias
-      })
+      const citasFuturas = visitasRes.data
+        .filter(v => {
+          if (!v.fecha) return false
+          const fechaVisita = new Date(v.fecha)
+          return fechaVisita >= hoy && fechaVisita <= en7Dias
+        })
+        .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
       
       estadisticas.value.citasPendientes = citasFuturas.length
       proximaCitaData.value = citasFuturas[0] || null
-    } catch {
-      estadisticas.value.citasPendientes = 3
+      citasSemana.value = citasFuturas.slice(0, 3)
+    } catch (e) {
+      console.error('Error cargando visitas:', e)
+      estadisticas.value.citasPendientes = 0
     }
 
     cargandoInventario.value = true
