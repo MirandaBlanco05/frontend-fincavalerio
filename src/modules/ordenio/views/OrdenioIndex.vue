@@ -272,6 +272,11 @@ function cerrarFiltros() {
 
 function formatearFecha(fecha) {
   if (!fecha) return '—'
+  // Evitar desfase de zona horaria tratando la fecha como literal
+  const partes = fecha.split('T')[0].split('-')
+  if (partes.length === 3) {
+    return `${partes[2]}/${partes[1]}/${partes[0]}`
+  }
   return new Date(fecha).toLocaleDateString('es-DO')
 }
 
