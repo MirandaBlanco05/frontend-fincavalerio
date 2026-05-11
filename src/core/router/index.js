@@ -130,6 +130,7 @@ const routes = [
     ]
   },
   
+  { path: '/ciclo-celo',       name: 'CeloList', component: CeloIndex },
   { path: '/inseminaciones',       name: 'InseminacionesList', component: InseminacionForm },
   { path: '/inseminaciones/nuevo', name: 'InseminacionNueva',  component: NewInseminacionForm },
 
