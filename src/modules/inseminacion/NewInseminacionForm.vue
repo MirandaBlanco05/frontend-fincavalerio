@@ -33,7 +33,7 @@
             </label>
             <select v-model="form.id_veterinario" required class="form-select">
               <option value="">Seleccione...</option>
-              <option v-for="vet in veterinarians" :key="vet.id_veterinario" :value="vet.id_veterinario">
+              <option v-for="vet in veterinarians" :key="vet.id_veterinario" :value="String(vet.id_veterinario)">
                 {{ vet.nombre }}
               </option>
             </select>
@@ -47,7 +47,7 @@
             </label>
             <select v-model="form.id_ciclo" required class="form-select">
               <option value="">Seleccione...</option>
-              <option v-for="c in cycles" :key="c.id_ciclo_celo" :value="c.id_ciclo_celo">
+              <option v-for="c in cycles" :key="c.id_ciclo_celo" :value="String(c.id_ciclo_celo)">
                 #{{ c.id_ciclo_celo }} - {{ c.bovino?.nombre || 'Bovino' }} ({{ formatDateShort(c.fecha_inicio) }})
               </option>
             </select>
@@ -154,15 +154,18 @@ onMounted(async () => {
 
     if (modoEdicion.value) {
       const { data } = await api.get(`/inseminacion/listar/${route.params.id}`)
-      form.id_veterinario = data.id_veterinario
-      form.id_ciclo      = data.id_ciclo
+      console.log('Inseminacion obtenida:', data);
+      console.log('Veterinarios cargados:', veterinarians.value);
+      
+      form.id_veterinario = data.id_veterinario ? String(data.id_veterinario) : ''
+      form.id_ciclo      = data.id_ciclo ? String(data.id_ciclo) : ''
       form.fecha         = data.fecha ? data.fecha.split('T')[0] : ''
-      form.tipo_inseminacion = data.tipo_inseminacion
-      form.resultado     = data.resultado
+      form.tipo_inseminacion = data.tipo_inseminacion || ''
+      form.resultado     = data.resultado || 'Pendiente'
     }
   } catch (e) {
     errorLocal.value = 'No se pudieron cargar los datos necesarios.'
-    console.error(e)
+    console.error('Error cargando formulario:', e)
   } finally {
     cargando.value = false
   }
