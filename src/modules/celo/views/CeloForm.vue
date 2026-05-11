@@ -199,7 +199,7 @@ async function guardar() {
       resultado = await store.crearCelo(payload)
     }
 
-    if (resultado) {
+    if (resultado.success) {
       router.push({ name: 'CicloCelo' })
     } else {
       errorLocal.value = store.error || 'Error al guardar el ciclo.'
