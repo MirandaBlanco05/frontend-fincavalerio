@@ -185,6 +185,8 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useEmbarazoStore } from '@/modules/Embarazo/store/Embarazo.store.js'
+import inseminacionService from '@/modules/inseminacion/services/inseminacion.service.js'
+import veterinarioService from '@/modules/veterinario/services/veterinario.service.js'
 
 const store = useEmbarazoStore()
 const filaSeleccionada = ref(null)
@@ -246,6 +248,28 @@ async function guardar() {
   guardando.value = true
   let resultado
 
+  // Validación de 9 meses (aprox 285 días para vacas)
+  const ins = inseminaciones.value.find(i => i.id_inseminacion === form.id_inseminacion)
+  if (ins && form.fecha_prevista_parto) {
+    const fIns = new Date(ins.fecha)
+    const fPar = new Date(form.fecha_prevista_parto)
+    
+    // Diferencia en meses (aprox)
+    const diffTime = Math.abs(fPar - fIns)
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    if (diffDays > 285) { // 9.5 meses aprox para dar margen, pero el usuario dijo 9 meses
+      alert('La fecha prevista de parto no puede superar los 9 meses desde la inseminación.')
+      guardando.value = false
+      return
+    }
+    if (fPar < fIns) {
+      alert('La fecha de parto no puede ser anterior a la inseminación.')
+      guardando.value = false
+      return
+    }
+  }
+
   if (modoEdicion.value) {
     resultado = await store.actualizarEmbarazo(filaSeleccionada.value.id_embarazo, form)
   } else {
@@ -274,9 +298,18 @@ async function eliminar() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   store.cargarEmbarazos()
-  // TODO: Cargar inseminaciones y veterinarios
+  try {
+    const [resIns, resVet] = await Promise.all([
+      inseminacionService.listar(),
+      veterinarioService.listar()
+    ])
+    inseminaciones.value = resIns.data || resIns
+    veterinarios.value = resVet.data || resVet
+  } catch (e) {
+    console.error('Error cargando catálogos:', e)
+  }
 })
 </script>
 
