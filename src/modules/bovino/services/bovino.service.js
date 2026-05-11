@@ -1,7 +1,7 @@
 // src/modules/bovino/services/bovino.service.js
 import api from '@/core/api/axios.js'
 
-const BASE = '/bovino'
+const BASE = 'bovino'
 
 export const bovinoService = {
   listar()              { return api.get(`${BASE}/listar`) },
