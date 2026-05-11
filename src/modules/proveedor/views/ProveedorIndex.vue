@@ -69,8 +69,8 @@
             <td class="px-6 py-3 font-medium">{{ p.nombre }}</td>
             <td class="px-6 py-3 font-mono text-xs">{{ p.rnc || '—' }}</td>
             <td class="px-6 py-3">{{ p.telefono || '—' }}</td>
-            <td class="px-6 py-3">{{ p.tipo || '—' }}</td>
-            <td class="px-6 py-3">{{ p.provincia || '—' }}</td>
+            <td class="px-6 py-3">{{ p.tipo_proveedor || '—' }}</td>
+            <td class="px-6 py-3">{{ p.provincia?.nombre || '—' }}</td>
             <td class="px-6 py-3">
               <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="p.estado === 'Activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'">
                 {{ p.estado }}

@@ -54,6 +54,7 @@ const InsumoIndex = () => import('@/modules/insumo/views/InsumoIndex.vue')
 const ClienteIndex = () => import('@/modules/cliente/views/ClienteIndex.vue')
 const ClienteForm  = () => import('@/modules/cliente/views/ClienteForm.vue')
 const ProveedorIndex = () => import('@/modules/proveedor/views/ProveedorIndex.vue')
+const ProveedorForm  = () => import('@/modules/proveedor/views/ProveedorForm.vue')
 
 const routes = [
   { path: '/',      redirect: '/login' },
@@ -111,7 +112,9 @@ const routes = [
   { path: '/clientes',          name: 'Clientes',        component: ClienteIndex },
   { path: '/clientes/nuevo',     name: 'ClienteNuevo',    component: ClienteForm },
   { path: '/clientes/editar/:id', name: 'ClienteEditar',   component: ClienteForm },
-  { path: '/proveedores', name: 'Proveedores',component: ProveedorIndex },
+  { path: '/proveedores',          name: 'Proveedores',     component: ProveedorIndex },
+  { path: '/proveedores/nuevo',    name: 'ProveedorNuevo',  component: ProveedorForm },
+  { path: '/proveedores/editar/:id', name: 'ProveedorEditar', component: ProveedorForm },
 
   // Rutas anidadas para módulos complejos
   {
