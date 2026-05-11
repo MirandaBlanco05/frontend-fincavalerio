@@ -40,7 +40,18 @@
               <span class="material-symbols-outlined">category</span>
               Tipo de Tratamiento
             </label>
-            <input v-model="form.tipo_tratamiento" type="text" required class="form-input" placeholder="Ej: Antibiótico" />
+            <select v-model="form.tipo_tratamiento" required class="form-select">
+              <option value="">Seleccione un tipo...</option>
+              <option value="Antibiotico">Antibiótico</option>
+              <option value="Antiparasitario">Antiparasitario</option>
+              <option value="Vacuna">Vacuna</option>
+              <option value="Vitamina">Vitamina / Suplemento</option>
+              <option value="Hormonal">Hormonal</option>
+              <option value="Topico">Tópico</option>
+              <option value="Rehidratacion">Rehidratación</option>
+              <option value="Metabolico">Metabólico</option>
+              <option value="Otro">Otro</option>
+            </select>
           </div>
         </div>
 
