@@ -291,8 +291,10 @@ async function guardar() {
   let resultado
 
   if (modoEdicion.value) {
+    console.log('FRONTEND: Intentando ACTUALIZAR id:', idEnEdicion.value)
     resultado = await store.actualizarInsumo(idEnEdicion.value, { ...form })
   } else {
+    console.log('FRONTEND: Intentando CREAR nuevo registro')
     resultado = await store.crearInsumo({ ...form })
   }
 
