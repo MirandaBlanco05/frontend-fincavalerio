@@ -172,7 +172,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useCeloStore } from '@/modules/celo/store/celo.store.js'
-import { useBovinoStore } from '@/modules/bovino/store/bovino.store.js'
+import { useBovinoStore } from '../../bovino/store/bovino.store.js'
 
 const store = useCeloStore()
 const bovinoStore = useBovinoStore()
@@ -180,7 +180,6 @@ const filaSeleccionada = ref(null)
 const modalAbierto = ref(false)
 const modalEliminar = ref(false)
 const guardando = ref(false)
-const bovinos = ref([])
 const duracionCalculada = ref(null)
 
 const form = reactive({
@@ -317,9 +316,15 @@ function calcularDuracion(inicio, fin) {
 }
 
 onMounted(async () => {
+  console.log('🚀 CeloIndex mounted')
   store.cargarCiclos()
-  await bovinoStore.cargarBovinos()
-  bovinos.value = bovinoStore.bovinos
+  try {
+    console.log('📡 Cargando bovinos desde el store...')
+    await bovinoStore.cargarBovinos()
+    console.log('✅ Bovinos cargados:', bovinoStore.bovinos?.length)
+  } catch (e) {
+    console.error('❌ Error al cargar bovinos en CeloIndex:', e)
+  }
 })
 </script>
 
