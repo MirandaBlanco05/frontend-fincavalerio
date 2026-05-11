@@ -18,6 +18,12 @@
         <span class="truncate">Eliminar</span>
       </button>
 
+      <button @click="modalFiltros = true" class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-secondary/20 px-4 py-2 text-sm font-bold text-secondary transition-colors hover:bg-secondary/30 sm:flex-none">
+        <span class="material-symbols-outlined text-base">filter_list</span>
+        <span class="truncate">Filtrar</span>
+        <span v-if="filtrosActivos > 0" class="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-xs text-white">{{ filtrosActivos }}</span>
+      </button>
+
       <div class="relative flex flex-1 items-center min-w-[200px] sm:flex-none">
         <span class="material-symbols-outlined absolute left-3 text-gray-400 text-base">search</span>
         <input v-model="busqueda" type="text" placeholder="Buscar inseminación..." class="w-full rounded-lg border border-border-color bg-white py-2 pl-9 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
@@ -77,6 +83,65 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Modal de Filtros -->
+    <Teleport to="body">
+      <div v-if="modalFiltros" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="modalFiltros = false">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl overflow-hidden shadow-2xl">
+          <!-- Handle mobile -->
+          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
+            <div class="h-1.5 w-12 rounded-full bg-gray-200"></div>
+          </div>
+
+          <div class="flex items-center justify-between p-6 border-b border-gray-100">
+            <div>
+              <h3 class="text-xl font-extrabold text-gray-900">Filtrar Inseminaciones</h3>
+              <p class="text-xs text-gray-500 font-medium">Gestión reproductiva avanzada</p>
+            </div>
+            <button @click="modalFiltros = false" class="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+              <span class="material-symbols-outlined text-gray-400">close</span>
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-6 p-6">
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Veterinario</label>
+              <select v-model="filtros.veterinario" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+                <option value="">Todos los veterinarios</option>
+                <option v-for="vet in veterinariosUnicos" :key="vet" :value="vet">{{ vet }}</option>
+              </select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Resultado</label>
+              <select v-model="filtros.resultado" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+                <option value="">Todos los resultados</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Efectiva">Efectiva</option>
+                <option value="Inefectiva">Inefectiva</option>
+              </select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Tipo de Inseminación</label>
+              <select v-model="filtros.tipo" class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all bg-gray-50/50">
+                <option value="">Todos los tipos</option>
+                <option v-for="t in tiposUnicos" :key="t" :value="t">{{ t }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex gap-4 p-6 bg-gray-50">
+            <button @click="limpiarFiltros" class="flex-1 rounded-xl bg-white border border-gray-200 px-6 py-3.5 text-sm font-bold text-gray-600 transition-all hover:bg-gray-100 active:scale-95">
+              Limpiar
+            </button>
+            <button @click="aplicarFiltros" class="flex-1 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 active:scale-95">
+              Aplicar Filtros
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -90,15 +155,55 @@ const store = useInseminacionStore()
 
 const filaSeleccionada = ref(null)
 const busqueda = ref('')
+const modalFiltros = ref(false)
+
+const filtros = ref({
+  veterinario: '',
+  resultado: '',
+  tipo: ''
+})
+
+const filtrosAplicados = ref({
+  veterinario: '',
+  resultado: '',
+  tipo: ''
+})
+
+const veterinariosUnicos = computed(() => {
+  const vets = store.inseminaciones.map(i => i.veterinario?.nombre).filter(Boolean)
+  return [...new Set(vets)].sort()
+})
+
+const tiposUnicos = computed(() => {
+  const tipos = store.inseminaciones.map(i => i.tipo_inseminacion).filter(Boolean)
+  return [...new Set(tipos)].sort()
+})
+
+const filtrosActivos = computed(() => {
+  let count = 0
+  if (filtrosAplicados.value.veterinario) count++
+  if (filtrosAplicados.value.resultado) count++
+  if (filtrosAplicados.value.tipo) count++
+  return count
+})
 
 onMounted(() => {
   store.cargarInseminaciones()
 })
 
 const inseminacionesFiltradas = computed(() => {
-  if (!busqueda.value) return store.inseminaciones
+  let list = store.inseminaciones
+
+  // Aplicar filtros avanzados
+  const { veterinario, resultado, tipo } = filtrosAplicados.value
+  if (veterinario) list = list.filter(i => i.veterinario?.nombre === veterinario)
+  if (resultado) list = list.filter(i => i.resultado === resultado)
+  if (tipo) list = list.filter(i => i.tipo_inseminacion === tipo)
+
+  // Aplicar búsqueda por texto
+  if (!busqueda.value) return list
   const b = busqueda.value.toLowerCase()
-  return store.inseminaciones.filter(i => {
+  return list.filter(i => {
     return (
       i.id_inseminacion?.toString().includes(b) ||
       i.veterinario?.nombre?.toLowerCase().includes(b) ||
@@ -107,6 +212,17 @@ const inseminacionesFiltradas = computed(() => {
     )
   })
 })
+
+function aplicarFiltros() {
+  filtrosAplicados.value = { ...filtros.value }
+  modalFiltros.value = false
+}
+
+function limpiarFiltros() {
+  filtros.value = { veterinario: '', resultado: '', tipo: '' }
+  filtrosAplicados.value = { veterinario: '', resultado: '', tipo: '' }
+  modalFiltros.value = false
+}
 
 function seleccionarFila(inseminacion) {
   if (filaSeleccionada.value?.id_inseminacion === inseminacion.id_inseminacion) {
