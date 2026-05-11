@@ -25,34 +25,32 @@
       <form id="form-inseminacion" @submit.prevent="guardar" class="modal-body">
 
         <div class="form-grid">
-          <!-- ID Veterinario -->
+          <!-- Veterinario -->
           <div class="form-group">
             <label class="form-label required">
               <span class="material-symbols-outlined">medical_services</span>
-              ID Veterinario
+              Veterinario
             </label>
-            <input
-              v-model="form.id_veterinaro"
-              type="number"
-              required
-              class="form-input"
-              placeholder="Código veterinario"
-            />
+            <select v-model="form.id_veterinario" required class="form-select">
+              <option value="">Seleccione...</option>
+              <option v-for="vet in veterinarians" :key="vet.id_veterinario" :value="String(vet.id_veterinario)">
+                {{ vet.nombre }}
+              </option>
+            </select>
           </div>
 
-          <!-- ID Ciclo -->
+          <!-- Ciclo -->
           <div class="form-group">
             <label class="form-label required">
               <span class="material-symbols-outlined">cycle</span>
-              ID Ciclo
+              Ciclo de Celo
             </label>
-            <input
-              v-model="form.id_ciclo"
-              type="number"
-              required
-              class="form-input"
-              placeholder="Ej: 1"
-            />
+            <select v-model="form.id_ciclo" required class="form-select">
+              <option value="">Seleccione...</option>
+              <option v-for="c in cycles" :key="c.id_ciclo_celo" :value="String(c.id_ciclo_celo)">
+                #{{ c.id_ciclo_celo }} - {{ c.bovino?.nombre || 'Bovino' }} ({{ formatDateShort(c.fecha_inicio) }})
+              </option>
+            </select>
           </div>
         </div>
 
@@ -77,10 +75,10 @@
               <span class="material-symbols-outlined">science</span>
               Tipo Inseminación
             </label>
-            <select v-model="form.tipo" required class="form-select">
+            <select v-model="form.tipo_inseminacion" required class="form-select">
               <option value="">Seleccione...</option>
               <option value="Artificial">Artificial</option>
-              <option value="Monta natural">Monta Natural</option>
+              <option value="Monta natural">Monta natural</option>
               <option value="Asistida">Asistida</option>
             </select>
           </div>
@@ -120,60 +118,81 @@
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import axios from 'axios'
+import api from '@/core/api/axios.js'
+import { useCeloStore } from '@/modules/celo/store/celo.store.js'
+import { useVeterinarioStore } from '@/modules/veterinario/store/veterinario.store.js'
 
 const router = useRouter()
 const route  = useRoute()
+const celoStore = useCeloStore()
+const vetStore = useVeterinarioStore()
 
 const modoEdicion = computed(() => !!route.params.id)
 const cargando    = ref(false)
 const errorLocal  = ref('')
+const cycles      = ref([])
+const veterinarians = ref([])
 
 const form = reactive({
-  id_veterinaro: '',
+  id_veterinario: '',
   id_ciclo:      '',
   fecha:         '',
-  tipo:          '',
+  tipo_inseminacion: '',
   resultado:     'Pendiente'
 })
 
 onMounted(async () => {
-  if (modoEdicion.value) {
-    try {
-      const { data } = await axios.get(`http://localhost:3000/api/inseminacion/${route.params.id}`)
-      form.id_veterinaro = data.Id_veterinaro
-      form.id_ciclo      = data.Id_ciclo
-      form.fecha         = data.fecha
-      form.tipo          = data.Tipo_inseminacion
-      form.resultado     = data.resultado
-    } catch (e) {
-      errorLocal.value = 'No se pudo cargar la inseminación.'
+  cargando.value = true
+  try {
+    // Cargar dependencias
+    await Promise.all([
+      celoStore.cargarCiclos(),
+      vetStore.cargarVeterinarios()
+    ])
+    cycles.value = celoStore.ciclos
+    veterinarians.value = vetStore.veterinarios
+
+    if (modoEdicion.value) {
+      const { data } = await api.get(`/inseminacion/listar/${route.params.id}`)
+      console.log('Inseminacion obtenida:', data);
+      console.log('Veterinarios cargados:', veterinarians.value);
+      
+      form.id_veterinario = data.id_veterinario ? String(data.id_veterinario) : ''
+      form.id_ciclo      = data.id_ciclo ? String(data.id_ciclo) : ''
+      form.fecha         = data.fecha ? data.fecha.split('T')[0] : ''
+      form.tipo_inseminacion = data.tipo_inseminacion || ''
+      form.resultado     = data.resultado || 'Pendiente'
     }
+  } catch (e) {
+    errorLocal.value = 'No se pudieron cargar los datos necesarios.'
+    console.error('Error cargando formulario:', e)
+  } finally {
+    cargando.value = false
   }
 })
+
+function formatDateShort(date) {
+  if (!date) return ''
+  return new Date(date).toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit' })
+}
 
 async function guardar() {
   errorLocal.value = ''
   cargando.value   = true
 
   try {
-    const payload = {
-      Id_veterinaro:    form.id_veterinaro,
-      Id_ciclo:         form.id_ciclo,
-      fecha:            form.fecha,
-      Tipo_inseminacion: form.tipo,
-      resultado:        form.resultado
-    }
+    const payload = { ...form }
 
     if (modoEdicion.value) {
-      await axios.put(`http://localhost:3000/api/inseminacion/actualizar/${route.params.id}`, payload)
+      await api.put(`/inseminacion/actualizar/${route.params.id}`, payload)
     } else {
-      await axios.post('http://localhost:3000/api/inseminacion/crear', payload)
+      await api.post('/inseminacion/crear', payload)
     }
 
     router.push('/inseminaciones')
 
   } catch (error) {
+    console.error('Error al guardar inseminación:', error)
     errorLocal.value = error.response?.data?.error
       || error.response?.data?.mensaje
       || 'Error desconocido en el servidor'

@@ -108,11 +108,11 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">
+                <label class="form-label required">
                   <span class="material-symbols-outlined">event_available</span>
                   Fecha Fin
                 </label>
-                <input v-model="form.fecha_fin" type="date" class="form-input" @change="calcularDuracionAuto" />
+                <input v-model="form.fecha_fin" type="date" required class="form-input" @change="calcularDuracionAuto" />
               </div>
             </div>
 
@@ -245,18 +245,28 @@ function calcularDuracionAuto() {
 async function guardar() {
   guardando.value = true
   let resultado
+  store.error = null
 
-  if (modoEdicion.value) {
-    resultado = await store.actualizarCiclo(filaSeleccionada.value.id_ciclo_celo, form)
-  } else {
-    resultado = await store.crearCiclo(form)
-  }
+  try {
+    console.log('📤 Enviando payload (CeloIndex):', JSON.stringify(form))
+    
+    if (modoEdicion.value) {
+      resultado = await store.actualizarCiclo(filaSeleccionada.value.id_ciclo_celo, form)
+    } else {
+      resultado = await store.crearCiclo(form)
+    }
 
-  guardando.value = false
-
-  if (resultado.success) {
-    cerrarModal()
-    filaSeleccionada.value = null
+    if (resultado.success) {
+      cerrarModal()
+      filaSeleccionada.value = null
+    } else {
+      window.alert('ERROR AL GUARDAR: ' + (store.error || 'Error desconocido'))
+    }
+  } catch (err) {
+    console.error('❌ Error fatal:', err)
+    window.alert('ERROR FATAL: ' + err.message)
+  } finally {
+    guardando.value = false
   }
 }
 
@@ -273,7 +283,6 @@ async function eliminar() {
     filaSeleccionada.value = null
   }
 }
-
 function formatearFecha(fecha) {
   if (!fecha) return '—'
   return new Date(fecha).toLocaleDateString('es-DO')

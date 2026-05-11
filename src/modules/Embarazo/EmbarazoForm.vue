@@ -56,6 +56,7 @@
         <thead class="border-b border-border-color bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
             <th class="px-6 py-4">ID</th>
+            <th class="px-6 py-4">Bovino</th>
             <th class="px-6 py-4">Inseminación</th>
             <th class="px-6 py-4">Veterinario</th>
             <th class="px-6 py-4">Fase</th>
@@ -65,13 +66,13 @@
         </thead>
         <tbody>
           <tr v-if="store.cargando">
-            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="7" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
               <p class="mt-2">Cargando...</p>
             </td>
           </tr>
           <tr v-else-if="embarazosFiltrados.length === 0">
-            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="7" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined text-4xl">search_off</span>
               <p class="mt-2">No hay registros.</p>
             </td>
@@ -79,21 +80,22 @@
           <tr
             v-else
             v-for="e in embarazosFiltrados"
-            :key="e.Id_embarazo"
+            :key="e.id_embarazo || e.Id_embarazo"
             @click="seleccionarFila(e)"
             class="cursor-pointer border-b border-border-color bg-white transition hover:bg-primary/10"
-            :class="{ 'bg-primary/20': filaSeleccionada?.Id_embarazo === e.Id_embarazo }"
+            :class="{ 'bg-primary/20': filaSeleccionada?.id_embarazo === (e.id_embarazo || e.Id_embarazo) }"
           >
-            <td class="px-6 py-3 font-medium">{{ e.Id_embarazo }}</td>
-            <td class="px-6 py-3">{{ e.INSEMINACION ? e.INSEMINACION.Id_inseminacion : e.Id_inseminacion }}</td>
-            <td class="px-6 py-3">{{ e.VETERINARIO ? e.VETERINARIO.nombre : (e.veterinario ? e.veterinario.nombre : 'N/A') }}</td>
+            <td class="px-6 py-3 font-medium">#{{ e.id_embarazo || e.Id_embarazo }}</td>
+            <td class="px-6 py-3 font-bold text-primary">{{ e.INSEMINACION?.ciclo?.bovino?.nombre || 'N/A' }}</td>
+            <td class="px-6 py-3">#{{ e.INSEMINACION?.id_inseminacion || e.id_inseminacion || e.Id_inseminacion }}</td>
+            <td class="px-6 py-3">{{ e.VETERINARIO?.nombre || e.veterinario?.nombre || 'N/A' }}</td>
             <td class="px-6 py-3">
               <span class="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
                 {{ e.fase || 'N/A' }}
               </span>
             </td>
-            <td class="px-6 py-3">{{ e.Fecha_secado || 'N/A' }}</td>
-            <td class="px-6 py-3">{{ e.Fecha_prevista_parto }}</td>
+            <td class="px-6 py-3">{{ e.fecha_secado || e.Fecha_secado || 'N/A' }}</td>
+            <td class="px-6 py-3">{{ e.fecha_prevista_parto || e.Fecha_prevista_parto }}</td>
           </tr>
         </tbody>
       </table>
@@ -117,14 +119,18 @@ const embarazosFiltrados = computed(() => {
   const query = search.value.toLowerCase()
   return store.embarazos.filter(e => 
     e.VETERINARIO?.nombre?.toLowerCase().includes(query) ||
-    e.INSEMINACION?.Id_inseminacion?.toString().includes(query) ||
-    e.Id_embarazo?.toString().includes(query) ||
+    e.INSEMINACION?.ciclo?.bovino?.nombre?.toLowerCase().includes(query) ||
+    (e.INSEMINACION?.id_inseminacion || e.INSEMINACION?.Id_inseminacion)?.toString().includes(query) ||
+    (e.id_embarazo || e.Id_embarazo)?.toString().includes(query) ||
     e.fase?.toLowerCase().includes(query)
   )
 })
 
 function seleccionarFila(fila) {
-  if (filaSeleccionada.value?.Id_embarazo === fila.Id_embarazo) {
+  const currentId = filaSeleccionada.value ? (filaSeleccionada.value.id_embarazo || filaSeleccionada.value.Id_embarazo) : null;
+  const newId = fila.id_embarazo || fila.Id_embarazo;
+  
+  if (currentId === newId) {
     filaSeleccionada.value = null
   } else {
     filaSeleccionada.value = fila
@@ -142,9 +148,10 @@ function irAEditar() {
 
 async function confirmarEliminar() {
   if (!filaSeleccionada.value) return
-  if (confirm(`¿Eliminar el embarazo ${filaSeleccionada.value.Id_embarazo}? Esta acción no se puede deshacer.`)) {
+  const id = filaSeleccionada.value.id_embarazo || filaSeleccionada.value.Id_embarazo;
+  if (confirm(`¿Eliminar el embarazo ${id}? Esta acción no se puede deshacer.`)) {
     if (store.eliminarEmbarazo) {
-      await store.eliminarEmbarazo(filaSeleccionada.value.Id_embarazo)
+      await store.eliminarEmbarazo(id)
     } else {
       console.warn('eliminarEmbarazo no implementado en store')
     }
