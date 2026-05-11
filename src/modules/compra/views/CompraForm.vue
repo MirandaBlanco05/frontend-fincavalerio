@@ -89,8 +89,9 @@
               v-model.number="cantidadInsumo" 
               type="number" 
               min="1"
-              placeholder="Cantidad"
+              placeholder="Cant."
               class="flex-1 form-input"
+              onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
             />
             <input 
               v-model.number="precioManual" 

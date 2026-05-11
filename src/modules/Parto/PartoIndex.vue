@@ -122,7 +122,8 @@
                   <span class="material-symbols-outlined">counter_1</span>
                   N° Crías
                 </label>
-                <input v-model.number="form.numero_crias" type="number" min="1" max="5" class="form-input" />
+                <input v-model.number="form.numero_crias" type="number" min="1" max="5" class="form-input" 
+                  onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" />
               </div>
             </div>
 

@@ -29,7 +29,8 @@
             <span class="material-symbols-outlined">person</span>
             Nombre Completo
           </label>
-          <input v-model="form.nombre" type="text" required class="form-input" placeholder="Ej: Juan Pérez" />
+          <input v-model="form.nombre" type="text" required class="form-input" placeholder="Ej: Juan Pérez" 
+            pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$" title="Solo se permiten letras" />
         </div>
 
         <div class="form-grid">
@@ -50,7 +51,8 @@
               <span class="material-symbols-outlined">badge</span>
               Cédula / ID
             </label>
-            <input v-model="form.cedula" type="text" class="form-input" placeholder="000-0000000-0" />
+            <input v-model="form.cedula" type="text" class="form-input" placeholder="00000000000" 
+              onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" maxlength="11" />
           </div>
         </div>
 
@@ -60,7 +62,8 @@
               <span class="material-symbols-outlined">phone</span>
               Teléfono
             </label>
-            <input v-model="form.telefono" type="text" required class="form-input" placeholder="809-000-0000" />
+            <input v-model="form.telefono" type="text" required class="form-input" placeholder="8090000000" 
+              onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" maxlength="10" />
           </div>
 
           <div class="form-group">
@@ -98,7 +101,8 @@
               <span class="material-symbols-outlined">description</span>
               Tipo de Contrato
             </label>
-            <input v-model="form.contrato" type="text" class="form-input" placeholder="Ej: Fijo, Temporal" />
+            <input v-model="form.contrato" type="text" class="form-input" placeholder="Ej: Fijo, Temporal" 
+              pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$" title="Solo se permiten letras" />
           </div>
         </div>
 

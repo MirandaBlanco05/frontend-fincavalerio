@@ -92,6 +92,7 @@
               min="1"
               placeholder="Cantidad"
               class="flex-1 form-input"
+              onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
             />
             <button 
               @click="agregarProducto" 

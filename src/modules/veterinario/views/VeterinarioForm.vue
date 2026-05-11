@@ -31,7 +31,8 @@
               <span class="material-symbols-outlined">person</span>
               Nombre Completo
             </label>
-            <input v-model="form.nombre" type="text" required class="form-input" placeholder="Dr. Juan Pérez" />
+            <input v-model="form.nombre" type="text" required class="form-input" placeholder="Dr. Juan Pérez" 
+              pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$" title="Solo se permiten letras" />
           </div>
 
           <!-- Cédula -->
@@ -40,7 +41,8 @@
               <span class="material-symbols-outlined">badge</span>
               Cédula
             </label>
-            <input v-model="form.cedula" type="text" required class="form-input" placeholder="001-0000000-0" />
+            <input v-model="form.cedula" type="text" required class="form-input" placeholder="00100000000" 
+              onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" maxlength="11" />
           </div>
         </div>
 
@@ -51,7 +53,8 @@
               <span class="material-symbols-outlined">call</span>
               Teléfono
             </label>
-            <input v-model="form.telefono" type="tel" class="form-input" placeholder="809-000-0000" />
+            <input v-model="form.telefono" type="tel" class="form-input" placeholder="8090000000" 
+              onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" maxlength="10" />
           </div>
         </div>
 

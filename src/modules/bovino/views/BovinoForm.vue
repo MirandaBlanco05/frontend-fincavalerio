@@ -40,7 +40,8 @@
               <span class="material-symbols-outlined">qr_code_2</span>
               N° Crotal
             </label>
-            <input v-model="form.numero_crotal" type="number" class="form-input" placeholder="Ej: 123" />
+            <input v-model="form.numero_crotal" type="number" class="form-input" placeholder="Ej: 123" 
+              onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" />
           </div>
         </div>
 
@@ -63,7 +64,8 @@
               <span class="material-symbols-outlined">pets</span>
               Nombre
             </label>
-            <input v-model="form.nombre" type="text" required class="form-input" placeholder="Nombre del animal" />
+            <input v-model="form.nombre" type="text" required class="form-input" placeholder="Nombre del animal" 
+              pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$" title="Solo se permiten letras" />
           </div>
         </div>
 
@@ -81,7 +83,8 @@
               <span class="material-symbols-outlined">female</span>
               Nombre Madre
             </label>
-            <input v-model="form.nombre_madre" type="text" class="form-input" placeholder="Nombre de la madre" />
+            <input v-model="form.nombre_madre" type="text" class="form-input" placeholder="Nombre de la madre" 
+              pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$" title="Solo se permiten letras" />
           </div>
         </div>
 
@@ -100,10 +103,11 @@
 
           <div class="form-group">
             <label class="form-label">
-              <span class="material-symbols-outlined">cake</span>
-              Edad (años)
+              <span class="material-symbols-outlined">male</span>
+              Nombre Padre
             </label>
-            <input v-model="form.edad" type="number" min="0" class="form-input" placeholder="Ej: 3" />
+            <input v-model="form.nombre_padre" type="text" class="form-input" placeholder="Nombre del padre" 
+              pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$" title="Solo se permiten letras" />
           </div>
         </div>
 
@@ -123,10 +127,30 @@
 
           <div class="form-group">
             <label class="form-label">
+              <span class="material-symbols-outlined">cake</span>
+              Edad (años)
+            </label>
+            <input v-model.number="form.edad" type="number" min="0" class="form-input" placeholder="Ej: 3" 
+              onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">
               <span class="material-symbols-outlined">weight</span>
               Peso (kg)
             </label>
-            <input v-model="form.peso" type="text" class="form-input" placeholder="Ej: 450" />
+            <input v-model.number="form.peso" type="number" step="0.1" class="form-input" placeholder="Ej: 450" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span class="material-symbols-outlined">location_on</span>
+              Procedencia
+            </label>
+            <input v-model="form.procedencia" type="text" class="form-input" placeholder="Ej: Finca El Sol" 
+              pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]*$" title="Letras y números permitidos" />
           </div>
         </div>
 
@@ -134,7 +158,7 @@
           <button type="button" @click="router.push({ name: 'BovinosList' })" class="btn btn--secondary">Cancelar</button>
           <button type="submit" :disabled="store.cargando" class="btn btn--primary">
             <span class="material-symbols-outlined">save</span>
-            {{ store.cargando ? 'Guardando...' : (modoEdicion ? 'Actualizar Registro' : 'Guardar Registro') }}
+            {{ store.cargando ? 'Guardando...' : (modoEdicion ? 'Actualizar' : 'Guardar') }}
           </button>
         </div>
 
@@ -144,80 +168,82 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useBovinoStore } from '../store/bovino.store.js'
-import grupoService from '@/modules/grupo/services/grupo.service.js'
-import razaService from '@/modules/raza/services/raza.service.js'
+import { useBovinoStore } from '@/modules/bovino/store/bovino.store.js'
+import { grupoService } from '@/modules/bovino/services/grupo.service.js'
+import { razaService } from '@/modules/bovino/services/raza.service.js'
+import bovinoService from '@/modules/bovino/services/bovino.service.js'
 
 const router = useRouter()
-const route  = useRoute()
-const store  = useBovinoStore()
-
-const modoEdicion = computed(() => !!route.params.id)
+const route = useRoute()
+const store = useBovinoStore()
 
 const grupos = ref([])
 const razas = ref([])
+const modoEdicion = computed(() => !!route.params.id)
 
 const form = reactive({
-  id_grupo:         '',
-  numero_crotal:    '',
-  id_raza:          '',
-  nombre:           '',
+  id_grupo: '',
+  id_raza: '',
+  numero_crotal: '',
+  nombre: '',
   fecha_nacimiento: '',
-  nombre_madre:     '',
-  sexo:             '',
-  edad:             '',
-  estado:           '',
-  peso:             ''
+  nombre_madre: '',
+  nombre_padre: '',
+  sexo: '',
+  edad: '',
+  peso: '',
+  estado: '',
+  procedencia: ''
 })
 
 onMounted(async () => {
-  await cargarDatosAuxiliares()
-  
-  if (modoEdicion.value) {
-    if (store.bovinos.length === 0) {
-      await store.cargarBovinos()
-    }
-    const bovino = store.bovinos.find(b => b.id_bovino == route.params.id)
-    if (bovino) {
-      form.id_grupo         = bovino.id_grupo || bovino.Id_grupo
-      form.numero_crotal    = bovino.numero_crotal
-      form.id_raza          = bovino.id_raza || bovino.Id_raza
-      form.nombre           = bovino.nombre
-      form.fecha_nacimiento = bovino.fecha_nacimiento
-      form.nombre_madre     = bovino.nombre_madre
-      form.sexo             = bovino.sexo
-      form.edad             = bovino.edad
-      form.estado           = bovino.estado
-      form.peso             = bovino.peso
-    }
-  }
-  store.limpiarMensajes()
-})
-
-async function cargarDatosAuxiliares() {
   try {
-    const [gruposRes, razasRes] = await Promise.all([
+    const [gRes, rRes] = await Promise.all([
       grupoService.listar(),
       razaService.listar()
     ])
-    grupos.value = gruposRes.data
-    razas.value = razasRes.data
+    grupos.value = gRes.data
+    razas.value = rRes.data
+
+    if (modoEdicion.value) {
+      const res = await bovinoService.obtenerPorId(route.params.id)
+      const data = res.data
+      Object.assign(form, {
+        id_grupo: data.id_grupo,
+        id_raza: data.id_raza,
+        numero_crotal: data.numero_crotal,
+        nombre: data.nombre,
+        fecha_nacimiento: data.fecha_nacimiento ? data.fecha_nacimiento.split('T')[0] : '',
+        nombre_madre: data.nombre_madre || '',
+        nombre_padre: data.nombre_padre || '',
+        sexo: data.sexo,
+        edad: data.edad || '',
+        peso: data.peso || '',
+        estado: data.estado,
+        procedencia: data.procedencia || ''
+      })
+    }
   } catch (error) {
-    console.error('Error al cargar datos auxiliares:', error)
+    console.error('Error inicializando formulario:', error)
   }
-}
+})
 
 async function guardar() {
-  let ok
-  if (modoEdicion.value) {
-    ok = await store.actualizarBovino(route.params.id, { ...form })
-  } else {
-    ok = await store.crearBovino({ ...form })
-  }
-  if (ok) {
-    router.push({ name: 'BovinosList' })
+  try {
+    let exito
+    if (modoEdicion.value) {
+      exito = await store.actualizarBovino(route.params.id, form)
+    } else {
+      exito = await store.crearBovino(form)
+    }
+
+    if (exito) {
+      router.push({ name: 'BovinosList' })
+    }
+  } catch (error) {
+    console.error('Error al guardar:', error)
   }
 }
 </script>
@@ -247,9 +273,10 @@ async function guardar() {
   background: white;
   border-radius: 20px;
   width: 100%;
-  max-width: 600px;
+  max-width: 650px;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .modal-header {
@@ -295,6 +322,12 @@ async function guardar() {
   gap: 1.5rem;
 }
 
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -304,14 +337,16 @@ async function guardar() {
 .form-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
+  gap: 8px;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .form-label .material-symbols-outlined {
-  font-size: 1rem;
+  font-size: 1.1rem;
   color: #4c9a4c;
 }
 
@@ -322,36 +357,31 @@ async function guardar() {
 }
 
 .form-input, .form-select {
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   border: 1.5px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: 12px;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.9rem;
   transition: all 0.2s;
   width: 100%;
-  background: white;
+  background: #fcfcfc;
 }
 
-.form-input:focus {
+.form-input:focus, .form-select:focus {
   outline: none;
   border-color: #4c9a4c;
-  background: #f0f9f0;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(76, 154, 76, 0.1);
 }
 
 .form-select {
   cursor: pointer;
-}
-
-.form-select:focus {
-  outline: none;
-  border-color: #9ca3af;
-  background: #f3f4f6;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
 }
 
 .modal-footer {
@@ -371,7 +401,7 @@ async function guardar() {
   border: none;
   border-radius: 12px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
@@ -385,16 +415,10 @@ async function guardar() {
 .btn--primary:hover:not(:disabled) {
   background: #3d7a3d;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 154, 76, 0.3);
-}
-
-.btn--primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .btn--secondary {
-  background: #f5f5f5;
+  background: #f3f4f6;
   color: #374151;
 }
 
@@ -405,9 +429,7 @@ async function guardar() {
 @media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;
-  }
-  .modal-body {
-    padding: 1.5rem;
+    gap: 1rem;
   }
 }
 </style>

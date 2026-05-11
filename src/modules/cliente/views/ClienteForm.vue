@@ -38,7 +38,8 @@
               <span class="material-symbols-outlined">badge</span>
               RNC / Cédula
             </label>
-            <input v-model="form.rnc" type="text" class="form-input" placeholder="000-00000-0" />
+            <input v-model="form.rnc" type="text" class="form-input" placeholder="000000000" 
+              onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" maxlength="11" />
           </div>
 
           <div class="form-group">
@@ -46,7 +47,8 @@
               <span class="material-symbols-outlined">phone</span>
               Teléfono
             </label>
-            <input v-model="form.telefono" type="text" required class="form-input" placeholder="809-000-0000" />
+            <input v-model="form.telefono" type="text" required class="form-input" placeholder="8090000000" 
+              onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" maxlength="10" />
           </div>
         </div>
 
