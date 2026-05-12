@@ -45,9 +45,9 @@
               <span class="material-symbols-outlined">medical_services</span>
               Enfermedad
             </label>
-            <select v-model="form.id_enfermedad" required class="form-select">
-              <option v-if="!modoEdicion" value="">Seleccione una enfermedad...</option>
-              <option v-for="e in enfermedadesFiltradas" :key="e.id_enfermedad" :value="e.id_enfermedad">
+            <select v-model.number="form.id_enfermedad" required class="form-select">
+              <option value="">Seleccione una enfermedad...</option>
+              <option v-for="e in enfermedades" :key="e.id_enfermedad" :value="e.id_enfermedad">
                 {{ e.nombre }}
               </option>
             </select>
@@ -97,13 +97,6 @@ const modoEdicion = computed(() => !!route.params.id)
 const bovinos = ref([])
 const enfermedades = ref([])
 
-const enfermedadesFiltradas = computed(() => {
-  if (modoEdicion.value && form.id_enfermedad) {
-    return enfermedades.value.filter(e => e.id_enfermedad === form.id_enfermedad)
-  }
-  return enfermedades.value
-})
-
 const form = reactive({
   id_bovino: '',
   id_enfermedad: '',
@@ -114,18 +107,18 @@ onMounted(async () => {
   await cargarDatosAuxiliares()
   
   if (modoEdicion.value) {
-    // Consultamos el registro individual para asegurar que tenemos el ID de la enfermedad
+    // Consultamos el registro individual
     const hist = await store.obtenerHistorialPorId(route.params.id)
     
     if (hist) {
       form.id_bovino = hist.id_bovino
-      // Si el backend devuelve enfermedades como un array
-      if (hist.enfermedades && hist.enfermedades.length > 0) {
-        form.id_enfermedad = hist.enfermedades[0].id_enfermedad
-      } else {
-        // Fallback por si el backend lo manda plano
-        form.id_enfermedad = hist.id_enfermedad || ''
-      }
+      
+      // Intentamos obtener el ID de cualquier forma posible (array o campo plano)
+      const enfermedadId = (hist.enfermedades && hist.enfermedades.length > 0) 
+        ? hist.enfermedades[0].id_enfermedad 
+        : (hist.id_enfermedad || '');
+        
+      form.id_enfermedad = Number(enfermedadId);
       form.fecha = hist.fecha ? hist.fecha.split('T')[0] : new Date().toISOString().split('T')[0]
     }
   }
