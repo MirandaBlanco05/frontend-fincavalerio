@@ -154,7 +154,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useHistorialStore } from '../store/historial.store.js'
 import { bovinoService } from '@/modules/bovino/services/bovino.service.js'
