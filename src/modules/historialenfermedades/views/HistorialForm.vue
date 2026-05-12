@@ -107,18 +107,19 @@ onMounted(async () => {
   await cargarDatosAuxiliares()
   
   if (modoEdicion.value) {
-    // Consultamos el registro individual
+    // Consultamos el registro individual para asegurar que tenemos los datos frescos
     const hist = await store.obtenerHistorialPorId(route.params.id)
     
     if (hist) {
       form.id_bovino = hist.id_bovino
       
-      // Intentamos obtener el ID de cualquier forma posible (array o campo plano)
-      const enfermedadId = (hist.enfermedades && hist.enfermedades.length > 0) 
-        ? hist.enfermedades[0].id_enfermedad 
-        : (hist.id_enfermedad || '');
-        
-      form.id_enfermedad = Number(enfermedadId);
+      // FIX: Extraemos el ID numérico del primer objeto en el array 'enfermedades'
+      if (hist.enfermedades && hist.enfermedades.length > 0) {
+        form.id_enfermedad = Number(hist.enfermedades[0].id_enfermedad)
+      } else {
+        form.id_enfermedad = ''
+      }
+      
       form.fecha = hist.fecha ? hist.fecha.split('T')[0] : new Date().toISOString().split('T')[0]
     }
   }
