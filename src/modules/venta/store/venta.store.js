@@ -1,7 +1,6 @@
 // src/modules/venta/store/venta.store.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useNotificationStore } from '@/store/notification.store.js'
 import { ventaService } from '@/modules/venta/services/venta.service.js'
 
 export const useVentaStore = defineStore('venta', () => {
@@ -9,7 +8,6 @@ export const useVentaStore = defineStore('venta', () => {
   const ventaActual = ref(null)
   const cargando = ref(false)
   const error = ref('')
-  const notification = useNotificationStore()
 
   async function cargarVentas() {
     cargando.value = true
@@ -47,12 +45,11 @@ export const useVentaStore = defineStore('venta', () => {
     try {
       const { data } = await ventaService.crear(venta)
       await cargarVentas() // Recargar lista
-      notification.notify(data.mensaje || 'Venta registrada correctamente', 'success')
       return { success: true, data }
     } catch (e) {
-      const msg = e.response?.data?.error || 'Error al crear venta'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = e.response?.data?.error || 'Error al crear venta'
+      console.error('Error crear venta:', e)
+      return { success: false, error: error.value }
     } finally {
       cargando.value = false
     }
@@ -64,12 +61,11 @@ export const useVentaStore = defineStore('venta', () => {
     try {
       const { data } = await ventaService.actualizar(id, venta)
       await cargarVentas()
-      notification.notify(data.mensaje || 'Venta actualizada correctamente', 'success')
       return { success: true, data }
     } catch (e) {
-      const msg = e.response?.data?.error || 'Error al actualizar venta'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = e.response?.data?.error || 'Error al actualizar venta'
+      console.error('Error actualizar venta:', e)
+      return { success: false, error: error.value }
     } finally {
       cargando.value = false
     }
@@ -81,12 +77,11 @@ export const useVentaStore = defineStore('venta', () => {
     try {
       await ventaService.eliminar(id)
       await cargarVentas()
-      notification.notify('Venta eliminada correctamente', 'success')
       return { success: true }
     } catch (e) {
-      const msg = e.response?.data?.error || 'Error al eliminar venta'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = e.response?.data?.error || 'Error al eliminar venta'
+      console.error('Error eliminar venta:', e)
+      return { success: false, error: error.value }
     } finally {
       cargando.value = false
     }

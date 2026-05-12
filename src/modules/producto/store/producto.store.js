@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useNotificationStore } from '@/store/notification.store.js'
 import productoService from '../services/producto.service'
 
 export const useProductoStore = defineStore('producto', () => {
@@ -8,7 +7,6 @@ export const useProductoStore = defineStore('producto', () => {
   const cargando = ref(false)
   const error = ref(null)
   const mensaje = ref(null)
-  const notification = useNotificationStore()
 
   function limpiarMensajes() {
     error.value = null
@@ -29,41 +27,41 @@ export const useProductoStore = defineStore('producto', () => {
   }
 
   async function crearProducto(datos) {
+    limpiarMensajes()
     try {
       const data = await productoService.crear(datos)
-      notification.notify('Producto creado correctamente', 'success')
+      mensaje.value = 'Producto creado correctamente'
       await cargarProductos()
       return { success: true, data }
     } catch (err) {
-      const msg = err.message || 'Error al crear producto'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al crear producto'
+      return { success: false, error: error.value }
     }
   }
 
   async function actualizarProducto(id, datos) {
+    limpiarMensajes()
     try {
       const data = await productoService.actualizar(id, datos)
-      notification.notify('Producto actualizado correctamente', 'success')
+      mensaje.value = 'Producto actualizado correctamente'
       await cargarProductos()
       return { success: true, data }
     } catch (err) {
-      const msg = err.message || 'Error al actualizar producto'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al actualizar producto'
+      return { success: false, error: error.value }
     }
   }
 
   async function eliminarProducto(id) {
+    limpiarMensajes()
     try {
       await productoService.eliminar(id)
-      notification.notify('Producto eliminado correctamente', 'success')
+      mensaje.value = 'Producto eliminado correctamente'
       await cargarProductos()
       return { success: true }
     } catch (err) {
-      const msg = err.message || 'Error al eliminar producto'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al eliminar producto'
+      return { success: false, error: error.value }
     }
   }
 

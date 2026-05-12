@@ -1,7 +1,6 @@
 // src/modules/ordenio/store/ordenio.store.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useNotificationStore } from '@/store/notification.store.js'
 import { ordenioService } from '@/modules/ordenio/services/ordenio.service.js'
 
 export const useOrdenioStore = defineStore('ordenio', () => {
@@ -9,7 +8,6 @@ export const useOrdenioStore = defineStore('ordenio', () => {
   const ordenioActual = ref(null)
   const cargando = ref(false)
   const error = ref('')
-  const notification = useNotificationStore()
 
   async function cargarOrdenios() {
     cargando.value = true
@@ -45,11 +43,10 @@ export const useOrdenioStore = defineStore('ordenio', () => {
     try {
       await ordenioService.crear(datos)
       await cargarOrdenios()
-      notification.notify('Registro de ordeño guardado', 'success')
       return true
     } catch (e) {
-      const msg = e.response?.data?.error || 'Error al crear ordeño'
-      notification.notify(msg, 'error')
+      error.value = e.response?.data?.error || 'Error al crear ordeño'
+      console.error('Error creando ordeño:', e)
       return false
     } finally {
       cargando.value = false
@@ -62,11 +59,10 @@ export const useOrdenioStore = defineStore('ordenio', () => {
     try {
       await ordenioService.actualizar(id, datos)
       await cargarOrdenios()
-      notification.notify('Registro de ordeño actualizado', 'success')
       return true
     } catch (e) {
-      const msg = e.response?.data?.error || 'Error al actualizar ordeño'
-      notification.notify(msg, 'error')
+      error.value = e.response?.data?.error || 'Error al actualizar ordeño'
+      console.error('Error actualizando ordeño:', e)
       return false
     } finally {
       cargando.value = false
@@ -79,11 +75,10 @@ export const useOrdenioStore = defineStore('ordenio', () => {
     try {
       await ordenioService.eliminar(id)
       await cargarOrdenios()
-      notification.notify('Registro de ordeño eliminado', 'success')
       return true
     } catch (e) {
-      const msg = e.response?.data?.error || 'Error al eliminar ordeño'
-      notification.notify(msg, 'error')
+      error.value = e.response?.data?.error || 'Error al eliminar ordeño'
+      console.error('Error eliminando ordeño:', e)
       return false
     } finally {
       cargando.value = false

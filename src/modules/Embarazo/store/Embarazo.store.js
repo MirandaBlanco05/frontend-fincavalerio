@@ -1,5 +1,5 @@
+// modules/Embarazo/store/Embarazo.store.js
 import { defineStore } from 'pinia'
-import { useNotificationStore } from '@/store/notification.store.js'
 import embarazoService from '../services/Embarazo.Service.js'
 
 export const useEmbarazoStore = defineStore('embarazo', {
@@ -22,57 +22,45 @@ export const useEmbarazoStore = defineStore('embarazo', {
     },
 
     async crearEmbarazo(datos) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         const exito = await embarazoService.crear(datos)
-        if (exito) {
-          await this.cargarEmbarazos()
-          notification.notify('Embarazo registrado correctamente', 'success')
-        }
+        if (exito) await this.cargarEmbarazos()
         this.cargando = false
         return exito
       } catch(err) {
-        notification.notify('No se pudo registrar el embarazo', 'error')
+        this.error = 'No se pudo crear el embarazo'
         this.cargando = false
         throw err
       }
     },
 
     async actualizarEmbarazo(id, datos) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         const exito = await embarazoService.actualizar(id, datos)
-        if (exito) {
-          await this.cargarEmbarazos()
-          notification.notify('Embarazo actualizado correctamente', 'success')
-        }
+        if (exito) await this.cargarEmbarazos()
         this.cargando = false
         return exito
       } catch(err) {
-        notification.notify('No se pudo actualizar el embarazo', 'error')
+        this.error = 'No se pudo actualizar el embarazo'
         this.cargando = false
         throw err
       }
     },
 
     async eliminarEmbarazo(id) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         const exito = await embarazoService.eliminar(id)
-        if (exito) {
-          await this.cargarEmbarazos()
-          notification.notify('Embarazo eliminado correctamente', 'success')
-        }
+        if (exito) await this.cargarEmbarazos()
         this.cargando = false
         return exito
       } catch(err) {
-        notification.notify('No se pudo eliminar el embarazo', 'error')
+        this.error = 'No se pudo eliminar el embarazo'
         this.cargando = false
         throw err
       }

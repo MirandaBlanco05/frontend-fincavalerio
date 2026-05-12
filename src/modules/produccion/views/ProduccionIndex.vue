@@ -1,9 +1,18 @@
 <template>
   <div class="flex flex-col gap-6">
 
+    <!-- Título dinámico -->
     <div>
       <h2 class="text-2xl font-bold text-[#1a1a1a]">{{ tabActivo.titulo }}</h2>
       <p class="text-sm text-gray-500">{{ tabActivo.subtitulo }}</p>
+    </div>
+
+    <!-- Alertas -->
+    <div v-if="store.error" class="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <span class="material-symbols-outlined text-base">warning</span>{{ store.error }}
+    </div>
+    <div v-if="store.mensaje" class="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+      <span class="material-symbols-outlined text-base">check_circle</span>{{ store.mensaje }}
     </div>
 
     <!-- ── Tabs pill-style ─────────────────────────────────── -->

@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useNotificationStore } from '@/store/notification.store.js'
 import insumoService from '../services/insumo.service'
 
 export const useInsumoStore = defineStore('insumo', () => {
@@ -8,7 +7,6 @@ export const useInsumoStore = defineStore('insumo', () => {
   const cargando = ref(false)
   const error = ref(null)
   const mensaje = ref(null)
-  const notification = useNotificationStore()
 
   function limpiarMensajes() {
     error.value = null
@@ -29,41 +27,45 @@ export const useInsumoStore = defineStore('insumo', () => {
   }
 
   async function crearInsumo(datos) {
+    limpiarMensajes()
     try {
       const data = await insumoService.crear(datos)
-      notification.notify('Insumo creado correctamente', 'success')
+      mensaje.value = 'Insumo creado correctamente'
       await cargarInsumos()
       return { success: true, data }
     } catch (err) {
-      const msg = err.message || 'Error al crear insumo'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al crear insumo'
+      return { success: false, error: error.value }
     }
   }
 
   async function actualizarInsumo(id, datos) {
+    limpiarMensajes()
+    if (!id) {
+      error.value = 'ID de insumo no proporcionado'
+      return { success: false, error: error.value }
+    }
     try {
       const data = await insumoService.actualizar(id, datos)
-      notification.notify('Insumo actualizado correctamente', 'success')
+      mensaje.value = 'Insumo actualizado correctamente'
       await cargarInsumos()
       return { success: true, data }
     } catch (err) {
-      const msg = err.message || 'Error al actualizar insumo'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al actualizar insumo'
+      return { success: false, error: error.value }
     }
   }
 
   async function eliminarInsumo(id) {
+    limpiarMensajes()
     try {
       await insumoService.eliminar(id)
-      notification.notify('Insumo eliminado correctamente', 'success')
+      mensaje.value = 'Insumo eliminado correctamente'
       await cargarInsumos()
       return { success: true }
     } catch (err) {
-      const msg = err.message || 'Error al eliminar insumo'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al eliminar insumo'
+      return { success: false, error: error.value }
     }
   }
 

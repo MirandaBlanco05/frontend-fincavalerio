@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useNotificationStore } from '@/store/notification.store.js'
 import proveedorService from '../services/proveedor.service'
 
 export const useProveedorStore = defineStore('proveedor', () => {
@@ -8,7 +7,6 @@ export const useProveedorStore = defineStore('proveedor', () => {
   const cargando = ref(false)
   const error = ref(null)
   const mensaje = ref(null)
-  const notification = useNotificationStore()
 
   function limpiarMensajes() {
     error.value = null
@@ -29,41 +27,41 @@ export const useProveedorStore = defineStore('proveedor', () => {
   }
 
   async function crearProveedor(datos) {
+    limpiarMensajes()
     try {
       const data = await proveedorService.crear(datos)
-      notification.notify('Proveedor creado correctamente', 'success')
+      mensaje.value = 'Proveedor creado correctamente'
       await cargarProveedores()
       return { success: true, data }
     } catch (err) {
-      const msg = err.message || 'Error al crear proveedor'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al crear proveedor'
+      return { success: false, error: error.value }
     }
   }
 
   async function actualizarProveedor(id, datos) {
+    limpiarMensajes()
     try {
       const data = await proveedorService.actualizar(id, datos)
-      notification.notify('Proveedor actualizado correctamente', 'success')
+      mensaje.value = 'Proveedor actualizado correctamente'
       await cargarProveedores()
       return { success: true, data }
     } catch (err) {
-      const msg = err.message || 'Error al actualizar proveedor'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al actualizar proveedor'
+      return { success: false, error: error.value }
     }
   }
 
   async function eliminarProveedor(id) {
+    limpiarMensajes()
     try {
       await proveedorService.eliminar(id)
-      notification.notify('Proveedor eliminado correctamente', 'success')
+      mensaje.value = 'Proveedor eliminado correctamente'
       await cargarProveedores()
       return { success: true }
     } catch (err) {
-      const msg = err.message || 'Error al eliminar proveedor'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al eliminar proveedor'
+      return { success: false, error: error.value }
     }
   }
 

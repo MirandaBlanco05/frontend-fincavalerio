@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useNotificationStore } from '@/store/notification.store.js'
 import clienteService from '../services/cliente.service'
 
 export const useClienteStore = defineStore('cliente', () => {
@@ -8,7 +7,6 @@ export const useClienteStore = defineStore('cliente', () => {
   const cargando = ref(false)
   const error = ref(null)
   const mensaje = ref(null)
-  const notification = useNotificationStore()
 
   function limpiarMensajes() {
     error.value = null
@@ -29,41 +27,41 @@ export const useClienteStore = defineStore('cliente', () => {
   }
 
   async function crearCliente(datos) {
+    limpiarMensajes()
     try {
       const data = await clienteService.crear(datos)
-      notification.notify('Cliente creado correctamente', 'success')
+      mensaje.value = 'Cliente creado correctamente'
       await cargarClientes()
       return { success: true, data }
     } catch (err) {
-      const msg = err.message || 'Error al crear cliente'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al crear cliente'
+      return { success: false, error: error.value }
     }
   }
 
   async function actualizarCliente(id, datos) {
+    limpiarMensajes()
     try {
       const data = await clienteService.actualizar(id, datos)
-      notification.notify('Cliente actualizado correctamente', 'success')
+      mensaje.value = 'Cliente actualizado correctamente'
       await cargarClientes()
       return { success: true, data }
     } catch (err) {
-      const msg = err.message || 'Error al actualizar cliente'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al actualizar cliente'
+      return { success: false, error: error.value }
     }
   }
 
   async function eliminarCliente(id) {
+    limpiarMensajes()
     try {
       await clienteService.eliminar(id)
-      notification.notify('Cliente eliminado correctamente', 'success')
+      mensaje.value = 'Cliente eliminado correctamente'
       await cargarClientes()
       return { success: true }
     } catch (err) {
-      const msg = err.message || 'Error al eliminar cliente'
-      notification.notify(msg, 'error')
-      return { success: false, error: msg }
+      error.value = err.message || 'Error al eliminar cliente'
+      return { success: false, error: error.value }
     }
   }
 

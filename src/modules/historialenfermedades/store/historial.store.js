@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { useNotificationStore } from '@/store/notification.store.js'
 import historialService from '../services/historial.service.js'
 
 export const useHistorialStore = defineStore('historial', {
@@ -40,17 +39,15 @@ export const useHistorialStore = defineStore('historial', {
     },
 
     async crearHistorial(datos) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await historialService.crear(datos)
         await this.cargarHistoriales()
-        notification.notify('Historial registrado correctamente', 'success')
         return true
       } catch (error) {
-        const msg = error.message || 'Error al crear historial'
-        notification.notify(msg, 'error')
+        this.error = error.message
+        console.error('Error al crear historial:', error)
         return false
       } finally {
         this.cargando = false
@@ -58,17 +55,15 @@ export const useHistorialStore = defineStore('historial', {
     },
 
     async actualizarHistorial(id, datos) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await historialService.actualizar(id, datos)
         await this.cargarHistoriales()
-        notification.notify('Historial actualizado correctamente', 'success')
         return true
       } catch (error) {
-        const msg = error.message || 'Error al actualizar historial'
-        notification.notify(msg, 'error')
+        this.error = error.message
+        console.error('Error al actualizar historial:', error)
         return false
       } finally {
         this.cargando = false
@@ -76,16 +71,14 @@ export const useHistorialStore = defineStore('historial', {
     },
 
     async eliminarHistorial(id) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await historialService.eliminar(id)
         await this.cargarHistoriales()
-        notification.notify('Historial eliminado correctamente', 'success')
       } catch (error) {
-        const msg = error.message || 'Error al eliminar historial'
-        notification.notify(msg, 'error')
+        this.error = error.message
+        console.error('Error al eliminar historial:', error)
         throw error
       } finally {
         this.cargando = false

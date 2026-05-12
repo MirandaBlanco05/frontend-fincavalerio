@@ -1,9 +1,6 @@
 <template>
   <div id="finca-app" class="font-display text-[#36454F] bg-white min-h-screen">
 
-    <!-- Notificaciones Globales -->
-    <NotificationToast />
-
     <!-- Sidebar fijo (solo en desktop lg+) -->
     <Sidebar v-if="mostrarLayout" />
 
@@ -30,7 +27,6 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Sidebar from '@/components/layout/Sidebar.vue'
 import TopBar  from '@/components/layout/TopBar.vue'
-import NotificationToast from '@/components/ui/NotificationToast.vue'
 
 const route = useRoute()
 const mostrarLayout = computed(() => route.name !== 'Login')
