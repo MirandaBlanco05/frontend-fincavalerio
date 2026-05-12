@@ -46,8 +46,8 @@
               Enfermedad
             </label>
             <select v-model="form.id_enfermedad" required class="form-select">
-              <option value="">Seleccione una enfermedad...</option>
-              <option v-for="e in enfermedades" :key="e.id_enfermedad" :value="e.id_enfermedad">
+              <option v-if="!modoEdicion" value="">Seleccione una enfermedad...</option>
+              <option v-for="e in enfermedadesFiltradas" :key="e.id_enfermedad" :value="e.id_enfermedad">
                 {{ e.nombre }}
               </option>
             </select>
@@ -96,6 +96,13 @@ const modoEdicion = computed(() => !!route.params.id)
 
 const bovinos = ref([])
 const enfermedades = ref([])
+
+const enfermedadesFiltradas = computed(() => {
+  if (modoEdicion.value && form.id_enfermedad) {
+    return enfermedades.value.filter(e => e.id_enfermedad === form.id_enfermedad)
+  }
+  return enfermedades.value
+})
 
 const form = reactive({
   id_bovino: '',
