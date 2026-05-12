@@ -107,17 +107,17 @@ onMounted(async () => {
   await cargarDatosAuxiliares()
   
   if (modoEdicion.value) {
-    if (store.historiales.length === 0) {
-      await store.cargarHistoriales()
-    }
-    const hist = store.historiales.find(h => h.id_historial == route.params.id)
+    // Consultamos el registro individual para asegurar que tenemos el ID de la enfermedad
+    const hist = await store.obtenerHistorialPorId(route.params.id)
+    
     if (hist) {
       form.id_bovino = hist.id_bovino
-      // Extraemos el ID de la primera enfermedad del arreglo
+      // Si el backend devuelve enfermedades como un array
       if (hist.enfermedades && hist.enfermedades.length > 0) {
         form.id_enfermedad = hist.enfermedades[0].id_enfermedad
       } else {
-        form.id_enfermedad = ''
+        // Fallback por si el backend lo manda plano
+        form.id_enfermedad = hist.id_enfermedad || ''
       }
       form.fecha = hist.fecha ? hist.fecha.split('T')[0] : new Date().toISOString().split('T')[0]
     }

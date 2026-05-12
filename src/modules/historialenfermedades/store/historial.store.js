@@ -39,6 +39,16 @@ export const useHistorialStore = defineStore('historial', {
       }
     },
 
+    async obtenerHistorialPorId(id) {
+      try {
+        const response = await historialService.obtener(id)
+        return response.data
+      } catch (error) {
+        console.error('Error al obtener historial:', error)
+        return null
+      }
+    },
+
     async crearHistorial(datos) {
       const notification = useNotificationStore()
       this.cargando = true
