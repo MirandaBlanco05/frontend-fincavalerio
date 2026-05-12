@@ -12,13 +12,6 @@
         </button>
       </div>
 
-      <div v-if="store.error" style="padding: 1rem 2rem;">
-        <div style="display: flex; align-items: center; gap: 8px; color: #dc2626; background: #fef2f2; padding: 12px; border-radius: 8px;">
-          <span class="material-symbols-outlined">error</span>
-          <span>{{ store.error }}</span>
-        </div>
-      </div>
-
       <form id="form-animal" @submit.prevent="guardar" class="modal-body">
         
         <div class="form-grid">

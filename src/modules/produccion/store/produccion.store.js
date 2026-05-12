@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useNotificationStore } from '@/store/notification.store.js'
 import { produccionService } from '../services/produccion.service.js'
 
 export const useProduccionStore = defineStore('produccion', () => {
@@ -9,10 +10,12 @@ export const useProduccionStore = defineStore('produccion', () => {
   const ingresos    = ref([])
   const gastos      = ref([])
   const ventas      = ref([])
+  const producciones = ref([])
   const resumen     = ref(null)
   const cargando    = ref(false)
   const error       = ref(null)
   const mensaje     = ref(null)
+  const notification = useNotificationStore()
 
   // ── Estado Dashboard ──────────────────────────────────
   const dashPrincipal    = ref(null)
@@ -69,10 +72,11 @@ export const useProduccionStore = defineStore('produccion', () => {
     mensaje.value = null
     try {
       const { data } = await fn(payload)
-      mensaje.value = data.mensaje || 'Guardado correctamente'
+      notification.notify(data.mensaje || 'Registro guardado correctamente', 'success')
       return true
     } catch (e) {
-      error.value = e.response?.data?.error || 'Error al guardar'
+      const msg = e.response?.data?.error || 'Error al guardar registro'
+      notification.notify(msg, 'error')
       return false
     } finally {
       cargando.value = false
@@ -80,7 +84,6 @@ export const useProduccionStore = defineStore('produccion', () => {
   }
 
   const crearNacimiento = (d) => crear(produccionService.crearNacimiento, d)
-  const crearIngreso    = (d) => crear(produccionService.crearIngreso,    d)
   const crearGasto      = (d) => crear(produccionService.crearGasto,      d)
   const crearVenta      = (d) => crear(produccionService.crearVenta,      d)
 

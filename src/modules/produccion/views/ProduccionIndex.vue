@@ -822,10 +822,12 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useNotificationStore } from '@/store/notification.store.js'
 import { useProduccionStore } from '../store/produccion.store.js'
 import { produccionService } from '../services/produccion.service.js'
 
 const store = useProduccionStore()
+const notification = useNotificationStore()
 
 onMounted(() => {
   Promise.all([
@@ -1111,15 +1113,30 @@ const formGasto = reactive({ categoria:'', fecha:'', concepto:'', monto:'' })
 
 async function guardarVenta() {
   const ok = await store.crearVenta({ ...formVenta })
-  if (ok) { modalVenta.value = false; Object.assign(formVenta, {id_cliente:'',fecha:'',concepto:'',ncf:''}) }
+  if (ok) { 
+    modalVenta.value = false; 
+    Object.assign(formVenta, {id_cliente:'',fecha:'',concepto:'',ncf:''})
+    store.cargarVentas()
+    store.cargarDashIngresos()
+  }
 }
 async function guardarNacimiento() {
   const ok = await store.crearNacimiento({ ...formNac })
-  if (ok) { modalNacimiento.value = false; Object.assign(formNac, {Id_bovino:'',fecha:'',sexo:'',observaciones:''}) }
+  if (ok) { 
+    modalNacimiento.value = false; 
+    Object.assign(formNac, {Id_bovino:'',fecha:'',sexo:'',observaciones:''})
+    store.cargarNacimientos()
+    store.cargarDashNacimientos()
+  }
 }
 async function guardarGasto() {
   const ok = await store.crearGasto({ ...formGasto })
-  if (ok) { modalGasto.value = false; Object.assign(formGasto, {categoria:'',fecha:'',concepto:'',monto:''}) }
+  if (ok) { 
+    modalGasto.value = false; 
+    Object.assign(formGasto, {categoria:'',fecha:'',concepto:'',monto:''})
+    store.cargarGastos()
+    store.cargarDashGastos()
+  }
 }
 
 async function generarReportePDF() {
@@ -1132,7 +1149,7 @@ async function generarReportePDF() {
     document.body.appendChild(a); a.click()
     a.remove(); window.URL.revokeObjectURL(url)
   } catch {
-    alert('No se pudo generar el reporte PDF')
+    notification.notify('No se pudo generar el reporte PDF', 'error')
   }
 }
 </script>

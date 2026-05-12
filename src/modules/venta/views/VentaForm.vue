@@ -276,6 +276,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useVentaStore } from '@/modules/venta/store/venta.store.js'
+import { useNotificationStore } from '@/store/notification.store.js'
 import FacturaImprimible from '@/modules/venta/components/FacturaImprimible.vue'
 import clienteService from '@/modules/cliente/services/cliente.service.js'
 import productoService from '@/modules/producto/services/producto.service.js'
@@ -285,6 +286,7 @@ import { metodoPagoService } from '@/modules/venta/services/metodoPago.service.j
 const router = useRouter()
 const route = useRoute()
 const store = useVentaStore()
+const notification = useNotificationStore()
 
 const facturaImprimibleRef = ref(null)
 const facturaGuardada = ref(false)
@@ -471,36 +473,34 @@ function formatearNumero(numero) {
 }
 
 function limpiarFormulario() {
-  if (confirm('¿Está seguro de limpiar todos los datos?')) {
-    factura.numero_factura = 'FAC-001'
-    factura.fecha = new Date().toISOString().split('T')[0]
-    factura.ncf = ''
-    factura.concepto = 'Leche'
-    factura.id_metodo = 1
-    factura.id_cliente = ''
-    factura.cliente_nombre = ''
-    factura.cliente_provincia = ''
-    factura.cliente_telefono = ''
-    productos.value = []
-    productoSeleccionado.value = ''
-    cantidadProducto.value = 1
-    facturaGuardada.value = false
-  }
+  factura.numero_factura = 'FAC-001'
+  factura.fecha = new Date().toISOString().split('T')[0]
+  factura.ncf = ''
+  factura.concepto = 'Leche'
+  factura.id_metodo = 1
+  factura.id_cliente = ''
+  factura.cliente_nombre = ''
+  factura.cliente_provincia = ''
+  factura.cliente_telefono = ''
+  productos.value = []
+  productoSeleccionado.value = ''
+  cantidadProducto.value = 1
+  facturaGuardada.value = false
 }
 
 async function guardarFactura() {
   if (!factura.id_cliente) {
-    alert('Debe seleccionar un cliente')
+    notification.notify('Debe seleccionar un cliente', 'error')
     return
   }
   
   if (productos.value.length === 0) {
-    alert('Debe agregar al menos un producto')
+    notification.notify('Debe agregar al menos un producto', 'error')
     return
   }
 
   if (!factura.ncf) {
-    alert('Debe seleccionar un NCF')
+    notification.notify('Debe seleccionar un NCF', 'error')
     return
   }
 
@@ -523,18 +523,18 @@ async function guardarFactura() {
   
   if (resultado.success) {
     facturaGuardada.value = true
-    alert(esEdicion.value ? 'Factura actualizada correctamente' : 'Factura guardada correctamente')
+    // El store ya lanza la notificación de éxito
     if (!esEdicion.value) {
        router.push({ name: 'Venta' })
     }
   } else {
-    alert('Error: ' + resultado.error)
+    // El store ya lanza la notificación de error
   }
 }
 
 function imprimirFactura() {
   if (!facturaGuardada.value) {
-    alert('Primero debe guardar la factura')
+    notification.notify('Primero debe guardar la factura', 'error')
     return
   }
 

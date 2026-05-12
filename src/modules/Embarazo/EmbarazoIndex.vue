@@ -175,11 +175,13 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useNotificationStore } from '@/store/notification.store.js'
 import { useEmbarazoStore } from '@/modules/Embarazo/store/Embarazo.store.js'
 import inseminacionService from '@/modules/inseminacion/services/inseminacion.service.js'
 import veterinarioService from '@/modules/veterinario/services/veterinario.service.js'
 
 const store = useEmbarazoStore()
+const notification = useNotificationStore()
 const filaSeleccionada = ref(null)
 const modalAbierto = ref(false)
 const modalEliminar = ref(false)
@@ -250,12 +252,12 @@ async function guardar() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     
     if (diffDays > 285) { // 9.5 meses aprox para dar margen, pero el usuario dijo 9 meses
-      alert('La fecha prevista de parto no puede superar los 9 meses desde la inseminación.')
+      notification.notify('La fecha prevista de parto no puede superar los 9 meses desde la inseminación.', 'error')
       guardando.value = false
       return
     }
     if (fPar < fIns) {
-      alert('La fecha de parto no puede ser anterior a la inseminación.')
+      notification.notify('La fecha de parto no puede ser anterior a la inseminación.', 'error')
       guardando.value = false
       return
     }

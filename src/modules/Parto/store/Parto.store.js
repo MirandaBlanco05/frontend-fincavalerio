@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useNotificationStore } from '@/store/notification.store.js'
 import partoService from '../services/Parto.service.js'
 
 export const usePartoStore = defineStore('parto', {
@@ -21,14 +22,18 @@ export const usePartoStore = defineStore('parto', {
     },
 
     async crearParto(datos) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         const res = await partoService.crear(datos)
-        if (res) await this.cargarPartos()
+        if (res) {
+          notification.notify('Parto registrado correctamente', 'success')
+          await this.cargarPartos()
+        }
         return true
       } catch(err) {
-        this.error = 'No se pudo crear el parto'
+        notification.notify('No se pudo crear el parto', 'error')
         return false
       } finally {
         this.cargando = false
@@ -36,14 +41,18 @@ export const usePartoStore = defineStore('parto', {
     },
 
     async actualizarParto(id, datos) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         const res = await partoService.actualizar(id, datos)
-        if (res) await this.cargarPartos()
+        if (res) {
+          notification.notify('Parto actualizado correctamente', 'success')
+          await this.cargarPartos()
+        }
         return true
       } catch(err) {
-        this.error = 'No se pudo actualizar el parto'
+        notification.notify('No se pudo actualizar el parto', 'error')
         return false
       } finally {
         this.cargando = false
@@ -51,14 +60,18 @@ export const usePartoStore = defineStore('parto', {
     },
 
     async eliminarParto(id) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         const res = await partoService.eliminar(id)
-        if (res) await this.cargarPartos()
+        if (res) {
+          notification.notify('Parto eliminado', 'success')
+          await this.cargarPartos()
+        }
         return true
       } catch(err) {
-        this.error = 'No se pudo eliminar el parto'
+        notification.notify('No se pudo eliminar el parto', 'error')
         return false
       } finally {
         this.cargando = false

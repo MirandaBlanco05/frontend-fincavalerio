@@ -50,14 +50,14 @@ export const useBovinoStore = defineStore('bovino', () => {
     error.value = null
     mensaje.value = null
     try {
-      const { data } = await bovinoService.crear(datos)
-      bovinos.value.push(data.bovino)
-      notification.notify(data.mensaje || 'Animal creado correctamente', 'success')
-      return true
+      const response = await bovinoService.crear(datos)
+      notification.notify('Animal registrado correctamente', 'success')
+      await cargarBovinos()
+      return { success: true, data: response.data }
     } catch (e) {
       const msg = e.response?.data?.error || 'Error al crear bovino'
       notification.notify(msg, 'error')
-      return false
+      return { success: false }
     } finally {
       cargando.value = false
     }
@@ -87,14 +87,14 @@ export const useBovinoStore = defineStore('bovino', () => {
     error.value = null
     mensaje.value = null
     try {
-      const { data } = await bovinoService.eliminar(id)
-      bovinos.value = bovinos.value.filter(b => b.id_bovino !== id)
-      notification.notify(data.message || 'Animal eliminado correctamente', 'success')
-      return true
+      await bovinoService.eliminar(id)
+      notification.notify('Animal eliminado', 'success')
+      await cargarBovinos()
+      return { success: true }
     } catch (e) {
       const msg = e.response?.data?.error || 'Error al eliminar bovino'
       notification.notify(msg, 'error')
-      return false
+      return { success: false }
     } finally {
       cargando.value = false
     }

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useNotificationStore } from '@/store/notification.store.js'
 import { compraService } from '@/modules/compra/services/compra.service.js'
 import { proveedorService } from '@/modules/compra/services/proveedor.service.js'
 import { secuenciaService } from '@/modules/compra/services/secuencia.service.js'
@@ -11,6 +12,7 @@ export const useComprasStore = defineStore('compras', () => {
   const secuenciasNCF = ref([])
   const cargando = ref(false)
   const error = ref('')
+  const notification = useNotificationStore()
 
   async function cargarCompras() {
     cargando.value = true
@@ -52,11 +54,12 @@ export const useComprasStore = defineStore('compras', () => {
     error.value = ''
     try {
       await compraService.crear(datos)
+      notification.notify('Compra registrada correctamente', 'success')
       await cargarCompras()
       return true
     } catch (e) {
-      error.value = e.response?.data?.error || 'Error al crear compra'
-      console.error('Error creando compra:', e)
+      const msg = e.response?.data?.error || 'Error al crear compra'
+      notification.notify(msg, 'error')
       return false
     } finally {
       cargando.value = false
@@ -68,11 +71,12 @@ export const useComprasStore = defineStore('compras', () => {
     error.value = ''
     try {
       await compraService.actualizar(id, datos)
+      notification.notify('Compra actualizada correctamente', 'success')
       await cargarCompras()
       return true
     } catch (e) {
-      error.value = e.response?.data?.error || 'Error al actualizar compra'
-      console.error('Error actualizando compra:', e)
+      const msg = e.response?.data?.error || 'Error al actualizar compra'
+      notification.notify(msg, 'error')
       return false
     } finally {
       cargando.value = false
@@ -107,11 +111,12 @@ export const useComprasStore = defineStore('compras', () => {
     error.value = ''
     try {
       await compraService.eliminar(id)
+      notification.notify('Compra eliminada', 'success')
       await cargarCompras()
       return true
     } catch (e) {
-      error.value = e.response?.data?.error || 'Error al eliminar compra'
-      console.error('Error eliminando compra:', e)
+      const msg = e.response?.data?.error || 'Error al eliminar compra'
+      notification.notify(msg, 'error')
       return false
     } finally {
       cargando.value = false

@@ -1,6 +1,7 @@
 // src/modules/visita/store/visita.store.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useNotificationStore } from '@/store/notification.store.js'
 import { visitaService } from '../services/visita.service.js'
 
 export const useVisitaStore = defineStore('visita', () => {
@@ -13,6 +14,7 @@ export const useVisitaStore = defineStore('visita', () => {
   const cargando       = ref(false)
   const error          = ref(null)
   const mensaje        = ref(null)
+  const notification   = useNotificationStore()
 
   // ── Cargar visitas ────────────────────────────────────
   async function cargarVisitas() {
@@ -51,11 +53,12 @@ export const useVisitaStore = defineStore('visita', () => {
     mensaje.value = null
     try {
       const { data } = await visitaService.crear(datos)
-      mensaje.value = data.mensaje
+      notification.notify(data.mensaje || 'Cita registrada correctamente', 'success')
       await cargarVisitas()
       return true
     } catch (e) {
-      error.value = e.response?.data?.error || 'Error al crear la visita'
+      const msg = e.response?.data?.error || 'Error al crear la visita'
+      notification.notify(msg, 'error')
       return false
     } finally {
       cargando.value = false
@@ -70,10 +73,11 @@ export const useVisitaStore = defineStore('visita', () => {
     try {
       const { data } = await visitaService.eliminar(id)
       visitas.value = visitas.value.filter(v => v.Id_visita !== id)
-      mensaje.value = data.mensaje
+      notification.notify(data.mensaje || 'Cita eliminada', 'success')
       return true
     } catch (e) {
-      error.value = e.response?.data?.error || 'Error al eliminar la visita'
+      const msg = e.response?.data?.error || 'Error al eliminar la visita'
+      notification.notify(msg, 'error')
       return false
     } finally {
       cargando.value = false

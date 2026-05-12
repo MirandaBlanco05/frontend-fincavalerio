@@ -7,12 +7,6 @@
       <p class="text-sm text-[#757575]">Gestiona las citas y chequeos.</p>
     </div>
 
-    <!-- Alertas -->
-    <div v-if="store.error"
-      class="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      <span class="material-symbols-outlined text-base">warning</span>
-      {{ store.error }}
-    </div>
 
     <!-- Grid: Calendario | Citas -->
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -273,17 +267,6 @@
       </div>
     </Teleport>
 
-    <!-- Toast -->
-    <Teleport to="body">
-      <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 translate-y-4" enter-to-class="opacity-100 translate-y-0"
-                  leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-4">
-        <div v-if="mostrarToast"
-          class="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl bg-[#4c9a4c] px-5 py-3 text-white shadow-lg">
-          <span class="material-symbols-outlined">check_circle</span>
-          <p class="font-semibold">Cita guardada correctamente</p>
-        </div>
-      </Transition>
-    </Teleport>
 
   </div>
 </template>
@@ -383,17 +366,11 @@ async function guardarCita() {
     observaciones:  form.observaciones,
     motivos:        form.motivos.length > 0 ? form.motivos : undefined
   })
-  if (ok) { cerrarModal(); activarToast() }
+  if (ok) { cerrarModal() }
 }
 
 // ── Detalle ────────────────────────────────────────────
 const citaDetalle = ref(null)
 function abrirDetalle(cita) { citaDetalle.value = cita }
 
-// ── Toast ──────────────────────────────────────────────
-const mostrarToast = ref(false)
-function activarToast() {
-  mostrarToast.value = true
-  setTimeout(() => { mostrarToast.value = false }, 3000)
-}
 </script>

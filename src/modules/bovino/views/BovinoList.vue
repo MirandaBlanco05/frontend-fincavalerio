@@ -154,6 +154,42 @@
         </div>
       </div>
     </Teleport>
+157: 
+158:     <!-- Modal Eliminar -->
+159:     <Teleport to="body">
+160:       <div v-if="modalEliminar" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="modalEliminar = false">
+161:         <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
+162:           <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
+163:             <div class="h-1 w-9 rounded-full bg-gray-300"></div>
+164:           </div>
+165: 
+166:           <div class="flex items-center justify-between p-4 border-b border-gray-200">
+167:             <div class="flex items-center gap-3">
+168:               <span class="material-symbols-outlined text-3xl text-red-600">warning</span>
+169:               <h3 class="text-lg font-bold text-text-primary">Eliminar Animal</h3>
+170:             </div>
+171:             <button @click="modalEliminar = false" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
+172:               <span class="material-symbols-outlined text-base">close</span>
+173:             </button>
+174:           </div>
+175: 
+176:           <div class="flex flex-col gap-3 p-6 text-center">
+177:             <p>¿Está seguro que desea eliminar a <strong>{{ filaSeleccionada?.nombre || 'este animal' }}</strong>?</p>
+178:             <p class="text-sm text-gray-500">Esta acción no se puede deshacer y eliminará todos los registros asociados.</p>
+179:           </div>
+180: 
+181:           <div class="flex gap-3 p-4 border-t border-gray-200">
+182:             <button @click="modalEliminar = false" class="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200">
+183:               Cancelar
+184:             </button>
+185:             <button @click="eliminarAnimal" class="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-red-700">
+186:               <span class="material-symbols-outlined text-base">delete</span>
+187:               Eliminar
+188:             </button>
+189:           </div>
+190:         </div>
+191:       </div>
+192:     </Teleport>
 
   </div>
 </template>
@@ -162,14 +198,17 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBovinoStore } from '../store/bovino.store.js'
+import { useNotificationStore } from '@/store/notification.store.js'
 import grupoService from '@/modules/grupo/services/grupo.service.js'
 import razaService from '@/modules/raza/services/raza.service.js'
 
 const router = useRouter()
 const store = useBovinoStore()
+const notification = useNotificationStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltros = ref(false)
+const modalEliminar = ref(false)
 const filtros = ref({ grupo: '', edad: '', sexo: '', estado: '' })
 const filtrosAplicados = ref({ grupo: '', edad: '', sexo: '', estado: '' })
 
@@ -212,11 +251,16 @@ function irAEditar() {
   router.push({ name: 'BovinoEditar', params: { id: filaSeleccionada.value.id_bovino } })
 }
 
-async function confirmarEliminar() {
+function confirmarEliminar() {
   if (!filaSeleccionada.value) return
-  const nombre = filaSeleccionada.value.nombre || 'Sin nombre'
-  if (confirm(`¿Eliminar a "${nombre}"? Esta acción no se puede deshacer.`)) {
-    await store.eliminarBovino(filaSeleccionada.value.id_bovino)
+  modalEliminar.value = true
+}
+
+async function eliminarAnimal() {
+  if (!filaSeleccionada.value) return
+  const exito = await store.eliminarBovino(filaSeleccionada.value.id_bovino)
+  if (exito) {
+    modalEliminar.value = false
     filaSeleccionada.value = null
   }
 }

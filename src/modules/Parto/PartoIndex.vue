@@ -19,10 +19,6 @@
       </button>
     </div>
 
-    <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      <span class="material-symbols-outlined text-base">warning</span>
-      {{ store.error }}
-    </div>
 
     <!-- Tabla -->
     <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
@@ -226,9 +222,11 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { usePartoStore } from '@/modules/Parto/store/Parto.store.js'
+import { useNotificationStore } from '@/store/notification.store.js'
 import embarazoService from '@/modules/Embarazo/services/Embarazo.Service.js'
 
 const store = usePartoStore()
+const notification = useNotificationStore()
 const filaSeleccionada = ref(null)
 const modalAbierto = ref(false)
 const modalEliminar = ref(false)
