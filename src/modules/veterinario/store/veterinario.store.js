@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useNotificationStore } from '@/store/notification.store.js'
 import veterinarioService from '../services/veterinario.service.js'
 
 export const useVeterinarioStore = defineStore('veterinario', {
@@ -25,15 +26,17 @@ export const useVeterinarioStore = defineStore('veterinario', {
     },
 
     async crearVeterinario(datos) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await veterinarioService.crear(datos)
         await this.cargarVeterinarios()
+        notification.notify('Veterinario registrado correctamente', 'success')
         return true
       } catch (error) {
-        this.error = error.message
-        console.error('Error al crear veterinario:', error)
+        const msg = error.message || 'Error al crear veterinario'
+        notification.notify(msg, 'error')
         return false
       } finally {
         this.cargando = false
@@ -41,15 +44,17 @@ export const useVeterinarioStore = defineStore('veterinario', {
     },
 
     async actualizarVeterinario(id, datos) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await veterinarioService.actualizar(id, datos)
         await this.cargarVeterinarios()
+        notification.notify('Veterinario actualizado correctamente', 'success')
         return true
       } catch (error) {
-        this.error = error.message
-        console.error('Error al actualizar veterinario:', error)
+        const msg = error.message || 'Error al actualizar veterinario'
+        notification.notify(msg, 'error')
         return false
       } finally {
         this.cargando = false
@@ -57,14 +62,16 @@ export const useVeterinarioStore = defineStore('veterinario', {
     },
 
     async eliminarVeterinario(id) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await veterinarioService.eliminar(id)
         await this.cargarVeterinarios()
+        notification.notify('Veterinario eliminado correctamente', 'success')
       } catch (error) {
-        this.error = error.message
-        console.error('Error al eliminar veterinario:', error)
+        const msg = error.message || 'Error al eliminar veterinario'
+        notification.notify(msg, 'error')
         throw error
       } finally {
         this.cargando = false

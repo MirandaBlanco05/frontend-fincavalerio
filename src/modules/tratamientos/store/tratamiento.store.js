@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useNotificationStore } from '@/store/notification.store.js'
 import tratamientoService from '../services/tratamiento.service.js'
 
 export const useTratamientoStore = defineStore('tratamiento', {
@@ -25,15 +26,17 @@ export const useTratamientoStore = defineStore('tratamiento', {
     },
 
     async crearTratamiento(datos) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await tratamientoService.crear(datos)
         await this.cargarTratamientos()
+        notification.notify('Tratamiento registrado correctamente', 'success')
         return true
       } catch (error) {
-        this.error = error.message
-        console.error('Error al crear tratamiento:', error)
+        const msg = error.message || 'Error al crear tratamiento'
+        notification.notify(msg, 'error')
         return false
       } finally {
         this.cargando = false
@@ -41,15 +44,17 @@ export const useTratamientoStore = defineStore('tratamiento', {
     },
 
     async actualizarTratamiento(id, datos) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await tratamientoService.actualizar(id, datos)
         await this.cargarTratamientos()
+        notification.notify('Tratamiento actualizado correctamente', 'success')
         return true
       } catch (error) {
-        this.error = error.message
-        console.error('Error al actualizar tratamiento:', error)
+        const msg = error.message || 'Error al actualizar tratamiento'
+        notification.notify(msg, 'error')
         return false
       } finally {
         this.cargando = false
@@ -57,14 +62,16 @@ export const useTratamientoStore = defineStore('tratamiento', {
     },
 
     async eliminarTratamiento(id) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await tratamientoService.eliminar(id)
         await this.cargarTratamientos()
+        notification.notify('Tratamiento eliminado correctamente', 'success')
       } catch (error) {
-        this.error = error.message
-        console.error('Error al eliminar tratamiento:', error)
+        const msg = error.message || 'Error al eliminar tratamiento'
+        notification.notify(msg, 'error')
         throw error
       } finally {
         this.cargando = false

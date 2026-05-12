@@ -19,14 +19,6 @@
       </button>
     </div>
 
-    <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      <span class="material-symbols-outlined text-base">warning</span>
-      {{ store.error }}
-    </div>
-
-    <div v-if="store.mensaje" class="mb-4 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-      <span class="material-symbols-outlined text-base">check_circle</span>
-      {{ store.mensaje }}
     </div>
 
     <!-- Tabla -->

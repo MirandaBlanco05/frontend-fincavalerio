@@ -1,5 +1,5 @@
-// modules/inseminacion/store/inseminacion.store.js
 import { defineStore } from 'pinia'
+import { useNotificationStore } from '@/store/notification.store.js'
 import inseminacionService from '../services/inseminacion.service.js'
 
 export const useInseminacionStore = defineStore('inseminacion', {
@@ -22,31 +22,46 @@ export const useInseminacionStore = defineStore('inseminacion', {
     },
 
     async crearInseminacion(datos) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       const exito = await inseminacionService.crear(datos)
-      if (exito) await this.cargarInseminaciones()
-      else this.error = 'No se pudo crear la inseminación'
+      if (exito) {
+        await this.cargarInseminaciones()
+        notification.notify('Inseminación registrada', 'success')
+      } else {
+        notification.notify('No se pudo registrar la inseminación', 'error')
+      }
       this.cargando = false
       return exito
     },
 
     async actualizarInseminacion(id, datos) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       const exito = await inseminacionService.actualizar(id, datos)
-      if (exito) await this.cargarInseminaciones()
-      else this.error = 'No se pudo actualizar la inseminación'
+      if (exito) {
+        await this.cargarInseminaciones()
+        notification.notify('Inseminación actualizada', 'success')
+      } else {
+        notification.notify('No se pudo actualizar la inseminación', 'error')
+      }
       this.cargando = false
       return exito
     },
 
     async eliminarInseminacion(id) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       const exito = await inseminacionService.eliminar(id)
-      if (exito) await this.cargarInseminaciones()
-      else this.error = 'No se pudo eliminar la inseminación'
+      if (exito) {
+        await this.cargarInseminaciones()
+        notification.notify('Inseminación eliminada', 'success')
+      } else {
+        notification.notify('No se pudo eliminar la inseminación', 'error')
+      }
       this.cargando = false
       return exito
     }

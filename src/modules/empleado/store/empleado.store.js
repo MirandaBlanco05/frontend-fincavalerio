@@ -1,6 +1,7 @@
 // src/modules/empleado/store/empleado.store.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useNotificationStore } from '@/store/notification.store.js'
 import { empleadoService } from '@/modules/empleado/services/empleado.service.js'
 
 export const useEmpleadoStore = defineStore('empleado', () => {
@@ -8,6 +9,7 @@ export const useEmpleadoStore = defineStore('empleado', () => {
   const empleadoActual = ref(null)
   const cargando = ref(false)
   const error = ref('')
+  const notification = useNotificationStore()
 
   async function cargarEmpleados() {
     cargando.value = true
@@ -43,10 +45,11 @@ export const useEmpleadoStore = defineStore('empleado', () => {
     try {
       await empleadoService.crear(datos)
       await cargarEmpleados()
+      notification.notify('Empleado creado correctamente', 'success')
       return true
     } catch (e) {
-      error.value = e.response?.data?.error || 'Error al crear empleado'
-      console.error('Error creando empleado:', e)
+      const msg = e.response?.data?.error || 'Error al crear empleado'
+      notification.notify(msg, 'error')
       return false
     } finally {
       cargando.value = false
@@ -59,10 +62,11 @@ export const useEmpleadoStore = defineStore('empleado', () => {
     try {
       await empleadoService.actualizar(id, datos)
       await cargarEmpleados()
+      notification.notify('Empleado actualizado correctamente', 'success')
       return true
     } catch (e) {
-      error.value = e.response?.data?.error || 'Error al actualizar empleado'
-      console.error('Error actualizando empleado:', e)
+      const msg = e.response?.data?.error || 'Error al actualizar empleado'
+      notification.notify(msg, 'error')
       return false
     } finally {
       cargando.value = false
@@ -75,10 +79,11 @@ export const useEmpleadoStore = defineStore('empleado', () => {
     try {
       await empleadoService.eliminar(id)
       await cargarEmpleados()
+      notification.notify('Empleado eliminado correctamente', 'success')
       return true
     } catch (e) {
-      error.value = e.response?.data?.error || 'Error al eliminar empleado'
-      console.error('Error eliminando empleado:', e)
+      const msg = e.response?.data?.error || 'Error al eliminar empleado'
+      notification.notify(msg, 'error')
       return false
     } finally {
       cargando.value = false
