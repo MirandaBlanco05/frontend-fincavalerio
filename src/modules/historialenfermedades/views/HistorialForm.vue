@@ -113,7 +113,12 @@ onMounted(async () => {
     const hist = store.historiales.find(h => h.id_historial == route.params.id)
     if (hist) {
       form.id_bovino = hist.id_bovino
-      form.id_enfermedad = hist.id_enfermedad
+      // Extraemos el ID de la primera enfermedad del arreglo
+      if (hist.enfermedades && hist.enfermedades.length > 0) {
+        form.id_enfermedad = hist.enfermedades[0].id_enfermedad
+      } else {
+        form.id_enfermedad = ''
+      }
       form.fecha = hist.fecha ? hist.fecha.split('T')[0] : new Date().toISOString().split('T')[0]
     }
   }
