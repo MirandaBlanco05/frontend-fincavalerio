@@ -44,11 +44,6 @@
       </div>
     </div>
 
-    <!-- Alertas -->
-    <div v-if="store.error" class="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      <span class="material-symbols-outlined text-base">warning</span>
-      {{ store.error }}
-    </div>
 
     <!-- Tabla -->
     <div class="w-full overflow-x-auto rounded-lg border border-border-color bg-white shadow-sm">
@@ -100,6 +95,42 @@
         </tbody>
       </table>
     </div>
+    <!-- Modal Eliminar -->
+    <Teleport to="body">
+      <div v-if="modalEliminar" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="modalEliminar = false">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
+          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
+            <div class="h-1 w-9 rounded-full bg-gray-200"></div>
+          </div>
+
+          <div class="flex items-center justify-between p-4 border-b border-gray-200">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-3xl text-red-600">warning</span>
+              <h3 class="text-lg font-bold text-text-primary">Eliminar Embarazo</h3>
+            </div>
+            <button @click="modalEliminar = false" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
+              <span class="material-symbols-outlined text-base">close</span>
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-3 p-6 text-center">
+            <p>¿Está seguro que desea eliminar el embarazo <strong>#{{ filaSeleccionada?.id_embarazo || filaSeleccionada?.Id_embarazo }}</strong>?</p>
+            <p class="text-sm text-gray-500">Esta acción no se puede deshacer.</p>
+          </div>
+
+          <div class="flex gap-3 p-4 border-t border-gray-200">
+            <button @click="modalEliminar = false" class="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200">
+              Cancelar
+            </button>
+            <button @click="eliminarEmbarazo" class="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-red-700">
+              <span class="material-symbols-outlined text-base">delete</span>
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
@@ -113,6 +144,7 @@ const store = useEmbarazoStore()
 
 const search = ref("")
 const filaSeleccionada = ref(null)
+const modalEliminar = ref(false)
 
 const embarazosFiltrados = computed(() => {
   if (!search.value) return store.embarazos
@@ -146,17 +178,19 @@ function irAEditar() {
   router.push({ name: 'EmbarazoNuevo' }) 
 }
 
-async function confirmarEliminar() {
+function confirmarEliminar() {
+  if (!filaSeleccionada.value) return
+  modalEliminar.value = true
+}
+
+async function eliminarEmbarazo() {
   if (!filaSeleccionada.value) return
   const id = filaSeleccionada.value.id_embarazo || filaSeleccionada.value.Id_embarazo;
-  if (confirm(`¿Eliminar el embarazo ${id}? Esta acción no se puede deshacer.`)) {
-    if (store.eliminarEmbarazo) {
-      await store.eliminarEmbarazo(id)
-    } else {
-      console.warn('eliminarEmbarazo no implementado en store')
-    }
-    filaSeleccionada.value = null
+  if (store.eliminarEmbarazo) {
+    await store.eliminarEmbarazo(id)
   }
+  modalEliminar.value = false
+  filaSeleccionada.value = null
 }
 
 onMounted(() => {

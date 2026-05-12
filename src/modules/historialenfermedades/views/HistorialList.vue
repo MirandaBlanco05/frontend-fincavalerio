@@ -146,6 +146,42 @@
       </div>
     </Teleport>
 
+    <!-- Modal Eliminar -->
+    <Teleport to="body">
+      <div v-if="modalEliminar" class="fixed inset-0 z-50 flex items-end bg-black/40 sm:items-center sm:justify-center" @click.self="modalEliminar = false">
+        <div class="flex w-full flex-col rounded-t-xl bg-white sm:max-w-md sm:rounded-xl">
+          <div class="flex h-5 w-full items-center justify-center pt-5 sm:hidden">
+            <div class="h-1 w-9 rounded-full bg-gray-200"></div>
+          </div>
+
+          <div class="flex items-center justify-between p-4 border-b border-gray-200">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-3xl text-red-600">warning</span>
+              <h3 class="text-lg font-bold text-text-primary">Eliminar Registro</h3>
+            </div>
+            <button @click="modalEliminar = false" class="flex size-8 items-center justify-center rounded-full hover:bg-gray-100">
+              <span class="material-symbols-outlined text-base">close</span>
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-3 p-6 text-center">
+            <p>¿Está seguro que desea eliminar este registro médico del historial?</p>
+            <p class="text-sm text-gray-500">Esta acción no se puede deshacer.</p>
+          </div>
+
+          <div class="flex gap-3 p-4 border-t border-gray-200">
+            <button @click="modalEliminar = false" class="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200">
+              Cancelar
+            </button>
+            <button @click="eliminarRegistro" class="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-red-700">
+              <span class="material-symbols-outlined text-base">delete</span>
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
@@ -161,6 +197,7 @@ const store = useHistorialStore()
 
 const filaSeleccionada = ref(null)
 const modalFiltro = ref(false)
+const modalEliminar = ref(false)
 
 const filtros = ref({
   bovinoId: '',
@@ -224,12 +261,16 @@ function irAEditar() {
   router.push({ name: 'HistorialEditar', params: { id: filaSeleccionada.value.id_historial } })
 }
 
-async function confirmarEliminar() {
+function confirmarEliminar() {
   if (!filaSeleccionada.value) return
-  if (confirm('¿Eliminar este registro del historial?')) {
-    await store.eliminarHistorial(filaSeleccionada.value.id_historial)
-    filaSeleccionada.value = null
-  }
+  modalEliminar.value = true
+}
+
+async function eliminarRegistro() {
+  if (!filaSeleccionada.value) return
+  await store.eliminarHistorial(filaSeleccionada.value.id_historial)
+  modalEliminar.value = false
+  filaSeleccionada.value = null
 }
 
 function aplicarFiltro() {
