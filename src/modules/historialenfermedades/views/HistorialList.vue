@@ -50,19 +50,18 @@
             <th class="px-6 py-4">ID</th>
             <th class="px-6 py-4">Animal</th>
             <th class="px-6 py-4">Enfermedad</th>
-            <th class="px-6 py-4">Causa</th>
             <th class="px-6 py-4">Fecha</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="store.cargando">
-            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="4" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
               <p class="mt-2">Cargando historial...</p>
             </td>
           </tr>
           <tr v-else-if="historialFiltrado.length === 0">
-            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="4" class="px-6 py-12 text-center text-gray-400">
               <span class="material-symbols-outlined text-4xl">search_off</span>
               <p class="mt-2">No se encontraron registros con los filtros actuales.</p>
               <button @click="limpiarFiltro" class="mt-4 text-primary font-bold hover:underline">Limpiar filtros</button>
@@ -88,9 +87,7 @@
                 <span v-if="!h.enfermedades?.length">—</span>
               </div>
             </td>
-            <td class="px-6 py-3 text-gray-500 text-xs italic">
-              {{ h.enfermedades?.length ? h.enfermedades.map(e => e.causa || '').filter(c => c).join(', ') || 'Sin causa especificada' : '—' }}
-            </td>
+
             <td class="px-6 py-3 font-medium">{{ h.fecha ? formatearFecha(h.fecha) : '—' }}</td>
           </tr>
         </tbody>
