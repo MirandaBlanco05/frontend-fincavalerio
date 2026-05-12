@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { useNotificationStore } from '@/store/notification.store.js'
 import celoService from '../services/celo.service.js'
 
 export const useCeloStore = defineStore('celo', {
@@ -28,18 +27,18 @@ export const useCeloStore = defineStore('celo', {
     },
 
     async crearCiclo(datos) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       this.mensaje = null
       try {
         const response = await celoService.crear(datos)
         await this.cargarCiclos()
-        notification.notify('Ciclo de celo registrado', 'success')
+        this.mensaje = 'Ciclo creado correctamente'
+        setTimeout(() => { this.mensaje = null }, 3000)
         return { success: true, data: response.data }
       } catch (error) {
-        const msg = error.response?.data?.mensaje || 'Error al crear ciclo'
-        notification.notify(msg, 'error')
+        this.error = error.response?.data?.mensaje || 'Error al crear ciclo'
+        console.error('Error al crear ciclo:', error)
         return { success: false }
       } finally {
         this.cargando = false
@@ -47,18 +46,18 @@ export const useCeloStore = defineStore('celo', {
     },
 
     async actualizarCiclo(id, datos) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       this.mensaje = null
       try {
         const response = await celoService.actualizar(id, datos)
         await this.cargarCiclos()
-        notification.notify('Ciclo actualizado correctamente', 'success')
+        this.mensaje = 'Ciclo actualizado correctamente'
+        setTimeout(() => { this.mensaje = null }, 3000)
         return { success: true, data: response.data }
       } catch (error) {
-        const msg = error.response?.data?.mensaje || 'Error al actualizar ciclo'
-        notification.notify(msg, 'error')
+        this.error = error.response?.data?.mensaje || 'Error al actualizar ciclo'
+        console.error('Error al actualizar ciclo:', error)
         return { success: false }
       } finally {
         this.cargando = false
@@ -66,18 +65,18 @@ export const useCeloStore = defineStore('celo', {
     },
 
     async eliminarCiclo(id) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       this.mensaje = null
       try {
         await celoService.eliminar(id)
         await this.cargarCiclos()
-        notification.notify('Ciclo eliminado correctamente', 'success')
+        this.mensaje = 'Ciclo eliminado correctamente'
+        setTimeout(() => { this.mensaje = null }, 3000)
         return { success: true }
       } catch (error) {
-        const msg = error.response?.data?.mensaje || 'Error al eliminar ciclo'
-        notification.notify(msg, 'error')
+        this.error = error.response?.data?.mensaje || 'Error al eliminar ciclo'
+        console.error('Error al eliminar ciclo:', error)
         return { success: false }
       } finally {
         this.cargando = false

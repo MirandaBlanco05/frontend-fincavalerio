@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useNotificationStore } from '@/store/notification.store.js'
 import { produccionService } from '../services/produccion.service.js'
 
 export const useProduccionStore = defineStore('produccion', () => {
@@ -14,7 +13,6 @@ export const useProduccionStore = defineStore('produccion', () => {
   const cargando    = ref(false)
   const error       = ref(null)
   const mensaje     = ref(null)
-  const notification = useNotificationStore()
 
   // ── Estado Dashboard ──────────────────────────────────
   const dashPrincipal    = ref(null)
@@ -71,11 +69,10 @@ export const useProduccionStore = defineStore('produccion', () => {
     mensaje.value = null
     try {
       const { data } = await fn(payload)
-      notification.notify(data.mensaje || 'Guardado correctamente', 'success')
+      mensaje.value = data.mensaje || 'Guardado correctamente'
       return true
     } catch (e) {
-      const msg = e.response?.data?.error || 'Error al guardar'
-      notification.notify(msg, 'error')
+      error.value = e.response?.data?.error || 'Error al guardar'
       return false
     } finally {
       cargando.value = false

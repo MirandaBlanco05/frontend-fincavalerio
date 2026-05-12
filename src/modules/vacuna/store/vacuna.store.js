@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { useNotificationStore } from '@/store/notification.store.js'
 import vacunaService from '../services/vacuna.service.js'
 
 export const useVacunaStore = defineStore('vacuna', {
@@ -40,16 +39,15 @@ export const useVacunaStore = defineStore('vacuna', {
     },
 
     async crearVacuna(datos) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await vacunaService.crear(datos)
-        notification.notify('Vacunación registrada', 'success')
         await this.cargarVacunas()
         return true
       } catch (error) {
-        notification.notify(error.message || 'Error al crear registro', 'error')
+        this.error = error.message
+        console.error('Error al crear vacuna:', error)
         return false
       } finally {
         this.cargando = false
@@ -57,16 +55,15 @@ export const useVacunaStore = defineStore('vacuna', {
     },
 
     async actualizarVacuna(id, datos) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await vacunaService.actualizar(id, datos)
-        notification.notify('Vacunación actualizada', 'success')
         await this.cargarVacunas()
         return true
       } catch (error) {
-        notification.notify(error.message || 'Error al actualizar', 'error')
+        this.error = error.message
+        console.error('Error al actualizar vacuna:', error)
         return false
       } finally {
         this.cargando = false
@@ -74,15 +71,14 @@ export const useVacunaStore = defineStore('vacuna', {
     },
 
     async eliminarVacuna(id) {
-      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await vacunaService.eliminar(id)
-        notification.notify('Vacunación eliminada', 'success')
         await this.cargarVacunas()
       } catch (error) {
-        notification.notify(error.message || 'Error al eliminar', 'error')
+        this.error = error.message
+        console.error('Error al eliminar vacuna:', error)
         throw error
       } finally {
         this.cargando = false
