@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useNotificationStore } from '@/store/notification.store.js'
 import historialService from '../services/historial.service.js'
 
 export const useHistorialStore = defineStore('historial', {
@@ -39,15 +40,16 @@ export const useHistorialStore = defineStore('historial', {
     },
 
     async crearHistorial(datos) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await historialService.crear(datos)
+        notification.notify('Registro médico guardado', 'success')
         await this.cargarHistoriales()
         return true
       } catch (error) {
-        this.error = error.message
-        console.error('Error al crear historial:', error)
+        notification.notify(error.message || 'Error al guardar', 'error')
         return false
       } finally {
         this.cargando = false
@@ -55,15 +57,16 @@ export const useHistorialStore = defineStore('historial', {
     },
 
     async actualizarHistorial(id, datos) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await historialService.actualizar(id, datos)
+        notification.notify('Registro actualizado correctamente', 'success')
         await this.cargarHistoriales()
         return true
       } catch (error) {
-        this.error = error.message
-        console.error('Error al actualizar historial:', error)
+        notification.notify(error.message || 'Error al actualizar', 'error')
         return false
       } finally {
         this.cargando = false
@@ -71,14 +74,15 @@ export const useHistorialStore = defineStore('historial', {
     },
 
     async eliminarHistorial(id) {
+      const notification = useNotificationStore()
       this.cargando = true
       this.error = null
       try {
         await historialService.eliminar(id)
+        notification.notify('Registro eliminado', 'success')
         await this.cargarHistoriales()
       } catch (error) {
-        this.error = error.message
-        console.error('Error al eliminar historial:', error)
+        notification.notify(error.message || 'Error al eliminar', 'error')
         throw error
       } finally {
         this.cargando = false
