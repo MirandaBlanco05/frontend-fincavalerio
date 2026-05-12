@@ -80,7 +80,7 @@
             >
               <option value="">Seleccione producto...</option>
               <option v-for="prod in productosDisponibles" :key="prod.id_producto" :value="prod.id_producto">
-                {{ prod.descripcion }} - RD$ {{ formatearNumero(prod.precio) }}
+                {{ prod.descripcion }} - RD$ {{ formatearNumero(prod.precio_venta || 0) }}
               </option>
             </select>
           </div>
@@ -425,14 +425,16 @@ function agregarProducto() {
   if (!prod) return
   
   const cantidad = cantidadProducto.value || 1
-  const total = (prod.precio || 0) * cantidad
+  const precioUnitario = prod.precio_venta || 0
+  const total = precioUnitario * cantidad
   
   productos.value.push({
     id_producto: prod.id_producto,
-    tipo: prod.tipo,
+    tipo: prod.tipo_producto || 'Producto',
     descripcion: prod.descripcion,
     cantidad: cantidad,
-    precio: prod.precio || 0,
+    precio: precioUnitario,
+    precio_unitario: precioUnitario,
     total: total
   })
   
